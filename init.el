@@ -31,14 +31,14 @@
 
 (require 'el-get)
 
-(add-to-list 'load-path "color-theme" *emacs-config-directory*)
-
 (setq el-get-recipe-path
       (list (expand-file-name "recipes" *el-get-directory*)
             (expand-file-name "el-get/user/recipes" *emacs-config-directory*)))
 
 (setq el-get-user-package-directory
       (expand-file-name "el-get/user/init-files" *emacs-config-directory*))
+
+(add-to-list 'load-path (expand-file-name "color-theme" *emacs-config-directory*))
 
 (el-get 'sync)
 
@@ -49,5 +49,18 @@
 
 (setq init-loader-show-log-after-init nil)
 
+
 (init-loader-load
  (expand-file-name "inits/" *emacs-config-directory*))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages (quote (init-loader))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
