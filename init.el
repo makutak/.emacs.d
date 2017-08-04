@@ -49,7 +49,6 @@
 
 (setq init-loader-show-log-after-init nil)
 
-
 (init-loader-load
  (expand-file-name "inits/" *emacs-config-directory*))
 (custom-set-variables
