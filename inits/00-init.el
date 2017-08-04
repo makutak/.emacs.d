@@ -6,6 +6,9 @@
 (defun linuxp ()
   (eq window-system 'x))
 
+(defmacro appendf (list &rest lists)
+  `(setq ,list (append ,list ,@lists)))
+
 ;; Nihongo
 (set-language-environment "Japanese")
 (setq default-process-coding-system '(utf-8 . utf-8))
@@ -26,15 +29,6 @@
 
 (setq make-backup-files nil)
 (setq auto-save-default nil)
-
-;; 括弧の対応を表示する
-(show-paren-mode)
-
-;; 行数表示
-;;(global-linum-mode t)
-
-;; 列数表示
-(column-number-mode t)
 
 ;;ツールバーをなくす
 (tool-bar-mode -1)
