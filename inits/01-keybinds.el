@@ -11,6 +11,7 @@
 (defun define-keys (&optional mode)
   (loop for (key . fn) in `(("\C-h" . backward-delete-char)
                             ("\C-z" . undo)
+                            ("\C-u" . set-mark-command)
                             ("\M-," . beginning-of-buffer)
                             ("\M-." . end-of-buffer))
         if mode do (define-key mode key fn)
