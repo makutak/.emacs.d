@@ -47,6 +47,9 @@
 ;;タブを2スペースに
 (setq-default tab-width 2 indent-tabs-mode nil)
 
+
+(fset 'yes-or-no-p 'y-or-n-p)
+
 ;;（改行、）タブ、スペースに色を付ける
 (defface return-color '((t (:background "DarkGray"))) nil)
 (defface tab-color '((t (:background "Gray"))) nil)
