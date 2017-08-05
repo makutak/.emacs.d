@@ -1,4 +1,8 @@
 (require-or-install 'ruby-mode)
+(require-or-install 'ruby-block)
+(require-or-install 'ruby-electric)
+(require-or-install 'ruby-end)
+
 
 ;;magic comment は不要
 (custom-set-variables
