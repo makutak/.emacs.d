@@ -8,7 +8,6 @@
                             (js2-mode . "\\.js$")
                             (js2-jsx-mode . "\\.jsx$")
                             (coffee-mode . "\\.coffee$")
-                            (ruby-mode . "\\.rb$")
                             (org-mode . "\\.org$")
                             (css-mode . "\\.css$")
                             (less-css-mode . "\\.less$")
