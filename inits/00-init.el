@@ -50,26 +50,6 @@
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
-;;（改行、）タブ、スペースに色を付ける
-(defface return-color '((t (:background "DarkGray"))) nil)
-(defface tab-color '((t (:background "Gray"))) nil)
-(defface full-width-space-color '((t (:background "Green"))) nil)
-(defface half-width-space-color '((t (:background "Blue"))) nil)
-(defvar return-color 'return-color)
-(defvar tab-color 'tab-color)
-(defvar full-width-space-color 'full-width-space-color)
-(defvar half-width-space-color 'half-width-space-color)
-(defadvice font-lock-mode (before my-font-lock-mode ())
-  (font-lock-add-keywords
-   major-mode
-   '(("\t" 0 tab-color append)
-     ("　" 0 full-width-space-color append)
-     ("[ \t]+$" 0 half-width-space-color append)
-     ;;("[\r]*\n" 0 return append)
-     )))
-(ad-enable-advice 'font-lock-mode 'before 'my-font-lock-mode)
-(ad-activate 'font-lock-mode)
-
 ;; auto-install
 (require 'auto-install)
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/auto-install/"))
