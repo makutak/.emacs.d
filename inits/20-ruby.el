@@ -3,7 +3,6 @@
 (require-or-install 'ruby-electric)
 (require-or-install 'ruby-end)
 
-
 ;;magic comment は不要
 (custom-set-variables
  '(ruby-insert-encoding-magic-comment nil))
@@ -32,3 +31,8 @@
     (when indent
       (indent-line-to indent)
       (when (> offset 0) (forward-char offset)))))
+
+(add-hook 'ruby-mode-hook (lambda ()
+                            (add-to-list (make-local-variable 'paredit-space-for-delimiter-predicates)
+                                         (lambda (_ _) nil))
+                            (enable-paredit-mode)))
