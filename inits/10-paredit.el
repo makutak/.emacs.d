@@ -1,6 +1,19 @@
-(require-or-install 'paredit)
-(add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-(add-hook 'lisp-interacton-mode-hook 'enable-paredit-mode)
-(add-hook 'lisp-mode-hook 'enable-paredit-mode)
-(add-hook 'scheme-mode-hook 'enable-paredit-mode)
-(add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))
+(loop for mode in '(emacs-lisp-mode
+                    lisp-interacton-mode
+                    lisp-mode
+                    scheme-mode
+                    slime-repl-mode
+                    ruby-mode)
+      do (add-hook (intern (concat (symbol-name mode) "-hook"))
+                   (lambda ()
+                     (require-or-install 'paredit)
+                     (paredit-mode +1))))
+
+(eval-after-load "paredit"
+  '(progn
+     (define-key paredit-mode-map "[" 'paredit-open-bracket)
+     (define-key paredit-mode-map "]" 'paredit-close-bracket)
+     (define-key paredit-mode-map "(" 'paredit-open-parenthesis)
+     (define-key paredit-mode-map ")" 'paredit-close-parenthesis)
+     (define-key paredit-mode-map "{" 'paredit-open-curly)
+     (define-key paredit-mode-map "}" 'paredit-close-curly)))
