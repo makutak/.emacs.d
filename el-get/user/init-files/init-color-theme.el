@@ -3,7 +3,7 @@
 
 (defvar paren-face 'paren-face)
 (make-face 'paren-face)
-(set-face-foreground 'paren-face "#666666")
+(set-face-foreground 'paren-face "#ffffff")
 
 (dolist (mode '(lisp-mode
                 emacs-lisp-mode
