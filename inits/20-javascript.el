@@ -7,7 +7,8 @@
 (eval-after-load "js2-mode"
   '(progn
      (setq js2-basic-offset 2
-           js2-mirror-mode nil)))
+           js2-mirror-mode nil
+           js2-strict-missing-semi-warning nil)))
 
 (unless (package-installed-p 'coffee-mode)
   (package-install 'coffee-mode))
