@@ -14,5 +14,6 @@
                             (haml-mode . "\\.haml$")
                             (sass-mode . "\\.sass$")
                             (json-mode . "\\.json$")
-                            (php-mode . "\\.php$"))
+                            (php-mode . "\\.php$")
+                            (web-mode . "\\.html$"))
 do (add-to-list 'auto-mode-alist (cons ext mode)))
