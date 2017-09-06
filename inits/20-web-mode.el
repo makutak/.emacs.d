@@ -7,6 +7,7 @@
 (setq web-mode-tag-auto-close-style 2)
 
 (setq web-mode-markup-indent-offset 2)
+(setq web-mode-code-indent-offset 2)
 
 (appendf auto-mode-alist
          '(("\\.\\(html?\\|emb\\|tmpl\\|tt\\)$" . web-mode)
