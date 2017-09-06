@@ -12,4 +12,5 @@
          '(("\\.\\(html?\\|emb\\|tmpl\\|tt\\)$" . web-mode)
            ("\\.html$" . web-mode)
            ("\\.jsx$" . web-mode)
-           ("\\.erb$" . web-mode)))
+           ("\\.erb$" . web-mode)
+           ("\\.vue$" . web-mode)))
