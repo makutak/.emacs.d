@@ -51,3 +51,18 @@
 
 (init-loader-load
  (expand-file-name "inits/" *emacs-config-directory*))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (clojure-mode-extra-font-locking cider clojure-mode flycheck-typescript-tslint flycheck-mode web-mode typescript tide scss-mode sass-mode rust-mode ruby-end ruby-electric ruby-block pug-mode paredit less-css-mode init-loader indium eldoc-overlay coffee-mode auto-complete)))
+ '(ruby-insert-encoding-magic-comment nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
