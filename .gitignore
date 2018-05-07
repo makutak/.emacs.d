@@ -9,3 +9,5 @@ recentf
 *~
 network-security.data
 inits/99*
+.nrepl-port
+cider-history

@@ -8,15 +8,15 @@
  (T (require-or-install 'slime)))
 
 (defun slime-qlot-exec (directory)
-(interactive (list (read-directory-name "Project directory: ")))
-(slime-start :program "qlot"
-             :program-args '("exec" "ros" "-S" "." "run")
-             :directory directory
-             :name 'qlot
-             :env (list (concat "PATH="
-                                (mapconcat 'identity exec-path ":"))
-                        (concat "QUICKLISP_HOME="
-                                (file-name-as-directory directory) "quicklisp/"))))
+  (interactive (list (read-directory-name "Project directory: ")))
+  (slime-start :program "qlot"
+               :program-args '("exec" "ros" "-S" "." "run")
+               :directory directory
+               :name 'qlot
+               :env (list (concat "PATH="
+                                  (mapconcat 'identity exec-path ":"))
+                          (concat "QUICKLISP_HOME="
+                                  (file-name-as-directory directory) "quicklisp/"))))
 
 (defun lisp-hook-fn ()
   (interactive)

@@ -1,12 +1,18 @@
+(require-or-install 'rainbow-delimiters)
 (loop for mode in '(emacs-lisp-mode
                     lisp-interacton-mode
                     lisp-mode
                     scheme-mode
-                    slime-repl-mode)
+                    geiser-repl-mode
+                    slime-repl-mode
+                    clojure-mode
+                    cider-repl-mode
+                    )
       do (add-hook (intern (concat (symbol-name mode) "-hook"))
                    (lambda ()
                      (require-or-install 'paredit)
-                     (paredit-mode +1))))
+                     (paredit-mode +1)
+                     (rainbow-delimiters-mode))))
 
 (eval-after-load "paredit"
   '(progn
