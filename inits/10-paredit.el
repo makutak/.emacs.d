@@ -2,8 +2,7 @@
                     lisp-interacton-mode
                     lisp-mode
                     scheme-mode
-                    slime-repl-mode
-                    ruby-mode)
+                    slime-repl-mode)
       do (add-hook (intern (concat (symbol-name mode) "-hook"))
                    (lambda ()
                      (require-or-install 'paredit)
