@@ -32,7 +32,7 @@
       (indent-line-to indent)
       (when (> offset 0) (forward-char offset)))))
 
-(add-hook 'ruby-mode-hook (lambda ()
-                            (add-to-list (make-local-variable 'paredit-space-for-delimiter-predicates)
-                                         (lambda (_ _) nil))
-                            (enable-paredit-mode)))
+;; (add-hook 'ruby-mode-hook (lambda ()
+;;                             (add-to-list (make-local-variable 'paredit-space-for-delimiter-predicates)
+;;                                          (lambda (_ _) nil))
+;;                             (enable-paredit-mode)))

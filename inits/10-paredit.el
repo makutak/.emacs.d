@@ -7,7 +7,7 @@
                     slime-repl-mode
                     clojure-mode
                     cider-repl-mode
-                    ruby-mode)
+                    )
       do (add-hook (intern (concat (symbol-name mode) "-hook"))
                    (lambda ()
                      (require-or-install 'paredit)
