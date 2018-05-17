@@ -1,2 +1,2 @@
 (require-or-install 'geiser)
-(setq geiser-active-implementations '(mit))
+(setq geiser-active-implementations '(guile))
