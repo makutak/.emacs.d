@@ -53,7 +53,3 @@
 ;; auto-install
 (require 'auto-install)
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/auto-install/"))
-
-
-;;文末の空行を削除
-(add-hook 'before-save-hook 'delete-trailing-whitespace)

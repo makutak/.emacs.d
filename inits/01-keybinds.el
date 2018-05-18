@@ -71,3 +71,7 @@
 (global-set-key "\C-x@" (lambda ()
                           (interactive)
                           (split-window-horizontally-n 3)))
+
+
+;;文末の空行を削除
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
