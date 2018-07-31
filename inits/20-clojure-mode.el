@@ -2,6 +2,7 @@
 (require-or-install 'clojure-mode-extra-font-locking)
 (require-or-install 'cider)
 (require-or-install 'smex)
+(require-or-install 'paredit)
 
 ;;;;
 ;; Clojure
