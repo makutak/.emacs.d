@@ -5,8 +5,6 @@
                     scheme-mode
                     geiser-repl-mode
                     slime-repl-mode
-                    clojure-mode
-                    cider-repl-mode
                     )
       do (add-hook (intern (concat (symbol-name mode) "-hook"))
                    (lambda ()
