@@ -5,7 +5,7 @@
   (load (expand-file-name "~/quicklisp/slime-helper.el")))
  ((file-exists-p (expand-file-name "~/.roswell/helper.el"))
   (load (expand-file-name "~/.roswell/helper.el")))
- (T (require-or-install 'slime)))
+ (t (require-or-install 'slime)))
 
 (defun slime-qlot-exec (directory)
   (interactive (list (read-directory-name "Project directory: ")))
