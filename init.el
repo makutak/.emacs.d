@@ -9,7 +9,7 @@
 (add-to-list 'package-archives
              '("tromey" . "http://tromey.com/elpa/") t)
 (add-to-list 'package-archives
-             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
 ;; (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 ;;                          ("marmalade" . "http://marmalade-repo.org/packages/")
@@ -167,23 +167,21 @@
 ;; Langauage-specific
 (add-to-list 'load-path "~/.emacs.d/lang")
 (load "clojure.el")
-(load "js.el")
+(load "javascript.el")
 (load "common-lisp.el")
 (load "scheme.el")
 (load "ruby.el")
 (load "web.el")
 (load "css.el")
 (load "haml.el")
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(coffee-tab-width 2)
  '(package-selected-packages
    (quote
-    (elisp-docstring-mode tagedit smex rainbow-delimiters projectile paredit magit ido-ubiquitous clojure-mode-extra-font-locking cider)))
+    (scss-mode less-css-mode web-mode tagedit smex slime sass-mode ruby-end ruby-block rainbow-delimiters projectile paredit magit inf-ruby ido-ubiquitous geiser clojure-mode-extra-font-locking cider)))
  '(ruby-insert-encoding-magic-comment nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
