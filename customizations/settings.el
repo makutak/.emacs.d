@@ -49,7 +49,3 @@
 
 
 (fset 'yes-or-no-p 'y-or-n-p)
-
-;; auto-install
-(require 'auto-install)
-(add-to-list 'load-path (expand-file-name "~/.emacs.d/auto-install/"))

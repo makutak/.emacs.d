@@ -1,11 +1,3 @@
-(when (mac-os-p)
-  (setq ns-command-modifier 'meta)
-  (setq ns-alternate-modifier 'super)
-  (setq mac-pass-command-to-system nil))
-(when (linuxp)
-  (setq x-super-keysym 'meta)
-  (setq x-meta-keysym 'super))
-
 (define-key global-map (kbd "RET") 'newline-and-indent)
 
 (defun define-keys (&optional mode)
