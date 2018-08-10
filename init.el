@@ -10,11 +10,12 @@
              '("tromey" . "http://tromey.com/elpa/") t)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 
 ;; (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 ;;                          ("marmalade" . "http://marmalade-repo.org/packages/")
 ;;                          ("melpa" . "http://melpa-stable.milkbox.net/packages/")))
-
 
 
 (defun package-install-with-refresh (package)
@@ -133,6 +134,12 @@
 ;;;;
 ;; Customization
 ;;;;
+(eval-when-compile
+  (require 'use-package))
+
+(setq use-package-always-ensure t)
+(setq use-package-always-pin "melpa-stable")
+(setq use-package-verbose t)
 
 ;; Add a directory to our load path so that when you `load` things
 ;; below, Emacs knows where to look for the corresponding file.
@@ -163,6 +170,7 @@
 ;; For editing lisps
 (load "elisp-editing.el")
 
+(load "company-mode.el")
 
 ;; Langauage-specific
 (add-to-list 'load-path "~/.emacs.d/lang")
@@ -179,6 +187,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(coffee-tab-width 2)
  '(package-selected-packages
    (quote
     (scss-mode less-css-mode web-mode tagedit smex slime sass-mode ruby-end ruby-block rainbow-delimiters projectile paredit magit inf-ruby ido-ubiquitous geiser clojure-mode-extra-font-locking cider)))
