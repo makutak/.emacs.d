@@ -159,7 +159,7 @@
 
 ;; These customizations make it easier for you to navigate files,
 ;; switch buffers, and choose options from the minibuffer.
-(load "navigation.el")
+;;(load "navigation.el")
 
 ;; These customizations change the way emacs looks and disable/enable
 ;; some user interface elements
@@ -197,7 +197,7 @@
  '(coffee-tab-width 2)
  '(package-selected-packages
    (quote
-    (scss-mode less-css-mode web-mode tagedit smex slime sass-mode ruby-end ruby-block rainbow-delimiters projectile paredit magit inf-ruby ido-ubiquitous geiser clojure-mode-extra-font-locking cider)))
+    (multi-term scss-mode less-css-mode web-mode tagedit smex slime sass-mode ruby-end ruby-block rainbow-delimiters projectile paredit magit inf-ruby ido-ubiquitous geiser clojure-mode-extra-font-locking cider)))
  '(ruby-insert-encoding-magic-comment nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
