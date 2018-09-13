@@ -159,7 +159,7 @@
 
 ;; These customizations make it easier for you to navigate files,
 ;; switch buffers, and choose options from the minibuffer.
-(load "navigation.el")
+;;(load "navigation.el")
 
 ;; These customizations change the way emacs looks and disable/enable
 ;; some user interface elements
@@ -179,16 +179,24 @@
 
 (load "company-mode.el")
 
-;; Langauage-specific
+;; (require-or-install 'init-loader)
+
+;; (setq init-loader-show-log-after-init nil)
+
+;; (init-loader-load
+;;  (expand-file-name "~/.emacs.d/lang/"))
+
+;;Langauage-specific
 (add-to-list 'load-path "~/.emacs.d/lang")
-(load "clojure.el")
-(load "javascript.el")
-(load "common-lisp.el")
-(load "scheme.el")
-(load "ruby.el")
-(load "web.el")
-(load "css.el")
-(load "haml.el")
+(load "setup-clojure.el")
+(load "setup-javascript.el")
+(load "setup-common-lisp.el")
+(load "setup-scheme.el")
+(load "setup-ruby.el")
+(load "setup-web.el")
+(load "setup-css.el")
+(load "setup-haml.el")
+(load "setup-org-mode.el")
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -197,7 +205,7 @@
  '(coffee-tab-width 2)
  '(package-selected-packages
    (quote
-    (scss-mode less-css-mode web-mode tagedit smex slime sass-mode ruby-end ruby-block rainbow-delimiters projectile paredit magit inf-ruby ido-ubiquitous geiser clojure-mode-extra-font-locking cider)))
+    (typescript-mode dockerfile-mode docker docker-compose-mode svg-mode-line-themes pug-mode js2-mode org-plus-contrib init-loader scss-mode less-css-mode web-mode tagedit smex slime sass-mode ruby-end ruby-block rainbow-delimiters projectile paredit magit inf-ruby ido-ubiquitous geiser clojure-mode-extra-font-locking cider)))
  '(ruby-insert-encoding-magic-comment nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
