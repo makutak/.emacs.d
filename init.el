@@ -205,7 +205,6 @@
  '(coffee-tab-width 2)
  '(package-selected-packages
    (quote
-    (typescript-mode dockerfile-mode docker docker-compose-mode svg-mode-line-themes pug-mode js2-mode org-plus-contrib init-loader scss-mode less-css-mode web-mode tagedit smex slime sass-mode ruby-end ruby-block rainbow-delimiters projectile paredit magit inf-ruby ido-ubiquitous geiser clojure-mode-extra-font-locking cider)))
  '(ruby-insert-encoding-magic-comment nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
