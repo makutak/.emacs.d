@@ -197,3 +197,20 @@
 (load "setup-css.el")
 (load "setup-haml.el")
 (load "setup-org-mode.el")
+(load "setup-typescript.el")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(coffee-tab-width 2)
+ '(package-selected-packages
+   (quote
+    (typescript-mode tide yaml-mode web-mode use-package typescript tagedit smex slime scss-mode sass-mode ruby-end ruby-block rainbow-delimiters projectile paredit magit js2-mode inf-ruby ido-ubiquitous gradle-mode geiser exec-path-from-shell company clojure-mode-extra-font-locking cider)))
+ '(ruby-insert-encoding-magic-comment nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
