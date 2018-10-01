@@ -3,7 +3,8 @@
   (global-company-mode)
   (setq company-idle-delay 0.1
         company-minimum-prefix-length 2
-        company-selection-wrap-around t)
+        company-selection-wrap-around t
+        company-dabbrev-downcase nil)
 
   (bind-keys ("TAB" . company-indent-or-complete-common))
   (bind-keys :map company-mode-map
