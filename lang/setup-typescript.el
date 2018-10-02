@@ -1,10 +1,14 @@
 (require-or-install 'typescript-mode)
 (require-or-install 'tide)
 
+;; (use-package flycheck
+;;   :ensure t
+;;   :init (global-flycheck-mode))
+
 (defun setup-tide-mode ()
   (interactive)
   (tide-setup)
-  (flycheck-mode +1)
+  ;;(flycheck-mode +1)
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
   (eldoc-mode +1)
   (tide-hl-identifier-mode +1)
@@ -13,11 +17,16 @@
   ;; `M-x package-install [ret] company`
   (company-mode +1))
 
-(setq tide-format-options '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions t :placeOpenBraceOnNewLineForFunctions nil))
+(setq tide-format-options '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions
+                            t
+                            :placeOpenBraceOnNewLineForFunctions
+                            nil))
 
 ;; aligns annotation to the right hand side
 (setq company-tooltip-align-annotations t)
 
 ;; formats the buffer before saving
-(add-hook 'before-save-hook 'tide-format-before-save)
+;;(add-hook 'before-save-hook 'tide-format-before-save)
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
+
+(setq typescript-indent-level 2)
