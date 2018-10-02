@@ -179,6 +179,9 @@
 
 (load "company-mode.el")
 
+(if (file-exists-p "~/.emacs.d/customizations/slack-emacs.el")
+    (load "slack-emacs.el"))
+
 ;; (require-or-install 'init-loader)
 
 ;; (setq init-loader-show-log-after-init nil)
