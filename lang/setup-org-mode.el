@@ -3,7 +3,7 @@
 ;; 画像をインラインで表示
 (setq org-startup-with-inline-images t)
 ;; 見出しの余分な*を消す
-(setq org-hide-leading-stars t)
+;;(setq org-hide-leading-stars t)
 ;; LOGBOOK drawerに時間を格納する
 (setq org-clock-into-drawer t)
 ;; DONEの時刻を記録
