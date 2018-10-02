@@ -15,3 +15,6 @@ geiser-history.*
 .recentf
 .smex-items
 projectile-bookmarks.eld
+
+
+slack-emacs.el
