@@ -46,6 +46,9 @@
 ;; Wrap when navigating history.
 (setq cider-repl-wrap-history t)
 
+;;Pretty printing in the REPL
+(setq cider-repl-use-pretty-printing t)
+
 ;; enable paredit in your REPL
 (add-hook 'cider-repl-mode-hook 'paredit-mode)
 
