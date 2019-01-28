@@ -53,3 +53,10 @@
 ;;文末の空行を削除
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
+;; Highlights matching parenthesis
+(show-paren-mode 1)
+
+;; Highlight current line
+(global-hl-line-mode 1)
+
+(electric-pair-mode 1)
