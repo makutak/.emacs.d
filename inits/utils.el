@@ -23,7 +23,7 @@
   :straight t
   :init (global-flycheck-mode)
   :config
-  (setq flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
 
 (use-package magit)
 
