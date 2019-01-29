@@ -1,3 +1,7 @@
+;;; init.el --- Initialization file for Emacs
+;;; Commentary: Emacs Startup File --- initialization for Emacs
+
+;;; Code:
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -21,3 +25,6 @@
 (load-file "~/.emacs.d/inits/utils.el")
 (load-file "~/.emacs.d/inits/typescript.el")
 (load-file "~/.emacs.d/inits/web.el")
+(load-file "~/.emacs.d/inits/clojure.el")
+(provide 'init)
+;;; init.el ends here
