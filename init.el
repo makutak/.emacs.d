@@ -26,5 +26,6 @@
 (load-file "~/.emacs.d/inits/typescript.el")
 (load-file "~/.emacs.d/inits/web.el")
 (load-file "~/.emacs.d/inits/clojure.el")
+(load-file "~/.emacs.d/inits/markdown.el")
 (provide 'init)
 ;;; init.el ends here
