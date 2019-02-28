@@ -5,4 +5,5 @@
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown")
-  :hook (before-save . nuke-trailing-whitespace))
+  :config
+  (remove-hook 'before-save-hook 'delete-trailing-whitespace))
