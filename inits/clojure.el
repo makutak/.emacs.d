@@ -23,7 +23,6 @@
   (clojure-mode . enable-paredit-mode)
   (clojure-mode . subword-mode))
 
-
 (use-package cider
   :straight t
   :hook
@@ -46,7 +45,7 @@
 ;; Use clojure mode for other extensions
 (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
 (add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
-(add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
+;; (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
 (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
 
 ;; key bindings
