@@ -3,6 +3,14 @@
   :straight t
   :after (flycheck))
 
+(use-package clj-refactor)
+
+(defun clj-refactor-setup ()
+  (clj-refactor-mode 1)
+  (yas-minor-mode 1) ; for adding require/use/import statements
+  ;; This choice of keybinding leaves cider-macroexpand-1 unbound
+  (cljr-add-keybindings-with-prefix "C-c C-m"))
+
 (defun clojure-setup ()
   (setq inferior-lisp-program "lein repl")
   (font-lock-add-keywords
@@ -21,7 +29,8 @@
   :hook
   (clojure-mode . clojure-setup)
   (clojure-mode . enable-paredit-mode)
-  (clojure-mode . subword-mode))
+  (clojure-mode . subword-mode)
+  (clojure-mode . clj-refactor-setup))
 
 (use-package cider
   :straight t
