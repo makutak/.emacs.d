@@ -1,9 +1,14 @@
-(use-package typescript-mode)
-(use-package js2-mode
-  :mode "\\.js\\'")
+(use-package typescript-mode
+  :config
+  (setq typescript-indent-level 2))
 
+(use-package rjsx-mode
+  :mode ("\\.tsx" "\\.js")
+  :config
+  (setq indent-tabs-mode nil)
+  (setq js-indent-level 2))
 (use-package lsp-mode
-  :hook ((typescript-mode js2-mode) . lsp)
+  :hook ((typescript-mode rjsx-mode) . lsp)
   :commands lsp)
 
 ;; optionally
