@@ -52,3 +52,11 @@
   :hook ((emacs-lisp-mode-hook . turn-on-eldoc-mode)
          (lisp-interaction-mode-hook . turn-on-eldoc-mode)
          (ielm-mode-hook . turn-on-eldoc-mode)))
+
+
+(use-package sh-script
+  :straight t
+  :config (progn
+            (setq sh-basic-offset 2)
+            (setq sh-indentation 2)
+            (setq sh-shell-file "/bin/sh")))

@@ -63,7 +63,7 @@
 
 (use-package typescript-mode
   :config
-  (setq typescript-indent-level 2))
+  (setq typescript-indent-level 4))
 
 
 (use-package tide
@@ -73,7 +73,6 @@
          (typescript-mode . tide-hl-identifier-mode)
          (before-save . tide-format-before-save))
   :config
-  (setq typescript-indent-level 2)
   (setq tide-format-options '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions
                               t
                               :placeOpenBraceOnNewLineForFunctions
