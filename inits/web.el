@@ -4,7 +4,9 @@
   (setq web-mode-scssindent-offset 2)
   (setq web-mode-code-indent-offset 2)
   (setq web-mode-script-padding 0)
-  (setq web-mode-style-padding 0))
+  (setq web-mode-style-padding 0)
+  (setq web-mode-auto-close-style 1)
+  (setq web-mode-tag-auto-close-style t))
 
 
 (defun scss-custom ()
