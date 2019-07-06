@@ -54,5 +54,7 @@
          (ielm-mode-hook . turn-on-eldoc-mode)))
 
 
+;; copy to clipboard
+(setq x-select-enable-clipboard t)
 (use-package xclip
   :config (xclip-mode 1))
