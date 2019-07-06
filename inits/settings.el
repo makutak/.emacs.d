@@ -9,6 +9,8 @@
 (defmacro appendf (list &rest lists)
   `(setq ,list (append ,list ,@lists)))
 
+(setq x-select-enable-clipboard t)
+
 ;; Nihongo
 (set-language-environment "Japanese")
 (setq default-process-coding-system '(utf-8 . utf-8))

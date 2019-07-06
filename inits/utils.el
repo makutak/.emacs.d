@@ -52,3 +52,7 @@
   :hook ((emacs-lisp-mode-hook . turn-on-eldoc-mode)
          (lisp-interaction-mode-hook . turn-on-eldoc-mode)
          (ielm-mode-hook . turn-on-eldoc-mode)))
+
+
+(use-package xclip
+  :config (xclip-mode 1))
