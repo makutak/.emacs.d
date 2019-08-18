@@ -1,4 +1,5 @@
 (use-package rust-mode
+  :defer t
   :config
   (setq rust-format-on-save t))
 
