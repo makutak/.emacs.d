@@ -8,8 +8,7 @@
 (menu-bar-mode -1)
 
 ;; Show line numbers
-(global-linum-mode)
-(setq linum-format "%2d ")
+(global-display-line-numbers-mode)
 
 ;; You can uncomment this to remove the graphical toolbar at the top. After
 ;; awhile, you won't need the toolbar.
