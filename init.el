@@ -29,5 +29,6 @@
 (load-file "~/.emacs.d/inits/yaml.el")
 (load-file "~/.emacs.d/inits/json.el")
 (load-file "~/.emacs.d/inits/rust.el")
+(load-file "~/.emacs.d/inits/python.el")
 (provide 'init)
 ;;; init.el ends here
