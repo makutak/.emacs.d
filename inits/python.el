@@ -5,7 +5,5 @@
 
 (use-package elpy
   :straight t
-  ;;:ensure t
-  :defer t
   :init
   (elpy-enable))
