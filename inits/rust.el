@@ -5,8 +5,13 @@
 
 (use-package racer
   :init
-  (add-hook 'rust-mode #'racer-mode)
-  (add-hook 'racer-mode #'eldoc-mode))
+  :hook ((rust-mode . racer-mode))
+  :config
+  (add-hook 'racer-mode-hook #'eldoc-mode)
+  (add-hook 'racer-mode-hook #'company-mode)
+  (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)
+  (setq company-tooltip-align-annotations t))
+
 
 (use-package flycheck-rust
   :init
