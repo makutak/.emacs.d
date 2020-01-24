@@ -1,7 +1,8 @@
 (use-package python-mode
   :straight t
   :config
-  (eldoc-mode t))
+  (eldoc-mode t)
+  (setq python-indent-offset 4))
 
 (use-package elpy
   :straight t
