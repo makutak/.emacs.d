@@ -7,11 +7,9 @@
   :straight t
   :init
   (elpy-enable)
-  :config
-  (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "--simple-prompt -i"))
+  :config)
 
-(use-package py-yapf
-  :straight t
-  :hook
-  (python-mode . py-yapf-enable-on-save))
+;; (use-package py-yapf
+;;   :straight t
+;;   :hook
+;;   (python-mode . py-yapf-enable-on-save))
