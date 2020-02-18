@@ -34,5 +34,6 @@
 (load-file "~/.emacs.d/inits/docker.el")
 (load-file "~/.emacs.d/inits/ruby.el")
 (load-file "~/.emacs.d/inits/rails.el")
+(load-file "~/.emacs.d/inits/elm.el")
 (provide 'init)
 ;;; init.el ends here
