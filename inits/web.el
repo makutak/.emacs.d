@@ -105,3 +105,6 @@
   (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
   (setq indent-tabs-mode nil)
   (setq js-indent-level 2))
+
+(use-package slim-mode
+  :straight t)
