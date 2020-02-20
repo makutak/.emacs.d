@@ -108,3 +108,6 @@
 
 (use-package slim-mode
   :straight t)
+
+(use-package coffee-mode
+  :straight t)
