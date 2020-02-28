@@ -24,9 +24,13 @@
 ;; for a great explanation of emacs color themes.
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Custom-Themes.html
 ;; for a more technical explanation.
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-(add-to-list 'load-path "~/.emacs.d/themes")
-(load-theme 'tomorrow-night-bright t)
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+;; (add-to-list 'load-path "~/.emacs.d/themes")
+
+(use-package color-theme-sanityinc-tomorrow
+  :straight t)
+(load-theme 'sanityinc-tomorrow-eighties t)
+
 
 ;; increase font size for better readability
 (set-face-attribute 'default nil :height 140)

@@ -9,6 +9,8 @@
 (defmacro appendf (list &rest lists)
   `(setq ,list (append ,list ,@lists)))
 
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 ;; Nihongo
 (set-language-environment "Japanese")
 (setq default-process-coding-system '(utf-8 . utf-8))
