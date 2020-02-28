@@ -60,3 +60,8 @@
 (global-hl-line-mode 1)
 
 (electric-pair-mode 1)
+
+(use-package exec-path-from-shell
+  :straight t
+  :init (exec-path-from-shell-initialize))
+
