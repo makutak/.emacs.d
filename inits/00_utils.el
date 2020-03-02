@@ -15,7 +15,7 @@
          ("C-p" . company-select-previous))
   :config
   (setq company-idle-delay 0.1
-n        company-minimum-prefix-length 2
+        company-minimum-prefix-length 2
         company-selection-wrap-around t
         company-dabbrev-downcase nil)
   (push 'company-lsp company-backends))
