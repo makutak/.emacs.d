@@ -19,3 +19,6 @@ straight
 
 slack-emacs.el
 .lsp-session-v1
+
+transient/
+url/
