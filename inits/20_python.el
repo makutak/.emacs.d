@@ -3,7 +3,6 @@
   :hook
   (python-mode . lsp)
   :config
-  (eldoc-mode t)
   (setq python-indent-offset 4))
 
 ;; (use-package elpy

@@ -12,12 +12,13 @@
          ("TAB" . company-complete-common-or-cycle)
          :map company-search-map
          ("C-n" . company-select-next)
-         ("C-p" . company-select-previous)))
+         ("C-p" . company-select-previous))
   :config
   (setq company-idle-delay 0.1
         company-minimum-prefix-length 2
         company-selection-wrap-around t
         company-dabbrev-downcase nil)
+  (push 'company-lsp company-backends))
 
 (use-package flycheck
   :straight t
