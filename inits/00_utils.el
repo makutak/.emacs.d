@@ -15,7 +15,7 @@
          ("C-p" . company-select-previous))
   :config
   (setq company-idle-delay 0.1
-        company-minimum-prefix-length 2
+n        company-minimum-prefix-length 2
         company-selection-wrap-around t
         company-dabbrev-downcase nil)
   (push 'company-lsp company-backends))
@@ -59,3 +59,11 @@
 (setq x-select-enable-clipboard t)
 (use-package xclip
   :config (xclip-mode 1))
+
+(use-package find-file-in-project
+  :straight t)
+
+(use-package smart-jump
+ :straight t
+ :config
+ (smart-jump-setup-default-registers))
