@@ -22,3 +22,4 @@ slack-emacs.el
 
 transient/
 url/
+elpy/
