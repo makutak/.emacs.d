@@ -1,7 +1,6 @@
 (use-package lsp-mode
   :hook
   (kotlin-mode . lsp)
-  (python-mode . lsp)
   :commands lsp)
 
 ;; optionally
