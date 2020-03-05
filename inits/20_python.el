@@ -1,14 +1,25 @@
-(use-package python-mode
-  :straight t
-  :config
-  (setq python-indent-offset 4))
-
 (use-package py-yapf
   :straight t)
 
+(use-package python-mode
+  :straight t
+  :hook
+  (python-mode . py-yapf-enable-on-save)
+  :config
+  (setq python-indent-offset 4))
+
+
+(use-package pipenv
+  :straight t
+  :hook (python-mode . pipenv-mode)
+  :init
+  (setq
+   pipenv-projectile-after-switch-function
+   #'pipenv-projectile-after-switch-extended))
+
+
 (use-package elpy
   :straight t
-  ;;:ensure t
   :defer t
   :init
   (advice-add 'python-mode :before 'elpy-enable)

@@ -21,6 +21,8 @@
 (use-package init-loader)
 (init-loader-load "~/.emacs.d/inits")
 
+(setq debug-on-error t)
+
 ;; (load-file "~/.emacs.d/inits/utils.el")
 ;; (load-file "~/.emacs.d/inits/web.el")
 ;; (load-file "~/.emacs.d/inits/clojure.el")

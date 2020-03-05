@@ -1,4 +1,5 @@
 (use-package lsp-mode
+  :straight t
   :hook
   (kotlin-mode . lsp)
   :commands lsp)
