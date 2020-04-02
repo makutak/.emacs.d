@@ -20,6 +20,10 @@
   (setq css-indent-offset 2)
   (setq-default indent-tabs-mode nil))
 
+(use-package sass-mode
+  :straight t)
+
+
 (use-package web-mode
   :straight t
   :mode ("\\.vue")
