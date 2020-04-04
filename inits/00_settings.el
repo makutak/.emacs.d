@@ -66,3 +66,10 @@
 (use-package exec-path-from-shell
   :straight t
   :init (exec-path-from-shell-initialize))
+
+
+;; server start for emacs-client
+(use-package server
+  :config
+  (unless (server-running-p)
+    (server-start)))
