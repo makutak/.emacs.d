@@ -103,7 +103,7 @@
 
 (use-package rjsx-mode
   :straight t
-  :mode ("\\.js")
+  :mode ("\\.js$")
   :config
   (add-hook 'rjsx-mode-hook #'setup-tide-mode)
   (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
