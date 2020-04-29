@@ -1,6 +1,7 @@
 (define-key global-map (kbd "RET") 'newline-and-indent)
 (define-key global-map "\C-z" 'undo)
 (define-key global-map "\C-h" 'backward-delete-char)
+(define-key global-map (kbd "C-2") 'set-mark-command)
 
 ;; Shift + 矢印でウィンドウを移動する
 (windmove-default-keybindings)
