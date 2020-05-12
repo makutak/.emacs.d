@@ -3,8 +3,8 @@
 
 (use-package python-mode
   :straight t
-  :hook
-  (python-mode . py-yapf-enable-on-save)
+  ;; :hook
+  ;; (python-mode . py-yapf-enable-on-save)
   :config
   (setq python-indent-offset 4))
 
@@ -23,8 +23,8 @@
   :defer t
   :init
   (advice-add 'python-mode :before 'elpy-enable)
-  :hook
-  (elpy-mode . py-yapf-enable-on-save)
+  ;; :hook
+  ;; (elpy-mode . py-yapf-enable-on-save)
   :config
   (setq elpy-rpc-virtualenv-path 'current)
   (when (load "flycheck" t t)
