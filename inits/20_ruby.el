@@ -15,6 +15,10 @@
 (use-package ruby-end
   :straight t)
 
+(use-package robe
+  :straight t
+  :hook (ruby-mode . robe-mode))
+
 (use-package inf-ruby
   :straight t
   :config
