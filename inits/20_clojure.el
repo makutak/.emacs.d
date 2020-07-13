@@ -49,8 +49,7 @@
   ;; Wrap when navigating history.
   (setq cider-repl-wrap-history t)
   ;;Pretty printing in the REPL
-  (setq cider-repl-use-pretty-printing t)
-  (setq cider-default-cljs-repl 'figwheel))
+  (setq cider-repl-use-pretty-printing t))
 
 ;; Use clojure mode for other extensions
 (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
