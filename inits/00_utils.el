@@ -1,10 +1,6 @@
 (use-package company
   :straight t
-  :init (global-company-mode)
   :bind (("TAB" . company-indent-or-complete-common)
-         :map company-mode-map
-         ("C-i" . company-complete)
-         ("TAB" . nil)
          :map company-active-map
          ("C-n" . company-select-next)
          ("C-p" . company-select-previous)
@@ -14,11 +10,13 @@
          ("C-n" . company-select-next)
          ("C-p" . company-select-previous))
   :config
-  (setq company-idle-delay 0.1
+  (global-company-mode)
+  (yas-global-mode 1)
+  (setq company-idle-delay 0
         company-minimum-prefix-length 2
         company-selection-wrap-around t
         company-dabbrev-downcase nil)
-  (push 'company-lsp company-backends))
+  (setq company-backends '((company-capf company-dabbrev))))
 
 (use-package flycheck
   :straight t
