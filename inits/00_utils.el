@@ -1,6 +1,6 @@
 (use-package company
   :straight t
-  :bind (("TAB" . company-indent-or-complete-common)
+  :bind (
          :map company-active-map
          ("C-n" . company-select-next)
          ("C-p" . company-select-previous)
