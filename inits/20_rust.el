@@ -20,3 +20,6 @@
   :custom (lsp-rust-server 'rust-analyzer))
 (use-package lsp-ui
   :ensure t)
+
+(setq lsp-rust-analyzer-cargo-load-out-dirs-from-check t)
+(setq lsp-rust-analyzer-proc-macro-enable t)
