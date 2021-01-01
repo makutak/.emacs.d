@@ -18,6 +18,9 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
+(setq exec-path (cons (expand-file-name "~/.local/bin") exec-path))
+(setq exec-path (cons (expand-file-name "~/.cargo/bin") exec-path))
+
 (use-package init-loader)
 (init-loader-load "~/.emacs.d/inits")
 
