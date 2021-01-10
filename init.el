@@ -1,5 +1,12 @@
 ;;; init.el --- My init.el  -*- lexical-binding: t; -*-
 
+;;; Commentary:
+
+;; My init.el.
+
+;;; Code:
+
+
 ;; Nihongo
 (set-language-environment "Japanese")
 (setq default-process-coding-system '(utf-8 . utf-8))
@@ -229,6 +236,65 @@
   :ensure t
   :hook (prog-mode-hook))
 
+(leaf smart-jump
+  :doc "Smart go to definition."
+  :req "emacs-25.1"
+  :tag "tools" "emacs>=25.1"
+  :added "2021-01-11"
+  :url "https://github.com/jojojames/smart-jump"
+  :emacs>= 25.1
+  :ensure t
+  :config
+  (smart-jump-setup-default-registers))
+
+
+(leaf eldoc
+  :doc "Show function arglist or variable docstring in echo area"
+  :tag "builtin"
+  :added "2021-01-11"
+  :hook ((emacs-lisp-mode-hook . turn-on-eldoc-mode)))
+
+(leaf xclip
+  :doc "Copy&paste GUI clipboard from text terminal"
+  :tag "tools" "convenience"
+  :added "2021-01-11"
+  :url "http://elpa.gnu.org/packages/xclip.html"
+  :ensure t
+  :config
+  (setq x-select-enable-clipboard t))
+
+;; rust
+(leaf rust-mode
+  :doc "A major emacs mode for editing Rust source code"
+  :req "emacs-25.1"
+  :tag "languages" "emacs>=25.1"
+  :added "2021-01-11"
+  :url "https://github.com/rust-lang/rust-mode"
+  :emacs>= 25.1
+  :ensure t
+  :custom ((rust-format-on-save . t))
+  :bind ("M-RET" . lsp-execute-code-action)
+  ;;:hook (rust-mode-hook . lsp)
+  :config
+  (leaf cargo
+    :doc "Emacs Minor Mode for Cargo, Rust's Package Manager."
+    :req "emacs-24.3" "rust-mode-0.2.0" "markdown-mode-2.4"
+    :tag "tools" "emacs>=24.3"
+    :added "2021-01-11"
+    :emacs>= 24.3
+    :ensure t
+    :hook ((rust-mode-hook . cargo-minor-mode))))
+
+(leaf flycheck-rust
+  :doc "Flycheck: Rust additions and Cargo support"
+  :req "emacs-24.1" "flycheck-28" "dash-2.13.0" "seq-2.3" "let-alist-1.0.4"
+  :tag "convenience" "tools" "emacs>=24.1"
+  :added "2021-01-11"
+  :url "https://github.com/flycheck/flycheck-rust"
+  :emacs>= 24.1
+  :ensure t
+  :after flycheck rust-mode)
+
 ;; lsp
 (leaf lsp-mode
   :doc "LSP mode"
@@ -240,8 +306,11 @@
   :ensure t
   ;; :after spinner markdown-mode lv
   :bind ("C-c h" . lsp-describe-thing-at-point)
-  :custom ((lsp-rust-server 'rust-analyzer))
+  ;; :custom ((lsp-rust-server 'rust-analyzer))
+  :hook ((rust-mode-hook . lsp-deferred))
   :config
+  (setq lsp-rust-analyzer-cargo-load-out-dirs-from-check t)
+  (setq lsp-rust-analyzer-proc-macro-enable t)
   (leaf lsp-ui
     :doc "UI modules for lsp-mode"
     :req "emacs-26.1" "dash-2.14" "dash-functional-1.2.0" "lsp-mode-6.0" "markdown-mode-2.3"
@@ -251,31 +320,27 @@
     :emacs>= 26.1
     :ensure t))
 
-;; rust
-(setq lsp-rust-analyzer-cargo-load-out-dirs-from-check t)
-(setq lsp-rust-analyzer-proc-macro-enable t)
-
-(leaf rust-mode
-  :doc "A major emacs mode for editing Rust source code"
-  :req "emacs-25.1"
-  :tag "languages" "emacs>=25.1"
-  :added "2021-01-11"
-  :url "https://github.com/rust-lang/rust-mode"
-  :emacs>= 25.1
-  :ensure t
-  :custom ((rust-format-on-save . t))
-  :bind ("M-RET" . lsp-execute-code-action)
-  :config
-  (leaf cargo
-    :doc "Emacs Minor Mode for Cargo, Rust's Package Manager."
-    :req "emacs-24.3" "rust-mode-0.2.0" "markdown-mode-2.4"
-    :tag "tools" "emacs>=24.3"
-    :added "2021-01-11"
-    :emacs>= 24.3
-    :ensure t
-    :hook ((rust-mode-hook .cargo-minor-mode))))
 
 
 ;; ここにいっぱい設定を書く
 
 (provide 'init)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(imenu-list-position 'left t)
+ '(imenu-list-size 30 t)
+ '(package-archives
+   '(("gnu" . "https://elpa.gnu.org/packages/")
+     ("melpa" . "https://melpa.org/packages/")
+     ("org" . "https://orgmode.org/elpa/")))
+ '(package-selected-packages
+   '(xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
