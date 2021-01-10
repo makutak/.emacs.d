@@ -20,3 +20,9 @@
 (use-package cargo
   :straight t
   :hook (rust-mode . cargo-minor-mode))
+
+(use-package flycheck-rust
+  :straight t
+  :config
+  (with-eval-after-load 'rust-mode
+    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
