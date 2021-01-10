@@ -73,3 +73,9 @@
   :config
   (unless (server-running-p)
     (server-start)))
+
+;; diredのファイルサイズ単位を読みやすく
+(setq dired-listing-switches (purecopy "-alh"))
+
+;; ファイルが外部から変更されたら自動でrevert
+(global-auto-revert-mode)
