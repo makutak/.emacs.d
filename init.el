@@ -51,6 +51,8 @@
 ;; exec path
 (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
 (add-to-list 'exec-path (expand-file-name "~/.cargo/bin"))
+(add-to-list 'exec-path (expand-file-name "~/.anyenv/envs/rbenv/shims/ruby"))
+
 
 (eval-and-compile
   (when (or load-file-name byte-compile-current-file)
@@ -263,6 +265,14 @@
   :config
   (setq x-select-enable-clipboard t))
 
+(leaf yasnippet
+  :doc "Yet another snippet extension for Emacs"
+  :req "cl-lib-0.5"
+  :tag "emulation" "convenience"
+  :added "2021-01-11"
+  :url "http://github.com/joaotavora/yasnippet"
+  :ensure t)
+
 ;; rust
 (leaf rust-mode
   :doc "A major emacs mode for editing Rust source code"
@@ -295,6 +305,43 @@
   :ensure t
   :after flycheck rust-mode)
 
+
+;; ruby
+(leaf ruby-mode
+  :doc "Major mode for editing Ruby files"
+  :tag "builtin"
+  :added "2021-01-13"
+  :config
+  (leaf ruby-electric
+  :doc "Minor mode for electrically editing ruby code"
+  :tag "ruby" "languages"
+  :added "2021-01-13"
+  :url "https://github.com/ruby/elisp-ruby-electric"
+  :ensure t
+  :hook ((ruby-mode-hook . ruby-electric-mode))))
+
+(leaf rbenv
+  :doc "Emacs integration for rbenv"
+  :tag "rbenv" "ruby"
+  :added "2021-01-13"
+  :url "https://github.com/senny/rbenv.el"
+  :ensure t
+  :config
+  (setq rbenv-installation-dir "~/.anyenv/envs/rbenv"))
+
+
+;; eglot
+(leaf eglot
+  :doc "Client for Language Server Protocol (LSP) servers"
+  :req "emacs-26.1" "jsonrpc-1.0.14" "flymake-1.0.9" "project-0.3.0" "xref-1.0.1" "eldoc-1.11.0"
+  :tag "languages" "convenience" "emacs>=26.1"
+  :added "2021-01-13"
+  :url "https://github.com/joaotavora/eglot"
+  :emacs>= 26.1
+  :ensure t
+  :after jsonrpc flymake project xref eldoc
+  :hook ((ruby-mode-hook . eglot-ensure)))
+
 ;; lsp
 (leaf lsp-mode
   :doc "LSP mode"
@@ -305,6 +352,7 @@
   :emacs>= 26.1
   :ensure t
   ;; :after spinner markdown-mode lv
+  :init (yas-global-mode)
   :bind ("C-c h" . lsp-describe-thing-at-point)
   ;; :custom ((lsp-rust-server 'rust-analyzer))
   :hook ((rust-mode-hook . lsp-deferred))
@@ -319,8 +367,6 @@
     :url "https://github.com/emacs-lsp/lsp-ui"
     :emacs>= 26.1
     :ensure t))
-
-
 
 ;; ここにいっぱい設定を書く
 
@@ -337,7 +383,7 @@
      ("melpa" . "https://melpa.org/packages/")
      ("org" . "https://orgmode.org/elpa/")))
  '(package-selected-packages
-   '(xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf)))
+   '(rbenv ruby-end eglot lsp-ruby yasnippet xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
