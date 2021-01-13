@@ -311,14 +311,33 @@
   :doc "Major mode for editing Ruby files"
   :tag "builtin"
   :added "2021-01-13"
+  :custom
+  (ruby-insert-encoding-magic-comment . nil)
   :config
-  (leaf ruby-electric
-  :doc "Minor mode for electrically editing ruby code"
-  :tag "ruby" "languages"
-  :added "2021-01-13"
-  :url "https://github.com/ruby/elisp-ruby-electric"
-  :ensure t
-  :hook ((ruby-mode-hook . ruby-electric-mode))))
+  (leaf inf-ruby
+    :doc "Run a Ruby process in a buffer"
+    :req "emacs-24.3"
+    :tag "ruby" "languages" "emacs>=24.3"
+    :added "2021-01-13"
+    :url "http://github.com/nonsequitur/inf-ruby"
+    :emacs>= 24.3
+    :ensure t)
+  (leaf ruby-end
+    :doc "Automatic insertion of end blocks for Ruby"
+    :tag "ruby" "convenience" "speed"
+    :added "2021-01-13"
+    :url "http://github.com/rejeep/ruby-end"
+    :ensure t)
+  (leaf robe
+    :doc "Code navigation, documentation lookup and completion for Ruby"
+    :req "inf-ruby-2.5.1" "emacs-24.4"
+    :tag "rails" "convenience" "ruby" "emacs>=24.4"
+    :added "2021-01-13"
+    :url "https://github.com/dgutov/robe"
+    :emacs>= 24.4
+    :ensure t
+    :after inf-rub
+    :hook ((ruby-mode . robe-mode))))
 
 (leaf rbenv
   :doc "Emacs integration for rbenv"
@@ -329,18 +348,6 @@
   :config
   (setq rbenv-installation-dir "~/.anyenv/envs/rbenv"))
 
-
-;; eglot
-(leaf eglot
-  :doc "Client for Language Server Protocol (LSP) servers"
-  :req "emacs-26.1" "jsonrpc-1.0.14" "flymake-1.0.9" "project-0.3.0" "xref-1.0.1" "eldoc-1.11.0"
-  :tag "languages" "convenience" "emacs>=26.1"
-  :added "2021-01-13"
-  :url "https://github.com/joaotavora/eglot"
-  :emacs>= 26.1
-  :ensure t
-  :after jsonrpc flymake project xref eldoc
-  :hook ((ruby-mode-hook . eglot-ensure)))
 
 ;; lsp
 (leaf lsp-mode
@@ -383,7 +390,7 @@
      ("melpa" . "https://melpa.org/packages/")
      ("org" . "https://orgmode.org/elpa/")))
  '(package-selected-packages
-   '(rbenv ruby-end eglot lsp-ruby yasnippet xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf)))
+   '(robe inf-ruby rbenv ruby-end eglot lsp-ruby yasnippet xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
