@@ -24,6 +24,9 @@
 (use-package init-loader)
 (init-loader-load "~/.emacs.d/inits")
 
+;; (require 'cl) を見逃す
+(setq byte-compile-warnings '(not cl-functions obsolete))
+
 (setq debug-on-error t)
 
 ;; (load-file "~/.emacs.d/inits/utils.el")
