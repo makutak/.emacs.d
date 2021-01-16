@@ -49,9 +49,9 @@
 ;; diredのファイルサイズ単位を読みやすく
 (setq dired-listing-switches (purecopy "-alh"))
 ;; exec path
-(add-to-list 'exec-path (expand-file-name "~/.local/bin"))
-(add-to-list 'exec-path (expand-file-name "~/.cargo/bin"))
-(add-to-list 'exec-path (expand-file-name "~/.anyenv/envs/rbenv/shims/ruby"))
+(setq exec-path (cons (expand-file-name "~/.local/bin") exec-path))
+(setq exec-path (cons (expand-file-name "~/.cargo/bin") exec-path))
+(setq exec-path (cons (expand-file-name "~/.anyenv/envs/rbenv/shims/ruby") exec-path))
 
 
 (eval-and-compile
@@ -360,9 +360,9 @@
   :ensure t
   ;; :after spinner markdown-mode lv
   :init (yas-global-mode)
+  :hook (rust-mode-hook . lsp)
   :bind ("C-c h" . lsp-describe-thing-at-point)
-  ;; :custom ((lsp-rust-server 'rust-analyzer))
-  :hook ((rust-mode-hook . lsp-deferred))
+  ;;:custom (lsp-rust-server 'rust-analyzer)
   :config
   (setq lsp-rust-analyzer-cargo-load-out-dirs-from-check t)
   (setq lsp-rust-analyzer-proc-macro-enable t)
