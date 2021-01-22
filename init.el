@@ -578,6 +578,15 @@
   :tag "builtin"
   :added "2021-06-18")
 
+(leaf sh-script
+  :doc "shell-script editing commands for Emacs"
+  :tag "builtin"
+  :added "2021-08-16"
+  :ensure t
+  :custom ((sh-basic-offset . 2)
+           (sh-indentation . 2)
+           (sh-shell-file . "/bin/sh")))
+
 
 (provide 'init)
 (custom-set-variables
