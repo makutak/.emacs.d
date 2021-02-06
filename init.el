@@ -391,6 +391,7 @@
 
 ;; ここにいっぱい設定を書く
 
+
 (provide 'init)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
