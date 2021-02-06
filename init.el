@@ -279,6 +279,32 @@
   :custom ((auto-revert-interval . 1))
   :global-minor-mode global-auto-revert-mode)
 
+;; lsp
+(leaf lsp-mode
+  :doc "LSP mode"
+  :req "emacs-26.1" "dash-2.14.1" "dash-functional-2.14.1" "f-0.20.0" "ht-2.0" "spinner-1.7.3" "markdown-mode-2.3" "lv-0"
+  :tag "languages" "emacs>=26.1"
+  :added "2021-01-11"
+  :url "https://github.com/emacs-lsp/lsp-mode"
+  :emacs>= 26.1
+  :ensure t
+  ;; :after spinner markdown-mode lv
+  :init (yas-global-mode)
+  :bind ("C-c h" . lsp-describe-thing-at-point)
+  ;;:custom (lsp-rust-server 'rust-analyzer)
+  :config
+  (setq lsp-rust-analyzer-cargo-load-out-dirs-from-check t)
+  (setq lsp-rust-analyzer-proc-macro-enable t)
+  (leaf lsp-ui
+    :doc "UI modules for lsp-mode"
+    :req "emacs-26.1" "dash-2.14" "dash-functional-1.2.0" "lsp-mode-6.0" "markdown-mode-2.3"
+    :tag "tools" "languages" "emacs>=26.1"
+    :added "2021-01-11"
+    :url "https://github.com/emacs-lsp/lsp-ui"
+    :emacs>= 26.1
+    :ensure t))
+
+
 ;; rust
 (leaf rust-mode
   :doc "A major emacs mode for editing Rust source code"
@@ -290,7 +316,7 @@
   :ensure t
   :custom ((rust-format-on-save . t))
   :bind ("M-RET" . lsp-execute-code-action)
-  ;;:hook (rust-mode-hook . lsp)
+  :hook (rust-mode-hook . lsp)
   :config
   (leaf cargo
     :doc "Emacs Minor Mode for Cargo, Rust's Package Manager."
@@ -354,32 +380,14 @@
   :config
   (setq rbenv-installation-dir "~/.anyenv/envs/rbenv"))
 
-
-;; lsp
-(leaf lsp-mode
-  :doc "LSP mode"
-  :req "emacs-26.1" "dash-2.14.1" "dash-functional-2.14.1" "f-0.20.0" "ht-2.0" "spinner-1.7.3" "markdown-mode-2.3" "lv-0"
-  :tag "languages" "emacs>=26.1"
-  :added "2021-01-11"
-  :url "https://github.com/emacs-lsp/lsp-mode"
-  :emacs>= 26.1
-  :ensure t
-  ;; :after spinner markdown-mode lv
-  :init (yas-global-mode)
-  :hook (rust-mode-hook . lsp)
-  :bind ("C-c h" . lsp-describe-thing-at-point)
-  ;;:custom (lsp-rust-server 'rust-analyzer)
-  :config
-  (setq lsp-rust-analyzer-cargo-load-out-dirs-from-check t)
-  (setq lsp-rust-analyzer-proc-macro-enable t)
-  (leaf lsp-ui
-    :doc "UI modules for lsp-mode"
-    :req "emacs-26.1" "dash-2.14" "dash-functional-1.2.0" "lsp-mode-6.0" "markdown-mode-2.3"
-    :tag "tools" "languages" "emacs>=26.1"
-    :added "2021-01-11"
-    :url "https://github.com/emacs-lsp/lsp-ui"
-    :emacs>= 26.1
-    :ensure t))
+(leaf cc-mode
+  :doc "major mode for editing C and similar languages"
+  :tag "builtin"
+  :added "2021-02-06"
+  :hook (c-mode-hook . lsp)
+  :mode-hook
+  (c-mode-hook . ((c-set-style "bsd")
+                  (setq c-basic-offset 4))))
 
 ;; ここにいっぱい設定を書く
 
