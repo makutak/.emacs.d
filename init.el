@@ -384,10 +384,28 @@
   :doc "major mode for editing C and similar languages"
   :tag "builtin"
   :added "2021-02-06"
-  :hook (c-mode-hook . lsp)
-  :mode-hook
-  (c-mode-hook . ((c-set-style "bsd")
-                  (setq c-basic-offset 4))))
+  :hook ((c-mode-hook . lsp)))
+
+(leaf google-c-style
+  :doc "Google's C/C++ style for c-mode"
+  :tag "tools" "c"
+  :added "2021-02-19"
+  :ensure t
+  :hook
+  (c-mode-common-hook . google-set-c-style))
+
+(leaf clang-format
+  :doc "Format code using clang-format"
+  :req "cl-lib-0.3"
+  :tag "c" "tools"
+  :added "2021-02-19"
+  :ensure t
+  :config
+  (setq clang-format-style-option "llvm")
+  (add-hook 'c-mode-common-hook
+            (function (lambda ()
+                        (add-hook 'before-save-hook
+                                  'clang-format-buffer)))))
 
 ;; ここにいっぱい設定を書く
 
@@ -398,8 +416,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(imenu-list-position (quote left))
- '(imenu-list-size 30)
+ '(imenu-list-position (quote left) t)
+ '(imenu-list-size 30 t)
  '(package-archives
    (quote
     (("gnu" . "https://elpa.gnu.org/packages/")
@@ -407,7 +425,7 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (robe inf-ruby rbenv ruby-end eglot lsp-ruby yasnippet xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
+    (clang-format google-c-style robe inf-ruby rbenv ruby-end eglot lsp-ruby yasnippet xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
