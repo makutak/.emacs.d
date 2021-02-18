@@ -401,7 +401,7 @@
   :added "2021-02-19"
   :ensure t
   :config
-  (setq clang-format-style-option "llvm")
+  (setq clang-format-style-option "google")
   (add-hook 'c-mode-common-hook
             (function (lambda ()
                         (add-hook 'before-save-hook
