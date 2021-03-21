@@ -291,7 +291,7 @@
   ;; :after spinner markdown-mode lv
   :init (yas-global-mode)
   :bind ("C-c h" . lsp-describe-thing-at-point)
-  ;;:custom (lsp-rust-server 'rust-analyzer)
+  :custom (lsp-prefer-capf . t)
   :config
   (setq lsp-rust-analyzer-cargo-load-out-dirs-from-check t)
   (setq lsp-rust-analyzer-proc-macro-enable t)
@@ -407,6 +407,49 @@
                         (add-hook 'before-save-hook
                                   'clang-format-buffer)))))
 
+(leaf python-mode
+  :doc "Python major mode"
+  :tag "oop" "python" "processes" "languages"
+  :added "2021-03-22"
+  :url "https://gitlab.com/groups/python-mode-devs"
+  :ensure t
+  :config
+  (setq python-indent-offset 4))
+
+(leaf py-yapf
+  :doc "Use yapf to beautify a Python buffer"
+  :added "2021-03-22"
+  :url "https://github.com/paetzke/py-yapf.el"
+  :ensure t
+  :hook
+  (python-mode-hook . py-yapf-enable-on-save))
+
+;; (leaf elpy
+;;   :doc "Emacs Python Development Environment"
+;;   :req "company-0.9.2" "emacs-24.4" "highlight-indentation-0.5.0" "pyvenv-1.3" "yasnippet-0.8.0" "s-1.11.0"
+;;   :tag "tools" "languages" "ide" "python" "emacs>=24.4"
+;;   :added "2021-03-22"
+;;   :url "https://github.com/jorgenschaefer/elpy"
+;;   :emacs>= 24.4
+;;   :ensure t
+;;   :after company highlight-indentation pyvenv yasnippet
+;;   :init
+;;   (elpy-enable))
+
+(leaf lsp-pyright
+  :doc "Python LSP client using Pyright"
+  :req "emacs-26.1" "lsp-mode-7.0" "dash-2.18.0" "ht-2.0"
+  :tag "lsp" "tools" "languages" "emacs>=26.1"
+  :added "2021-03-22"
+  :url "https://github.com/emacs-lsp/lsp-pyright"
+  :emacs>= 26.1
+  :ensure t
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-pyright)
+                         (lsp))))
+
+
+
 ;; ここにいっぱい設定を書く
 
 
@@ -425,7 +468,7 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (clang-format google-c-style robe inf-ruby rbenv ruby-end eglot lsp-ruby yasnippet xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
+    (lsp-pyright elpy py-yapf python-mode clang-format google-c-style robe inf-ruby rbenv ruby-end eglot lsp-ruby yasnippet xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
