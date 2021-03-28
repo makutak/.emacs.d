@@ -54,6 +54,17 @@
 (setq exec-path (cons (expand-file-name "~/.anyenv/envs/rbenv/shims/ruby") exec-path))
 
 
+(defun split-window-horizontally-n (num_wins)
+  (interactive "p")
+  (dotimes (i (- num_wins 1))
+    (split-window-horizontally))
+  (balance-windows))
+
+;;画面を三分割
+(global-set-key "\C-x@" (lambda ()
+                          (interactive)
+                          (split-window-horizontally-n 3)))
+
 (eval-and-compile
   (when (or load-file-name byte-compile-current-file)
     (setq user-emacs-directory
