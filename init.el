@@ -110,11 +110,12 @@
   :bind (("RET" . newline-and-indent)
          ("C-2" . set-mark-command)
          ("C-h" . backward-delete-char)
-         ("C-z" . undo)))
+         ("C-z" . undo)
+         ("C-t" . other-window)))
 
-(leaf windmove-default-keybindings
-  :config
-  (windmove-default-keybindings))
+;; (leaf windmove-default-keybindings
+;;   :config
+;;   (windmove-default-keybindings))
 
 
 (leaf leaf-convert
