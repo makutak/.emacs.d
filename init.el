@@ -65,6 +65,11 @@
                           (interactive)
                           (split-window-horizontally-n 3)))
 
+(setenv "GTAGSLIBPATH" (concat
+                        "~/edk2/MdePkg/Include"
+                        ":"
+                        "~/edk2/MdePkg/Include/X64"))
+
 (eval-and-compile
   (when (or load-file-name byte-compile-current-file)
     (setq user-emacs-directory
@@ -179,7 +184,8 @@
     :url "https://github.com/FelipeLema/emacs-counsel-gtags"
     :emacs>= 25.1
     :ensure t
-    :after counsel))
+    :after counsel
+    :bind ("M-."     . counsel-gtags-dwim)))
 
 (leaf prescient
   :doc "Better sorting and filtering"
@@ -202,17 +208,18 @@
   :custom ((ivy-prescient-retain-classic-highlighting . t))
   :global-minor-mode t)
 
+
 ;; flycheck
-(leaf flycheck
-  :doc "On-the-fly syntax checking"
-  :req "dash-2.12.1" "pkg-info-0.4" "let-alist-1.0.4" "seq-1.11" "emacs-24.3"
-  :tag "minor-mode" "tools" "languages" "convenience" "emacs>=24.3"
-  :url "http://www.flycheck.org"
-  :emacs>= 24.3
-  :ensure t
-  :bind (("M-n" . flycheck-next-error)
-         ("M-p" . flycheck-previous-error))
-  :global-minor-mode global-flycheck-mode)
+;; (leaf flycheck
+;;   :doc "On-the-fly syntax checking"
+;;   :req "dash-2.12.1" "pkg-info-0.4" "let-alist-1.0.4" "seq-1.11" "emacs-24.3"
+;;   :tag "minor-mode" "tools" "languages" "convenience" "emacs>=24.3"
+;;   :url "http://www.flycheck.org"
+;;   :emacs>= 24.3
+;;   :ensure t
+;;   :bind (("M-n" . flycheck-next-error)
+;;          ("M-p" . flycheck-previous-error))
+;;   :global-minor-mode global-flycheck-mode)
 
 
 ;; company
@@ -346,7 +353,10 @@
     :added "2021-01-11"
     :url "https://github.com/emacs-lsp/lsp-ui"
     :emacs>= 26.1
-    :ensure t))
+    :ensure t
+    :custom
+    ((lsp-ui-flycheck-enable . t)
+     (lsp-prefer-flymake . nil))))
 
 
 ;; rust
@@ -424,15 +434,61 @@
   :config
   (setq rbenv-installation-dir "~/.anyenv/envs/rbenv"))
 
-(leaf cc-mode
-  :doc "major mode for editing C and similar languages"
-  :tag "builtin"
-  :added "2021-02-06"
-  :config
-  (eval-after-load 'cc-mode
-      '(progn
-         (define-key c-mode-map  [(tab)] 'company-complete)
-         (define-key c++-mode-map  [(tab)] 'company-complete))))
+
+(leaf ggtags
+  :doc "emacs frontend to GNU Global source code tagging system"
+  :req "emacs-25"
+  :tag "convenience" "tools" "emacs>=25"
+  :added "2021-05-21"
+  :url "https://github.com/leoliu/ggtags"
+  :emacs>= 25
+  :ensure t
+  :init
+  (setq ggtags-global-search-libpath-for-reference t))
+
+;; (leaf cc-mode
+;;   :doc "major mode for editing C and similar languages"
+;;   :tag "builtin"
+;;   :added "2021-02-06"
+;;   :bind (c-mode-base-map
+;;          ("C-c c" . compile))
+;;   :hook ((c-mode-hook . lsp))
+;;   :config
+;;   (eval-after-load 'cc-mode
+;;       '(progn
+;;          (define-key c-mode-map  [(tab)] 'company-complete)
+;;          (define-key c++-mode-map  [(tab)] 'company-complete))))
+
+(require 'eglot)
+(add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd-9"))
+(add-hook 'c-mode-hook 'eglot-ensure)
+(add-hook 'c++-mode-hook 'eglot-ensure)
+(delete 'company-semantic company-backends)
+(require 'cc-mode)
+(define-key c-mode-map  [(tab)] 'company-complete)
+
+
+;; (add-hook 'c-mode-common-hook
+;;           (lambda ()
+;;             (when (derived-mode-p 'c-mode 'c++-mode 'asm-mode)
+;;               (ggtags-mode 1))))
+
+
+
+;; (require 'cc-mode)
+;; (require 'semantic)
+
+;; ;; (global-semanticdb-minor-mode 1)
+;; ;; (global-semantic-idle-scheduler-mode 1)
+
+;; (semantic-mode 1)
+
+;; (defun my-semantic-hook ()
+;;   (semantic-add-system-include "~/edk2/MdePkg/Include" 'c-mode-hook)
+;;   (semantic-add-system-include "~/edk2/MdePkg/Include/X64" 'c-mode-hook))
+
+;; (add-hook 'semantic-init-hook 'my-semantic-hook)
+
 
 (leaf google-c-style
   :doc "Google's C/C++ style for c-mode"
@@ -454,6 +510,12 @@
             (function (lambda ()
                         (add-hook 'before-save-hook
                                   'clang-format-buffer)))))
+
+;; ede begin
+(global-ede-mode 1)
+;; ede end
+(add-hook 'c-mode-hook 'counsel-gtags-mode)
+
 
 (leaf python-mode
   :doc "Python major mode"
@@ -507,8 +569,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(imenu-list-position (quote left) t)
- '(imenu-list-size 30 t)
+ '(ede-project-directories (quote ("/home/tk/work/tmp/emacs")))
+ '(imenu-list-position (quote left))
+ '(imenu-list-size 30)
  '(package-archives
    (quote
     (("gnu" . "https://elpa.gnu.org/packages/")
@@ -516,7 +579,7 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (lsp-pyright elpy py-yapf python-mode clang-format google-c-style robe inf-ruby rbenv ruby-end eglot lsp-ruby yasnippet xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
+    (ggtags company-c-headers counsel-gtags lsp-pyright elpy py-yapf python-mode clang-format google-c-style robe inf-ruby rbenv ruby-end eglot lsp-ruby yasnippet xclip smart-jump flycheck-rust cargo rust-mode lsp-ui lsp-mode rainbow-delimiters paredit company flycheck ivy-prescient prescient counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
