@@ -169,7 +169,17 @@
            ("C-x C-r" . counsel-recentf))
     :custom `((counsel-yank-pop-separator . "\n----------\n")
               (counsel-find-file-ignore-regexp . ,(rx-to-string '(or "./" "../") 'no-group)))
-    :global-minor-mode t))
+    :global-minor-mode t)
+
+  (leaf counsel-gtags
+    :doc "ivy for GNU global"
+    :req "emacs-25.1" "counsel-0.8.0" "seq-1.0"
+    :tag "emacs>=25.1"
+    :added "2021-05-18"
+    :url "https://github.com/FelipeLema/emacs-counsel-gtags"
+    :emacs>= 25.1
+    :ensure t
+    :after counsel))
 
 (leaf prescient
   :doc "Better sorting and filtering"
@@ -214,6 +224,7 @@
   :emacs>= 24.3
   :ensure t
   :blackout t
+  ;;:after c++-mode c-mode
   :leaf-defer nil
   :bind ((company-active-map
           ("M-n" . nil)
@@ -228,7 +239,28 @@
   :custom ((company-idle-delay . 0)
            (company-minimum-prefix-length . 1)
            (company-transformers . '(company-sort-by-occurrence)))
-  :global-minor-mode global-company-mode)
+  :global-minor-mode global-company-mode
+  :config
+  (eval-after-load 'company
+    '(progn
+       (setq company-backends (delete 'company-semantic company-backends)))))
+
+(leaf company-c-headers
+  :doc "Company mode backend for C/C++ header files"
+  :req "emacs-24.1" "company-0.8"
+  :tag "company" "development" "emacs>=24.1"
+  :added "2021-05-18"
+  :emacs>= 24.1
+  :ensure t
+  :after company
+  :defvar company-backends
+  :init
+  (add-to-list 'company-backends 'company-c-headers)
+  :config
+  (eval-after-load 'company-c-headers
+    '(progn
+       (add-to-list 'company-c-headers-path-system "~/edk2/MdePkg/Include")
+       (add-to-list 'company-c-headers-path-system "~/edk2/MdePkg/Include/X64"))))
 
 ;; paredit
 (leaf paredit
@@ -396,7 +428,11 @@
   :doc "major mode for editing C and similar languages"
   :tag "builtin"
   :added "2021-02-06"
-  :hook ((c-mode-hook . lsp)))
+  :config
+  (eval-after-load 'cc-mode
+      '(progn
+         (define-key c-mode-map  [(tab)] 'company-complete)
+         (define-key c++-mode-map  [(tab)] 'company-complete))))
 
 (leaf google-c-style
   :doc "Google's C/C++ style for c-mode"
