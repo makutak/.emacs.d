@@ -147,13 +147,13 @@
 ;; (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 ;; (package-initialize)
 
-;; ここから
-(setq package-selected-packages '(lsp-mode yasnippet lsp-treemacs lsp-ivy counsel
-    projectile hydra flycheck company avy which-key ivy-xref dap-mode))
+;; ここから必要なものを
+;; (setq package-selected-packages '(lsp-mode yasnippet lsp-treemacs lsp-ivy counsel
+;;     projectile hydra flycheck company avy which-key ivy-xref dap-mode))
 
-(when (cl-find-if-not #'package-installed-p package-selected-packages)
-  (package-refresh-contents)
-  (mapc #'package-install package-selected-packages))
+;; (when (cl-find-if-not #'package-installed-p package-selected-packages)
+;;   (package-refresh-contents)
+;;   (mapc #'package-install package-selected-packages))
 
 
 (leaf ivy
@@ -236,6 +236,17 @@
   :custom ((ivy-prescient-retain-classic-highlighting . t))
   :global-minor-mode t)
 
+(leaf which-key
+  :doc "Display available keybindings in popup"
+  :req "emacs-24.4"
+  :tag "emacs>=24.4"
+  :added "2021-05-25"
+  :url "https://github.com/justbur/emacs-which-key"
+  :emacs>= 24.4
+  :ensure t)
+
+;; TODO counsel-gtags どうする？
+
 ;; (ivy-mode 1)
 ;; (counsel-mode 1)
 ;; (setq )
@@ -263,7 +274,7 @@
 ;; (global-set-key (kbd "C-M-f") 'counsel-rg) ;; repository内で全文検索(ripgrep)
 ;; key-bind 何とかする ここまで
 
-(which-key-mode)
+;;(which-key-mode)
 (add-hook 'c-mode-hook 'lsp)
 (add-hook 'c++-mode-hook 'lsp)
 
