@@ -257,6 +257,30 @@
          ("M-p" . flycheck-previous-error))
   :global-minor-mode global-flycheck-mode)
 
+(leaf company
+  :doc "Modular text completion framework"
+  :req "emacs-25.1"
+  :tag "matching" "convenience" "abbrev" "emacs>=25.1"
+  :added "2021-05-27"
+  :url "http://company-mode.github.io/"
+  :emacs>= 25.1
+  :ensure t
+  :blackout t
+  :leaf-defer nil ;;遅延読み込みオフ
+  :bind ((company-active-map
+          ("M-n" . nil)
+          ("M-p" . nil)
+          ("C-s" . company-filter-candidates)
+          ("C-n" . company-select-next)
+          ("C-p" . company-select-previous)
+          ("<tab>" . company-complete-selection))
+         (company-search-map
+          ("C-n" . company-select-next)
+          ("C-p" . company-select-previous)))
+  :custom ((company-idle-delay . 0)
+           (company-minimum-prefix-length . 1)
+           (company-transformers . '(company-sort-by-occurrence)))
+  :global-minor-mode global-company-mode)
 
 ;; TODO counsel-gtags どうする？
 
