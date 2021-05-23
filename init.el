@@ -268,8 +268,8 @@
   :blackout t
   :leaf-defer nil ;;遅延読み込みオフ
   :bind ((company-active-map
-          ("M-n" . nil)
-          ("M-p" . nil)
+          ("M-n" . nil) ;; flycheckでkeybind設定しているので
+          ("M-p" . nil) ;; flycheckでkeybind設定しているので
           ("C-s" . company-filter-candidates)
           ("C-n" . company-select-next)
           ("C-p" . company-select-previous)
@@ -282,36 +282,120 @@
            (company-transformers . '(company-sort-by-occurrence)))
   :global-minor-mode global-company-mode)
 
+(leaf company-c-headers
+  :doc "Company mode backend for C/C++ header files"
+  :req "emacs-24.1" "company-0.8"
+  :tag "company" "development" "emacs>=24.1"
+  :added "2021-05-27"
+  :emacs>= 24.1
+  :ensure t
+  :after company
+  :defvar company-backends
+  :init (add-to-list 'company-backends 'company-c-headers)
+  (eval-after-load 'company-c-headers
+    '(progn
+       (add-to-list 'company-c-headers-path-system "~/edk2/MdePkg/Include")
+       (add-to-list 'company-c-headers-path-system "~/edk2/MdePkg/Include/X64"))))
+
+(leaf paredit
+  :doc "minor mode for editing parentheses"
+  :tag "lisp"
+  :added "2021-05-27"
+  :ensure t
+  :hook ((emacs-lisp-mode-hook . enable-paredit-mode)
+         (lisp-mode-hook . enable-paredit-mode)
+         (lisp-interacton-mode-hook . enable-paredit-mode)
+         (scheme-mode-hook . enable-paredit-mode)))
+
+(leaf smart-jump
+  :doc "Smart go to definition."
+  :req "emacs-25.1"
+  :tag "tools" "emacs>=25.1"
+  :added "2021-05-27"
+  :url "https://github.com/jojojames/smart-jump"
+  :emacs>= 25.1
+  :ensure t
+  :config
+  (smart-jump-setup-default-registers))
+
+(leaf eldoc
+  :doc "Show function arglist or variable docstring in echo area"
+  :tag "builtin"
+  :added "2021-05-27"
+  :hook ((emacs-lisp-mode-hook . turn-on-eldoc-mode)))
+
+(leaf xclip
+  :doc "Copy&paste GUI clipboard from text terminal"
+  :tag "tools" "convenience"
+  :added "2021-05-27"
+  :url "http://elpa.gnu.org/packages/xclip.html"
+  :ensure t
+  :custom ((x-select-enable-clipboard . t)))
+
+(leaf yasnippet
+  :doc "Yet another snippet extension for Emacs"
+  :req "cl-lib-0.5"
+  :tag "emulation" "convenience"
+  :added "2021-05-27"
+  :url "http://github.com/joaotavora/yasnippet"
+  :ensure t)
+
+(leaf autorevert
+  :doc "revert buffers when files on disk change"
+  :tag "builtin"
+  :added "2021-05-27"
+  :custom ((autorevert-interval . 1))
+  :global-minor-mode global-auto-revert-mode)
+
+
+(leaf spinner
+  :doc "Add spinners and progress-bars to the mode-line for ongoing operations"
+  :tag "mode-line" "processes"
+  :added "2021-05-28"
+  :url "https://github.com/Malabarba/spinner.el"
+  :ensure t)
+
+(leaf lsp-mode
+  :doc "LSP mode"
+  :req "emacs-26.1" "dash-2.18.0" "f-0.20.0" "ht-2.3" "spinner-1.7.3" "markdown-mode-2.3" "lv-0"
+  :tag "languages" "emacs>=26.1"
+  :added "2021-05-28"
+  :url "https://github.com/emacs-lsp/lsp-mode"
+  :emacs>= 26.1
+  :ensure t
+  :init (yas-global-mode)
+  :bind ("C-c h" . lsp-describe-thing-at-point)
+  :after spinner markdown-mode lv
+  :custom ((lsp-rust-analyzer-cargo-load-out-dirs-from-check . t)
+           (lsp-rust-analyzer-proc-macro-enable . t)
+           (lsp-prefer-capf . t))
+  :config
+  (leaf lsp-ui
+    :doc "UI modules for lsp-mode"
+    :req "emacs-26.1" "dash-2.18.0" "lsp-mode-6.0" "markdown-mode-2.3"
+    :tag "tools" "languages" "emacs>=26.1"
+    :added "2021-05-28"
+    :url "https://github.com/emacs-lsp/lsp-ui"
+    :emacs>= 26.1
+    :ensure t
+    :after lsp-mode markdown-mode
+    :custom ((lsp-ui-flycheck-enable . t)
+             (lsp-prefer-flymake . nil))))
+
+(leaf dap-mode
+  :doc "Debug Adapter Protocol mode"
+  :req "emacs-26.1" "dash-2.18.0" "lsp-mode-6.0" "bui-1.1.0" "f-0.20.0" "s-1.12.0" "lsp-treemacs-0.1" "posframe-0.7.0" "ht-2.3"
+  :tag "debug" "languages" "emacs>=26.1"
+  :added "2021-05-28"
+  :url "https://github.com/emacs-lsp/dap-mode"
+  :emacs>= 26.1
+  :ensure t
+  :after lsp-mode bui lsp-treemacs posframe)
+
+
+
 ;; TODO counsel-gtags どうする？
 
-;; (ivy-mode 1)
-;; (counsel-mode 1)
-;; (setq )
-;; (setq )
-;; (setq )
-;; (setq
-;;       )
-
-;; (require 'ivy-xref)
-;; (define-key global-map [remap find-file] #'counsel-find-file)
-;; (define-key global-map [remap execute-extended-command] #'counsel-M-x)
-;; (setq counsel-find-file-ignore-regexp (regexp-opt '("./" "../")))
-;; ;;(define-key global-map [remap switch-to-buffer] #'helm-mini)
-
-;; (global-set-key "\C-s" 'swiper)
-;; (setq ) ;; 行数で検索を可能に
-
-;; (global-set-key (kbd "M-x") 'counsel-M-x)
-;; (global-set-key (kbd "M-y") 'counsel-yank-pop)
-;; ;; key-bind 何とかする ここから
-;; (global-set-key (kbd "C-M-z") 'counsel-fzf) ;; ファジー検索
-;; (global-set-key (kbd "C-M-r") 'counsel-recentf)
-;; (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
-;; ;;(global-set-key (kbd "C-M-f") 'counsel-ag) ;; repository内で全文検索(ag)
-;; (global-set-key (kbd "C-M-f") 'counsel-rg) ;; repository内で全文検索(ripgrep)
-;; key-bind 何とかする ここまで
-
-;;(which-key-mode)
 (add-hook 'c-mode-hook 'lsp)
 (add-hook 'c++-mode-hook 'lsp)
 
@@ -332,8 +416,23 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(imenu-list-position (quote left))
- '(imenu-list-size 30)
+ '(autorevert-interval 1 t)
+ '(company-idle-delay 0)
+ '(company-minimum-prefix-length 1)
+ '(company-transformers (quote (company-sort-by-occurrence)))
+ '(counsel-find-file-ignore-regexp "\\(?:\\.\\(?:\\.?/\\)\\)")
+ '(counsel-yank-pop-separator "
+----------
+")
+ '(enable-recursive-minibuffers t)
+ '(imenu-list-position (quote left) t)
+ '(imenu-list-size 30 t)
+ '(ivy-extra-directories nil)
+ '(ivy-initial-inputs-alist nil)
+ '(ivy-prescient-retain-classic-highlighting t)
+ '(ivy-re-builders-alist (quote ((t . ivy-prescient-re-builder))) t)
+ '(ivy-use-selectable-prompt t)
+ '(ivy-use-virtual-buffers t)
  '(package-archives
    (quote
     (("gnu" . "https://elpa.gnu.org/packages/")
@@ -341,7 +440,10 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (ivy-prescient prescient color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get leaf-keywords leaf lsp-mode yasnippet lsp-treemacs lsp-ivy counsel projectile hydra flycheck company avy which-key ivy-xref dap-mode))))
+    (lsp-ui smart-jump-setup-default-registers xclip smart-jump smartrep paredit company-c-headers ivy-prescient prescient color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get leaf-keywords leaf lsp-mode yasnippet lsp-treemacs lsp-ivy counsel projectile hydra flycheck company avy which-key ivy-xref dap-mode)))
+ '(prescient-aggressive-file-save t)
+ '(select-enable-clipboard t)
+ '(swiper-include-line-number-in-search t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
