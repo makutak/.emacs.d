@@ -48,13 +48,8 @@
 ;; diredのファイルサイズ単位を読みやすく
 (setq dired-listing-switches (purecopy "-alh"))
 ;; exec path
-(setq exec-path
-      (append
-       (list
-        (expand-file-name "~/.local/bin")
-        (expand-file-name "~/.cargo/bin")
-        (expand-file-name "~/.anyenv/envs/rbenv/shims/ruby"))
-       exec-path))
+(add-to-list 'exec-path (expand-file-name "~/.cargo/bin/"))
+(add-to-list 'exec-path (expand-file-name "~/.anyenv/envs/rbenv/shims/ruby"))
 
 ;; 仮面分割用
 (defun split-window-horizontally-n (num_wins)
@@ -245,6 +240,12 @@
   :emacs>= 24.4
   :ensure t)
 
+(leaf delsel
+  :doc "delete selection if you insert"
+  :tag "builtin"
+  :global-minor-mode delete-selection-mode)
+
+
 ;; flycheck
 (leaf flycheck
   :doc "On-the-fly syntax checking"
@@ -291,7 +292,8 @@
   :ensure t
   :after company
   :defvar company-backends
-  :init (add-to-list 'company-backends 'company-c-headers)
+  :config
+  (add-to-list 'company-backends 'company-c-headers)
   (eval-after-load 'company-c-headers
     '(progn
        (add-to-list 'company-c-headers-path-system "~/edk2/MdePkg/Include")
@@ -347,13 +349,48 @@
   :custom ((autorevert-interval . 1))
   :global-minor-mode global-auto-revert-mode)
 
-
-(leaf spinner
-  :doc "Add spinners and progress-bars to the mode-line for ongoing operations"
-  :tag "mode-line" "processes"
+(leaf dap-mode
+  :doc "Debug Adapter Protocol mode"
+  :req "emacs-26.1" "dash-2.18.0" "lsp-mode-6.0" "bui-1.1.0" "f-0.20.0" "s-1.12.0" "lsp-treemacs-0.1" "posframe-0.7.0" "ht-2.3"
+  :tag "debug" "languages" "emacs>=26.1"
   :added "2021-05-28"
-  :url "https://github.com/Malabarba/spinner.el"
+  :url "https://github.com/emacs-lsp/dap-mode"
+  :emacs>= 26.1
+  :ensure t
+  :after lsp-mode bui lsp-treemacs posframe)
+
+(leaf flycheck-rust
+  :doc "Flycheck: Rust additions and Cargo support"
+  :req "emacs-24.1" "flycheck-28" "dash-2.13.0" "seq-2.3" "let-alist-1.0.4"
+  :tag "convenience" "tools" "emacs>=24.1"
+  :added "2021-01-11"
+  :url "https://github.com/flycheck/flycheck-rust"
+  :emacs>= 24.1
   :ensure t)
+
+;; rust
+(leaf rust-mode
+  :doc "A major-mode for editing Rust source code"
+  :req "emacs-25.1"
+  :tag "languages" "emacs>=25.1"
+  :added "2021-05-30"
+  :url "https://github.com/rust-lang/rust-mode"
+  :emacs>= 25.1
+  :ensure t
+  :custom ((rust-format-on-save . t))
+  :bind ("M-RET" . lsp-execute-code-action)
+  :hook ((rust-mode-hook . flycheck-rust-setup))
+  :config
+  (leaf cargo
+    :doc "Emacs Minor Mode for Cargo, Rust's Package Manager."
+    :req "emacs-24.3" "markdown-mode-2.4"
+    :tag "tools" "emacs>=24.3"
+    :added "2021-05-30"
+    :emacs>= 24.3
+    :ensure t
+    :disabled t
+    :after markdown-mode
+    :hook ((rust-mode-hook . cargo-minor-mode))))
 
 (leaf lsp-mode
   :doc "LSP mode"
@@ -365,11 +402,15 @@
   :ensure t
   :init (yas-global-mode)
   :bind ("C-c h" . lsp-describe-thing-at-point)
-  :after spinner markdown-mode lv
-  :custom ((lsp-rust-analyzer-cargo-load-out-dirs-from-check . t)
+  ;;:after spinner markdown-mode lv rust-mode
+  :hook ((rust-mode-hook . lsp))
+  :custom ((lsp-rust-server . 'rust-analyzer)
+           (lsp-rust-analyzer-cargo-load-out-dirs-from-check . t)
            (lsp-rust-analyzer-proc-macro-enable . t)
            (lsp-prefer-capf . t))
   :config
+  (with-eval-after-load 'lsp-mode
+    (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
   (leaf lsp-ui
     :doc "UI modules for lsp-mode"
     :req "emacs-26.1" "dash-2.18.0" "lsp-mode-6.0" "markdown-mode-2.3"
@@ -382,57 +423,30 @@
     :custom ((lsp-ui-flycheck-enable . t)
              (lsp-prefer-flymake . nil))))
 
-(leaf dap-mode
-  :doc "Debug Adapter Protocol mode"
-  :req "emacs-26.1" "dash-2.18.0" "lsp-mode-6.0" "bui-1.1.0" "f-0.20.0" "s-1.12.0" "lsp-treemacs-0.1" "posframe-0.7.0" "ht-2.3"
-  :tag "debug" "languages" "emacs>=26.1"
-  :added "2021-05-28"
-  :url "https://github.com/emacs-lsp/dap-mode"
-  :emacs>= 26.1
-  :ensure t
-  :after lsp-mode bui lsp-treemacs posframe)
-
-
 
 ;; TODO counsel-gtags どうする？
 
-(add-hook 'c-mode-hook 'lsp)
-(add-hook 'c++-mode-hook 'lsp)
+;; (add-hook 'c-mode-hook 'lsp)
+;; (add-hook 'c++-mode-hook 'lsp)
 
-(setq gc-cons-threshold (* 100 1024 1024)
-      read-process-output-max (* 1024 1024)
-      treemacs-space-between-root-nodes nil
-      company-idle-delay 0.0
-      company-minimum-prefix-length 1
-      lsp-idle-delay 0.1)  ;; clangd is fast
+;; (setq gc-cons-threshold (* 100 1024 1024)
+;;       read-process-output-max (* 1024 1024)
+;;       treemacs-space-between-root-nodes nil
+;;       company-idle-delay 0.0
+;;       company-minimum-prefix-length 1
+;;       lsp-idle-delay 0.1)  ;; clangd is fast
 
-(with-eval-after-load 'lsp-mode
-  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
-  (require 'dap-cpptools)
-  (yas-global-mode))
-
+;; (with-eval-after-load 'lsp-mode
+;;   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+;;   (require 'dap-cpptools)
+;;   (yas-global-mode))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(autorevert-interval 1 t)
- '(company-idle-delay 0)
- '(company-minimum-prefix-length 1)
- '(company-transformers (quote (company-sort-by-occurrence)))
- '(counsel-find-file-ignore-regexp "\\(?:\\.\\(?:\\.?/\\)\\)")
- '(counsel-yank-pop-separator "
-----------
-")
- '(enable-recursive-minibuffers t)
- '(imenu-list-position (quote left) t)
- '(imenu-list-size 30 t)
- '(ivy-extra-directories nil)
- '(ivy-initial-inputs-alist nil)
- '(ivy-prescient-retain-classic-highlighting t)
- '(ivy-re-builders-alist (quote ((t . ivy-prescient-re-builder))) t)
- '(ivy-use-selectable-prompt t)
- '(ivy-use-virtual-buffers t)
+ '(imenu-list-position (quote left))
+ '(imenu-list-size 30)
  '(package-archives
    (quote
     (("gnu" . "https://elpa.gnu.org/packages/")
@@ -440,10 +454,7 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (lsp-ui smart-jump-setup-default-registers xclip smart-jump smartrep paredit company-c-headers ivy-prescient prescient color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get leaf-keywords leaf lsp-mode yasnippet lsp-treemacs lsp-ivy counsel projectile hydra flycheck company avy which-key ivy-xref dap-mode)))
- '(prescient-aggressive-file-save t)
- '(select-enable-clipboard t)
- '(swiper-include-line-number-in-search t))
+    (lsp-ui rust-mode flycheck-rust dap-mode spinner yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
