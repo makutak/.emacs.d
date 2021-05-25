@@ -179,36 +179,37 @@
     :bind (("C-s" . swiper))
     :custom ((swiper-include-line-number-in-search . t)))
 
-  (leaf counsel
-    :doc "Various completion functions using Ivy"
-    :req "emacs-24.5" "swiper-0.13.0"
-    :tag "tools" "matching" "convenience" "emacs>=24.5"
-    :url "https://github.com/abo-abo/swiper"
-    :emacs>= 24.5
-    :ensure t
-    :blackout t
-    :bind (("C-S-s" . counsel-imenu)
-           ("C-x C-r" . counsel-recentf)
-           ("C-x C-f" . counsel-find-file)
-           ("M-x" . counsel-M-x)
-           ("M-y" . counsel-yank-pop)
-           ("C-M-z" . counsel-fzf)
-           ("C-M-r" . counsel-recentf)
-           ("C-x C-b" . counsel-ibuffer)
-           ("C-M-f" . counsel-rg))
-    :custom `((counsel-yank-pop-separator . "\n----------\n")
-              (counsel-find-file-ignore-regexp . ,(rx-to-string '(or "./" "../") 'no-group)))
-    :global-minor-mode t)
+    (leaf counsel
+      :doc "Various completion functions using Ivy"
+      :req "emacs-24.5" "swiper-0.13.0"
+      :tag "tools" "matching" "convenience" "emacs>=24.5"
+      :url "https://github.com/abo-abo/swiper"
+      :emacs>= 24.5
+      :ensure t
+      :blackout t
+      :bind (("C-S-s" . counsel-imenu)
+             ("C-x C-r" . counsel-recentf)
+             ("C-x C-f" . counsel-find-file)
+             ("M-x" . counsel-M-x)
+             ("M-y" . counsel-yank-pop)
+             ("C-M-z" . counsel-fzf)
+             ("C-M-r" . counsel-recentf)
+             ("C-x C-b" . counsel-ibuffer)
+                                        ;("C-M-f" . counsel-rg)
+             )
+      :custom `((counsel-yank-pop-separator . "\n----------\n")
+                (counsel-find-file-ignore-regexp . ,(rx-to-string '(or "./" "../") 'no-group)))
+      :global-minor-mode t)
 
-  (leaf ivy-xref
-    :doc "Ivy interface for xref results"
-    :req "emacs-25.1" "ivy-0.10.0"
-    :tag "emacs>=25.1"
-    :added "2021-05-25"
-    :url "https://github.com/alexmurray/ivy-xref"
-    :emacs>= 25.1
-    :ensure t
-    :after ivy))
+    (leaf ivy-xref
+      :doc "Ivy interface for xref results"
+      :req "emacs-25.1" "ivy-0.10.0"
+      :tag "emacs>=25.1"
+      :added "2021-05-25"
+      :url "https://github.com/alexmurray/ivy-xref"
+      :emacs>= 25.1
+      :ensure t
+      :after ivy))
 
 (leaf prescient
   :doc "Better sorting and filtering"
