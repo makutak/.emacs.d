@@ -424,6 +424,76 @@
     :custom ((lsp-ui-flycheck-enable . t)
              (lsp-prefer-flymake . nil))))
 
+(leaf ruby-mode
+  :doc "Major mode for editing Ruby files"
+  :tag "builtin"
+  :added "2021-05-31"
+  :custom
+  (ruby-insert-encoding-magic-comment . nil)
+  :config
+  (leaf inf-ruby
+    :doc "Run a Ruby process in a buffer"
+    :req "emacs-24.3"
+    :tag "ruby" "languages" "emacs>=24.3"
+    :added "2021-05-31"
+    :url "http://github.com/nonsequitur/inf-ruby"
+    :emacs>= 24.3
+    :ensure t
+    :hook ((ruby-mode-hook . inf-ruby-minor-mode))
+    :config
+    (autoload 'inf-ruby-minor-mode "inf-ruby" "Run an inferior Ruby process" t))
+  (leaf ruby-end
+    :doc "Automatic insertion of end blocks for Ruby"
+    :tag "ruby" "convenience" "speed"
+    :added "2021-05-31"
+    :url "http://github.com/rejeep/ruby-end"
+    :ensure t)
+  (leaf robe
+    :doc "Code navigation, documentation lookup and completion for Ruby"
+    :req "inf-ruby-2.5.1" "emacs-24.4"
+    :tag "rails" "convenience" "ruby" "emacs>=24.4"
+    :added "2021-05-31"
+    :url "https://github.com/dgutov/robe"
+    :emacs>= 24.4
+    :ensure t
+    :after inf-ruby
+    :hook ((ruby-mode-hook . robe-mode))))
+
+(leaf rbenv
+  :doc "Emacs integration for rbenv"
+  :tag "rbenv" "ruby"
+  :added "2021-05-31"
+  :url "https://github.com/senny/rbenv.el"
+  :ensure t
+  :custom ((rbenv-installation-dir . "~/.anyenv/envs/rbenv")))
+
+(leaf projectile
+  :doc "Manage and navigate projects in Emacs easily"
+  :req "emacs-25.1" "pkg-info-0.4"
+  :tag "convenience" "project" "emacs>=25.1"
+  :added "2021-05-31"
+  :url "https://github.com/bbatsov/projectile"
+  :emacs>= 25.1
+  :ensure t
+  :custom ((projectile-completion-system . 'ivy))
+  :bind ("C-c p" . projectile-command-map)
+  :hook ((projectile-mode-hook . projectile-rails-global-mode))
+  :global-minor-mode projectile-mode)
+
+(leaf projectile-rails
+  :doc "Minor mode for Rails projects based on projectile-mode"
+  :req "emacs-24.3" "projectile-0.12.0" "inflections-1.1" "inf-ruby-2.2.6" "f-0.13.0" "rake-0.3.2"
+  :tag "projectile" "rails" "emacs>=24.3"
+  :added "2021-05-31"
+  :url "https://github.com/asok/projectile-rails"
+  :emacs>= 24.3
+  :ensure t
+  :after projectile inflections inf-ruby rake
+  :bind ("C-c r" . projectile-rails-command-map)
+  :global-minor-mode projectile-rails-global-mode)
+
+
+
 
 ;; TODO counsel-gtags どうする？
 
@@ -446,8 +516,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(imenu-list-position (quote left))
- '(imenu-list-size 30)
+ '(imenu-list-position (quote left) t)
+ '(imenu-list-size 30 t)
  '(package-archives
    (quote
     (("gnu" . "https://elpa.gnu.org/packages/")
@@ -455,7 +525,7 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (lsp-ui rust-mode flycheck-rust dap-mode spinner yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
+    (projectile-rails rbenv robe ruby-end inf-ruby lsp-ui rust-mode flycheck-rust dap-mode spinner yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
