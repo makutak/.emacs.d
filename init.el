@@ -195,7 +195,7 @@
              ("C-M-z" . counsel-fzf)
              ("C-M-r" . counsel-recentf)
              ("C-x C-b" . counsel-ibuffer)
-                                        ;("C-M-f" . counsel-rg)
+             ;("C-M-f" . counsel-rg)
              )
       :custom `((counsel-yank-pop-separator . "\n----------\n")
                 (counsel-find-file-ignore-regexp . ,(rx-to-string '(or "./" "../") 'no-group)))
@@ -393,37 +393,6 @@
     :after markdown-mode
     :hook ((rust-mode-hook . cargo-minor-mode))))
 
-(leaf lsp-mode
-  :doc "LSP mode"
-  :req "emacs-26.1" "dash-2.18.0" "f-0.20.0" "ht-2.3" "spinner-1.7.3" "markdown-mode-2.3" "lv-0"
-  :tag "languages" "emacs>=26.1"
-  :added "2021-05-28"
-  :url "https://github.com/emacs-lsp/lsp-mode"
-  :emacs>= 26.1
-  :ensure t
-  :init (yas-global-mode)
-  :bind ("C-c h" . lsp-describe-thing-at-point)
-  ;;:after spinner markdown-mode lv rust-mode
-  :hook ((rust-mode-hook . lsp))
-  :custom ((lsp-rust-server . 'rust-analyzer)
-           (lsp-rust-analyzer-cargo-load-out-dirs-from-check . t)
-           (lsp-rust-analyzer-proc-macro-enable . t)
-           (lsp-prefer-capf . t))
-  :config
-  (with-eval-after-load 'lsp-mode
-    (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
-  (leaf lsp-ui
-    :doc "UI modules for lsp-mode"
-    :req "emacs-26.1" "dash-2.18.0" "lsp-mode-6.0" "markdown-mode-2.3"
-    :tag "tools" "languages" "emacs>=26.1"
-    :added "2021-05-28"
-    :url "https://github.com/emacs-lsp/lsp-ui"
-    :emacs>= 26.1
-    :ensure t
-    :after lsp-mode markdown-mode
-    :custom ((lsp-ui-flycheck-enable . t)
-             (lsp-prefer-flymake . nil))))
-
 (leaf ruby-mode
   :doc "Major mode for editing Ruby files"
   :tag "builtin"
@@ -475,10 +444,13 @@
   :url "https://github.com/bbatsov/projectile"
   :emacs>= 25.1
   :ensure t
-  :custom ((projectile-completion-system . 'ivy))
+  :custom ((projectile-completion-system . 'ivy)
+           (projectile-enable-caching . t))
   :bind ("C-c p" . projectile-command-map)
   :hook ((projectile-mode-hook . projectile-rails-global-mode))
-  :global-minor-mode projectile-mode)
+  :global-minor-mode projectile-mode
+  :config
+  (add-to-list 'projectile-globally-ignored-directories "node_modules"))
 
 (leaf projectile-rails
   :doc "Minor mode for Rails projects based on projectile-mode"
@@ -492,7 +464,7 @@
   :bind ("C-c r" . projectile-rails-command-map)
   :global-minor-mode projectile-rails-global-mode)
 
-
+;; TODO: ruby lsp の設定
 
 
 ;; TODO counsel-gtags どうする？
@@ -511,13 +483,50 @@
 ;;   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
 ;;   (require 'dap-cpptools)
 ;;   (yas-global-mode))
+
+
+
+;; lsp
+(leaf lsp-mode
+  :doc "LSP mode"
+  :req "emacs-26.1" "dash-2.18.0" "f-0.20.0" "ht-2.3" "spinner-1.7.3" "markdown-mode-2.3" "lv-0"
+  :tag "languages" "emacs>=26.1"
+  :added "2021-05-28"
+  :url "https://github.com/emacs-lsp/lsp-mode"
+  :emacs>= 26.1
+  :ensure t
+  :init (yas-global-mode)
+  :bind ("C-c h" . lsp-describe-thing-at-point)
+  ;;:after spinner markdown-mode lv rust-mode
+  :hook ((rust-mode-hook . lsp))
+  :custom ((lsp-rust-server . 'rust-analyzer)
+           (lsp-rust-analyzer-cargo-load-out-dirs-from-check . t)
+           (lsp-rust-analyzer-proc-macro-enable . t)
+           (lsp-prefer-capf . t))
+  :config
+  (with-eval-after-load 'lsp-mode
+    (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+  (leaf lsp-ui
+    :doc "UI modules for lsp-mode"
+    :req "emacs-26.1" "dash-2.18.0" "lsp-mode-6.0" "markdown-mode-2.3"
+    :tag "tools" "languages" "emacs>=26.1"
+    :added "2021-05-28"
+    :url "https://github.com/emacs-lsp/lsp-ui"
+    :emacs>= 26.1
+    :ensure t
+    :after lsp-mode markdown-mode
+    :custom ((lsp-ui-flycheck-enable . t)
+             (lsp-prefer-flymake . nil))))
+
+
+(provide 'init)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(imenu-list-position (quote left) t)
- '(imenu-list-size 30 t)
+ '(imenu-list-position (quote left))
+ '(imenu-list-size 30)
  '(package-archives
    (quote
     (("gnu" . "https://elpa.gnu.org/packages/")
@@ -525,7 +534,7 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (projectile-rails rbenv robe ruby-end inf-ruby lsp-ui rust-mode flycheck-rust dap-mode spinner yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
+    (projectile-rails projectile rbenv robe ruby-end inf-ruby lsp-ui rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
