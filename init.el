@@ -464,6 +464,15 @@
   :bind ("C-c r" . projectile-rails-command-map)
   :global-minor-mode projectile-rails-global-mode)
 
+(leaf quickrun
+  :doc "Run commands quickly"
+  :req "emacs-24.3"
+  :tag "emacs>=24.3"
+  :added "2021-06-01"
+  :url "https://github.com/syohex/emacs-quickrun"
+  :emacs>= 24.3
+  :ensure t)
+
 ;; TODO: ruby lsp の設定
 
 
@@ -498,7 +507,9 @@
   :init (yas-global-mode)
   :bind ("C-c h" . lsp-describe-thing-at-point)
   ;;:after spinner markdown-mode lv rust-mode
-  :hook ((rust-mode-hook . lsp))
+  :hook ((rust-mode-hook . lsp)
+         (c-mode-hook . lsp)
+         (cc-mode-hook lsp))
   :custom ((lsp-rust-server . 'rust-analyzer)
            (lsp-rust-analyzer-cargo-load-out-dirs-from-check . t)
            (lsp-rust-analyzer-proc-macro-enable . t)
@@ -534,7 +545,7 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (projectile-rails projectile rbenv robe ruby-end inf-ruby lsp-ui rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
+    (quickrun projectile-rails projectile rbenv robe ruby-end inf-ruby lsp-ui rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
