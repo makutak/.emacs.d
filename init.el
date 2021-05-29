@@ -113,8 +113,7 @@
          ("C-2" . set-mark-command)
          ("C-h" . backward-delete-char)
          ("C-z" . undo)
-         ("C-t" . other-window)
-         ))
+         ("C-t" . other-window)))
 
 ;; (leaf windmove-default-keybindings
 ;;   :config
@@ -508,8 +507,7 @@
   :bind ("C-c h" . lsp-describe-thing-at-point)
   ;;:after spinner markdown-mode lv rust-mode
   :hook ((rust-mode-hook . lsp)
-         (c-mode-hook . lsp)
-         (cc-mode-hook lsp))
+         (c-mode-hook . lsp))
   :custom ((lsp-rust-server . 'rust-analyzer)
            (lsp-rust-analyzer-cargo-load-out-dirs-from-check . t)
            (lsp-rust-analyzer-proc-macro-enable . t)
@@ -527,7 +525,22 @@
     :ensure t
     :after lsp-mode markdown-mode
     :custom ((lsp-ui-flycheck-enable . t)
-             (lsp-prefer-flymake . nil))))
+             (lsp-prefer-flymake . nil)))
+
+  (leaf ccls
+  :doc "ccls client for lsp-mode"
+  :req "emacs-25.1" "lsp-mode-6.3.1" "dash-2.14.1"
+  :tag "c++" "lsp" "languages" "emacs>=25.1"
+  :added "2021-06-05"
+  :url "https://github.com/MaskRay/emacs-ccls"
+  :emacs>= 25.1
+  :ensure t
+  :after lsp-mode
+  :custom  ((ccls-executable . "/usr/local/bin/ccls"))
+  :hook ((c-mode c++-mode objc-mode cuda-mode) .
+         (lambda () (require 'ccls) (lsp)))))
+
+
 
 
 (provide 'init)
@@ -536,8 +549,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(imenu-list-position (quote left))
- '(imenu-list-size 30)
+ '(imenu-list-position (quote left) t)
+ '(imenu-list-size 30 t)
  '(package-archives
    (quote
     (("gnu" . "https://elpa.gnu.org/packages/")
@@ -545,7 +558,7 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (quickrun projectile-rails projectile rbenv robe ruby-end inf-ruby lsp-ui rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
+    (ccls quickrun projectile-rails projectile rbenv robe ruby-end inf-ruby lsp-ui rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
