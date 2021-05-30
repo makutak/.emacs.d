@@ -292,12 +292,9 @@
   :ensure t
   :after company
   :defvar company-backends
+  :custom ((company-c-headers-path-system . "~/edk2/MdePkg/Include"))
   :config
-  (add-to-list 'company-backends 'company-c-headers)
-  (eval-after-load 'company-c-headers
-    '(progn
-       (add-to-list 'company-c-headers-path-system "~/edk2/MdePkg/Include")
-       (add-to-list 'company-c-headers-path-system "~/edk2/MdePkg/Include/X64"))))
+  (add-to-list 'company-backends 'company-c-headers))
 
 (leaf paredit
   :doc "minor mode for editing parentheses"
@@ -444,12 +441,11 @@
   :emacs>= 25.1
   :ensure t
   :custom ((projectile-completion-system . 'ivy)
-           (projectile-enable-caching . t))
+           (projectile-enable-caching . t)
+           (projectile-globally-ignored-directories . "node_modules"))
   :bind ("C-c p" . projectile-command-map)
   :hook ((projectile-mode-hook . projectile-rails-global-mode))
-  :global-minor-mode projectile-mode
-  :config
-  (add-to-list 'projectile-globally-ignored-directories "node_modules"))
+  :global-minor-mode projectile-mode)
 
 (leaf projectile-rails
   :doc "Minor mode for Rails projects based on projectile-mode"
@@ -473,26 +469,7 @@
   :ensure t)
 
 ;; TODO: ruby lsp の設定
-
-
-;; TODO counsel-gtags どうする？
-
-;; (add-hook 'c-mode-hook 'lsp)
-;; (add-hook 'c++-mode-hook 'lsp)
-
-;; (setq gc-cons-threshold (* 100 1024 1024)
-;;       read-process-output-max (* 1024 1024)
-;;       treemacs-space-between-root-nodes nil
-;;       company-idle-delay 0.0
-;;       company-minimum-prefix-length 1
-;;       lsp-idle-delay 0.1)  ;; clangd is fast
-
-;; (with-eval-after-load 'lsp-mode
-;;   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
-;;   (require 'dap-cpptools)
-;;   (yas-global-mode))
-
-
+;; TODO: counsel-gtags どうする？
 
 ;; lsp
 (leaf lsp-mode
@@ -536,11 +513,10 @@
   :emacs>= 25.1
   :ensure t
   :after lsp-mode
-  :custom  ((ccls-executable . "/usr/local/bin/ccls"))
+  :custom  ((ccls-executable . "/usr/local/bin/ccls")
+            (lsp-prefer-flymake . nil))
   :hook ((c-mode c++-mode objc-mode cuda-mode) .
          (lambda () (require 'ccls) (lsp)))))
-
-
 
 
 (provide 'init)
