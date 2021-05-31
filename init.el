@@ -6,67 +6,6 @@
 
 ;;; Code:
 
-;; Nihongo
-(set-language-environment "Japanese")
-(setq default-process-coding-system '(utf-8 . utf-8))
-(set-default-coding-systems 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-clipboard-coding-system 'utf-8)
-(set-buffer-file-coding-system 'utf-8-unix)
-(prefer-coding-system 'utf-8)
-(setq file-name-coding-system 'utf-8)
-(setq default-buffer-file-coding-system 'utf-8)
-;; Use UTF-8.
-(prefer-coding-system 'utf-8)
-;; Prevent beeping.
-(setq ring-bell-function 'ignore)
-(setq make-backup-files nil)
-(setq auto-save-default nil)
-;;ツールバーをなくす
-(tool-bar-mode -1)
-;メニューバーをなくす
-(menu-bar-mode -1)
-(setq inhibit-startup-message t)
-(setq initial-scratch-message "")
-(setq initial-major-mode 'emacs-lisp-mode)
-;; Show key strokes in minibuffer quickly.
-(setq echo-keystrokes 0.1)
-;; スクロールは１行ごとに
-(setq scroll-conservatively 1)
-;;タブを2スペースに
-(setq-default tab-width 2 indent-tabs-mode nil)
-;; yes or no -> y or n
-(fset 'yes-or-no-p 'y-or-n-p)
-;;文末の空行を削除
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-;; Highlights matching parenthesis
-(show-paren-mode 1)
-;; Highlight current line
-(global-hl-line-mode 1)
-(electric-pair-mode 1)
-;; diredのファイルサイズ単位を読みやすく
-(setq dired-listing-switches (purecopy "-alh"))
-;; exec path
-(add-to-list 'exec-path (expand-file-name "~/.cargo/bin/"))
-(add-to-list 'exec-path (expand-file-name "~/.anyenv/envs/rbenv/shims/ruby"))
-
-;; 仮面分割用
-(defun split-window-horizontally-n (num_wins)
-  (interactive "p")
-  (dotimes (i (- num_wins 1))
-    (split-window-horizontally))
-  (balance-windows))
-
-;;画面を三分割
-(global-set-key "\C-x@" (lambda ()
-                          (interactive)
-                          (split-window-horizontally-n 3)))
-
-;; エラー時にデバッガ起動
-(setq debug-on-error t)
-
-
 (eval-and-compile
   (when (or load-file-name byte-compile-current-file)
     (setq user-emacs-directory
@@ -106,6 +45,103 @@
 (leaf macrostep
   :ensure t
   :bind (("C-c e" . macrostep-expand)))
+
+(leaf cus-start
+  :doc "define customization properties of builtins"
+  :tag "builtin" "internal"
+  :added "2021-06-07"
+  :preface
+  ;; 画面分割用
+  (defun split-window-horizontally-n (num_wins)
+    (interactive "p")
+    (dotimes (_ (- num_wins 1))
+      (split-window-horizontally))
+    (balance-windows))
+  ;; ;;画面を三分割
+  (defun split-window-horizontally-3 nil
+    (interactive)
+    (split-window-horizontally-n 3))
+  :bind (("C-x @" . split-window-horizontally-3))
+  :custom (;;ツールバーをなくす
+           (tool-bar-mode . nil)
+           ;;メニューバーをなくす
+           (menu-bar-mode . nil)
+           (inhibit-startup-message . t)
+           ;;(initial-scratch-message . "")
+           (initial-major-mode . 'emacs-lisp-mode)
+           ;; Prevent beeping.
+           (ring-bell-function . 'ignore)
+           (make-backup-files . nil)
+           (auto-save-default . nil)
+           ;; Show key strokes in minibuffer quickly.
+           (echo-keystrokes . 0.1)
+           ;; スクロールは１行ごとに
+           (scroll-conservatively . 1)
+           ;;タブを2スペースに
+           (tab-width . 2)
+           (indent-tabs-mode . nil)
+           ;; Nihongo
+           (set-language-environment . "Japanese")
+           (default-process-coding-system . '(utf-8 . utf-8))
+           (set-default-coding-systems . 'utf-8)
+           (set-terminal-coding-system . 'utf-8)
+           (set-keyboard-coding-system . 'utf-8)
+           (set-clipboard-coding-system . 'utf-8)
+           (set-buffer-file-coding-system . 'utf-8-unix)
+           (file-name-coding-system . 'utf-8)
+           (default-buffer-file-coding-system . 'utf-8)
+           ;; Use UTF-8
+           (prefer-coding-system . 'utf-8)
+           ;; エラー時にデバッガ起動
+           (debug-on-error . t))
+  :config
+  (fset 'yes-or-no-p 'y-or-n-p)
+  ;;文末の空行を削除
+  (add-hook 'before-save-hook 'delete-trailing-whitespace))
+
+;; exec path
+;; (add-to-list 'exec-path (expand-file-name "~/.cargo/bin/"))
+;; (add-to-list 'exec-path (expand-file-name "~/.anyenv/envs/rbenv/shims/ruby"))
+(leaf exec-path-from-shell
+  :doc "Get environment variables such as $PATH from the shell"
+  :req "emacs-24.1" "cl-lib-0.6"
+  :tag "environment" "unix" "emacs>=24.1"
+  :added "2021-06-08"
+  :url "https://github.com/purcell/exec-path-from-shell"
+  :emacs>= 24.1
+  :ensure t
+  :custom ((exec-path-from-shell-check-startup-files . nil)
+           (exec-path-from-shell-variables . '("PATH" "C_INCLUDE_PATH"))))
+
+
+(leaf dired
+  :doc "directory-browsing commands"
+  :tag "builtin" "files"
+  :added "2021-06-08"
+  :custom
+  (dired-auto-revert-buffer . t)
+  (dired-listing-switches . "-alh"))
+
+
+
+(leaf paren
+  :doc "highlight matching paren"
+  :tag "builtin"
+  :added "2021-06-08"
+  :hook (emacs-startup-hook . show-paren-mode))
+
+(leaf hl-line
+  :doc "highlight the current line"
+  :tag "builtin"
+  :added "2021-06-08"
+  :global-minor-mode t)
+
+(leaf electric
+  :doc "window maker and Command loop for `electric' modes"
+  :tag "builtin"
+  :added "2021-06-08"
+  :init (electric-pair-mode 1))
+
 
 ;; keybindigs
 (leaf key-binding
@@ -148,7 +184,6 @@
 ;; (when (cl-find-if-not #'package-installed-p package-selected-packages)
 ;;   (package-refresh-contents)
 ;;   (mapc #'package-install package-selected-packages))
-
 
 (leaf ivy
   :doc "Incremental Vertical completYon"
@@ -525,8 +560,23 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(imenu-list-position (quote left) t)
- '(imenu-list-size 30 t)
+ '(auto-save-default nil)
+ '(debug-on-error t)
+ '(default-buffer-file-coding-system (quote utf-8) t)
+ '(default-process-coding-system (quote (utf-8 . utf-8)) t)
+ '(dired-auto-revert-buffer t)
+ '(echo-keystrokes 0.1)
+ '(exec-path-from-shell-check-startup-files nil t)
+ '(exec-path-from-shell-variables (quote ("PATH" "C_INCLUDE_PATH")) t)
+ '(file-name-coding-system (quote utf-8) t)
+ '(imenu-list-position (quote left))
+ '(imenu-list-size 30)
+ '(indent-tabs-mode nil)
+ '(inhibit-startup-message t)
+ '(inhibit-startup-screen t)
+ '(initial-major-mode (quote emacs-lisp-mode))
+ '(make-backup-files nil)
+ '(menu-bar-mode nil)
  '(package-archives
    (quote
     (("gnu" . "https://elpa.gnu.org/packages/")
@@ -534,7 +584,18 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (ccls quickrun projectile-rails projectile rbenv robe ruby-end inf-ruby lsp-ui rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf))))
+    (exec-path-from-shell ccls quickrun projectile-rails projectile rbenv robe ruby-end inf-ruby lsp-ui rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf)))
+ '(prefer-coding-system (quote utf-8) t)
+ '(ring-bell-function (quote ignore))
+ '(scroll-conservatively 1)
+ '(set-buffer-file-coding-system (quote utf-8-unix) t)
+ '(set-clipboard-coding-system (quote utf-8) t)
+ '(set-default-coding-systems (quote utf-8) t)
+ '(set-keyboard-coding-system (quote utf-8) t)
+ '(set-language-environment "Japanese" t)
+ '(set-terminal-coding-system (quote utf-8) t)
+ '(tab-width 2)
+ '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
