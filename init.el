@@ -34,17 +34,12 @@
     ;; initialize leaf-keywords.el
     (leaf-keywords-init)))
 
-(leaf leaf
-  :config
-  (leaf leaf-convert :ensure t)
-  (leaf leaf-tree
-    :ensure t
-    :custom ((imenu-list-size . 30)
-             (imenu-list-position . 'left))))
+(leaf cus-edit
+  :doc "tools for customizing Emacs and Lisp packages"
+  :tag "builtin" "faces" "help"
+  :added "2021-06-08"
+  `((custom-file . ,(locate-user-emacs-file "custom.el"))))
 
-(leaf macrostep
-  :ensure t
-  :bind (("C-c e" . macrostep-expand)))
 
 (leaf cus-start
   :doc "define customization properties of builtins"
@@ -93,11 +88,25 @@
            ;; Use UTF-8
            (prefer-coding-system . 'utf-8)
            ;; エラー時にデバッガ起動
-           (debug-on-error . t))
+           (debug-on-error . t)
+           (create-lockfiles . nil)
+           (init-file-debug . t))
   :config
   (fset 'yes-or-no-p 'y-or-n-p)
   ;;文末の空行を削除
   (add-hook 'before-save-hook 'delete-trailing-whitespace))
+
+(leaf leaf
+  :config
+  (leaf leaf-convert :ensure t)
+  (leaf leaf-tree
+    :ensure t
+    :custom ((imenu-list-size . 30)
+             (imenu-list-position . 'left))))
+
+(leaf macrostep
+  :ensure t
+  :bind (("C-c e" . macrostep-expand)))
 
 ;; exec path
 ;; (add-to-list 'exec-path (expand-file-name "~/.cargo/bin/"))
@@ -565,6 +574,7 @@
  '(default-buffer-file-coding-system (quote utf-8) t)
  '(default-process-coding-system (quote (utf-8 . utf-8)) t)
  '(dired-auto-revert-buffer t)
+ '(dired-listing-switches "-alh")
  '(echo-keystrokes 0.1)
  '(exec-path-from-shell-check-startup-files nil t)
  '(exec-path-from-shell-variables (quote ("PATH" "C_INCLUDE_PATH")) t)
@@ -573,7 +583,6 @@
  '(imenu-list-size 30)
  '(indent-tabs-mode nil)
  '(inhibit-startup-message t)
- '(inhibit-startup-screen t)
  '(initial-major-mode (quote emacs-lisp-mode))
  '(make-backup-files nil)
  '(menu-bar-mode nil)
@@ -584,7 +593,7 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (exec-path-from-shell ccls quickrun projectile-rails projectile rbenv robe ruby-end inf-ruby lsp-ui rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf)))
+    (ccls lsp-ui quickrun projectile-rails projectile rbenv robe ruby-end inf-ruby rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow exec-path-from-shell macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf)))
  '(prefer-coding-system (quote utf-8) t)
  '(ring-bell-function (quote ignore))
  '(scroll-conservatively 1)
