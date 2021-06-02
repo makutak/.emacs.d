@@ -336,7 +336,7 @@
   :ensure t
   :after company
   :defvar company-backends
-  :custom ((company-c-headers-path-system . "~/edk2/MdePkg/Include"))
+  :custom ((company-c-headers-path-system . '("~/edk2/MdePkg/Include")))
   :config
   (add-to-list 'company-backends 'company-c-headers))
 
@@ -570,6 +570,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(auto-save-default nil)
+ '(create-lockfiles nil)
  '(debug-on-error t)
  '(default-buffer-file-coding-system (quote utf-8) t)
  '(default-process-coding-system (quote (utf-8 . utf-8)) t)
@@ -583,6 +584,8 @@
  '(imenu-list-size 30)
  '(indent-tabs-mode nil)
  '(inhibit-startup-message t)
+ '(inhibit-startup-screen t)
+ '(init-file-debug t t)
  '(initial-major-mode (quote emacs-lisp-mode))
  '(make-backup-files nil)
  '(menu-bar-mode nil)
