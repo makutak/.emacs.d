@@ -528,7 +528,8 @@
   :bind ("C-c h" . lsp-describe-thing-at-point)
   ;;:after spinner markdown-mode lv rust-mode
   :hook ((rust-mode-hook . lsp)
-         (c-mode-hook . lsp))
+         (c-mode-hook . lsp)
+         (c++-mode-hook . lsp))
   :custom ((lsp-rust-server . 'rust-analyzer)
            (lsp-rust-analyzer-cargo-load-out-dirs-from-check . t)
            (lsp-rust-analyzer-proc-macro-enable . t)
@@ -562,6 +563,16 @@
   :hook ((c-mode c++-mode objc-mode cuda-mode) .
          (lambda () (require 'ccls) (lsp)))))
 
+(leaf google-c-style
+  :doc "Google's C/C++ style for c-mode"
+  :tag "tools" "c"
+  :added "2021-06-14"
+  :ensure t
+  :hook ((c-mode-hook . google-set-c-style)
+         (c-mode-hook . google-make-newline-indent)
+         (c++-mode-hook . google-set-c-style)
+         (c++-mode-hook . google-make-newline-indent)))
+
 
 (provide 'init)
 (custom-set-variables
@@ -580,8 +591,8 @@
  '(exec-path-from-shell-check-startup-files nil t)
  '(exec-path-from-shell-variables (quote ("PATH" "C_INCLUDE_PATH")) t)
  '(file-name-coding-system (quote utf-8) t)
- '(imenu-list-position (quote left))
- '(imenu-list-size 30)
+ '(imenu-list-position (quote left) t)
+ '(imenu-list-size 30 t)
  '(indent-tabs-mode nil)
  '(inhibit-startup-message t)
  '(inhibit-startup-screen t)
@@ -596,7 +607,7 @@
      ("org" . "https://orgmode.org/elpa/"))))
  '(package-selected-packages
    (quote
-    (ccls lsp-ui quickrun projectile-rails projectile rbenv robe ruby-end inf-ruby rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow exec-path-from-shell macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf)))
+    (google-c-style ccls lsp-ui quickrun projectile-rails projectile rbenv robe ruby-end inf-ruby rust-mode flycheck-rust dap-mode yasnippet xclip smart-jump paredit company-c-headers company flycheck which-key ivy-prescient prescient ivy-xref counsel swiper ivy color-theme-sanityinc-tomorrow exec-path-from-shell macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords leaf)))
  '(prefer-coding-system (quote utf-8) t)
  '(ring-bell-function (quote ignore))
  '(scroll-conservatively 1)
