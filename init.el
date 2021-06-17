@@ -573,6 +573,11 @@
          (c++-mode-hook . google-set-c-style)
          (c++-mode-hook . google-make-newline-indent)))
 
+(leaf make-mode
+  :doc "makefile editing commands for Emacs"
+  :tag "builtin"
+  :added "2021-06-18")
+
 
 (provide 'init)
 (custom-set-variables
