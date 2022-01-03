@@ -510,6 +510,12 @@
   :init
   (elpy-enable))
 
+(leaf lsp-pyright
+  :ensure t
+  :hook (python-mode-hook . (lambda ()
+                              (require 'lsp-pyright)
+                              (lsp-deferred))))
+
 
 (provide 'init)
 
