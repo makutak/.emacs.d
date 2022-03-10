@@ -101,15 +101,23 @@
             (tool-bar-mode . nil)
             ;;メニューバーをなくす
             (menu-bar-mode . nil)
-            (inhibit-startup-message . t)
             (max-specpdl-size . 10000)
-            (max-lisp-eval-depth . 10000))
+            (max-lisp-eval-depth . 10000)
+            (mac-command-modifier . 'meta))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (keyboard-translate ?\C-h ?\C-?)
   ;;文末の空行を削除
   (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
+(leaf emacs-startup-setting
+  :custom
+  ((inhibit-startup-screen . t)
+   (inhibit-startup-echo-area-message . t)
+   (inhibit-startup-message . t)
+   (initial-scratch-message . nil))
+  :config
+  (add-hook 'window-setup-hook 'toggle-frame-maximized t))
 
 (leaf autorevert
   :doc "revert buffers when files on disk change"
@@ -289,7 +297,7 @@
 (leaf leaf-convert
   :config
   (add-to-list 'default-frame-alist
-               '(font . "ricty-13.5")))
+               '(font . "ricty-15")))
 
 ;; color-theme
 (leaf color-theme-sanityinc-tomorrow
@@ -358,7 +366,32 @@
   (c-mode-hook . ((c-set-style "google-set-c-style")
                   (setq c-basic-offset 2))))
 
+(leaf ruby-mode
+  :custom (ruby-insert-encoding-magic-comment . nil)
+  :hook (ruby-mode-hook . lsp))
 
+(leaf ruby-electric
+  :ensure t
+  :hook (ruby-mode-hook 'ruby-electric-mode))
+
+
+(leaf projectile
+  :ensure t
+  :bind
+  (projectile-mode-map
+   ("s-p"   . projectile-command-map)
+   ("M-p" . projectile-command-map))
+  :init
+  (projectile-mode)
+  :hook ((projectile-mode-hook . projectile-rails-global-mode))
+  :global-minor-mode projectile-mode)
+
+
+(leaf projectile-rails
+  :ensure t
+  :after projectile
+  :bind ("C-c r" . projectile-rails-command-map)
+  :global-minor-mode projectile-rails-global-mode)
 
 ;;(use-package lsp-mode :commands lsp)
 (leaf lsp-mode
@@ -373,7 +406,8 @@
   :after spinner markdown-mode lv
   :hook ((rust-mode-hook . lsp)
          (c-mode-hook . lsp)
-         (c++-mode-hook . lsp)))
+         (c++-mode-hook . lsp)
+         (ruby-mode-hook . lsp)))
 
 (leaf lsp-ui
   :doc "UI modules for lsp-mode"
