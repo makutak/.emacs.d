@@ -103,7 +103,11 @@
             (menu-bar-mode . nil)
             (max-specpdl-size . 10000)
             (max-lisp-eval-depth . 10000)
-            (mac-command-modifier . 'meta))
+            (mac-command-modifier . 'meta)
+            (show-trailing-whitespace . t)
+            (indicate-empty-lines . t)
+            (indicate-buffer-boundaries . 'left)
+            (sentence-end-double-space . nil))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (keyboard-translate ?\C-h ?\C-?)
@@ -133,7 +137,7 @@
 (leaf paren
   :doc "highlight matching paren"
   :tag "builtin"
-  :custom ((show-paren-delay . 0.1))
+  :custom ((show-paren-delay . 0))
   :global-minor-mode show-paren-mode)
 
 (leaf simple
@@ -470,6 +474,14 @@
                               (require 'lsp-pyright)
                               (lsp-deferred))))
 
+;; Custom command.
+(defun show-current-time ()
+  "Show current time."
+  (interactive)
+  (message (current-time-string)))
+
+(global-set-key (kbd "C-c t") 'show-current-time)
+(global-set-key (kbd "C-c d") 'delete-trailing-whitespace)
 
 (provide 'init)
 
