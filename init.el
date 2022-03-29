@@ -211,14 +211,7 @@
   :ensure t
   :bind (("M-n" . flycheck-next-error)
          ("M-p" . flycheck-previous-error))
-  :hook (prog-mode-hook . flycheck-mode)
-  :config
-  (leaf flycheck-inline
-    :ensure t
-    :hook (flycheck-mode-hook . flycheck-inline-mode))
-  (leaf flycheck-color-mode-line
-    :ensure t
-    :hook (flycheck-mode-hook . flycheck-color-mode-line-mode)))
+  :global-minor-mode global-flycheck-mode)
 
 (leaf company
   :doc "Modular text completion framework"
@@ -265,7 +258,7 @@
   :emacs>= 24.1
   :ensure t
   :custom ((exec-path-from-shell-check-startup-files . nil)
-           (exec-path-from-shell-variables . '("PATH" "C_INCLUDE_PATH"))))
+           (exec-path-from-shell-variables . '("PATH"))))
 
 (leaf paren
   :doc "highlight matching paren"
@@ -348,7 +341,6 @@
   :custom ((sh-basic-offset . 2)
            (sh-indentation . 2)))
 
-
 (leaf google-c-style
   :doc "Google's C/C++ style for c-mode"
   :tag "tools" "c"
@@ -365,6 +357,7 @@
   :mode-hook
   (c-mode-hook . ((c-set-style "google-set-c-style")
                   (setq c-basic-offset 2))))
+
 
 (leaf ruby-mode
   :custom (ruby-insert-encoding-magic-comment . nil)
@@ -460,84 +453,11 @@
   (lsp-ui-peek-find-custom "textDocument/references"
                            (plist-put (lsp--text-document-position-params) :excludeRole 32)))
 
-(leaf highlight-indent-guides
-  :ensure t
-  :blackout t
-  :hook (((prog-mode-hook yaml-mode-hook) . highlight-indent-guides-mode))
-  :custom ((highlight-indent-guides-method . 'character)
-           (highlight-indent-guides-auto-enabled . t)
-           (highlight-indent-guides-responsive . t)
-           (highlight-indent-guides-character . ?\|)))
 
 (leaf rainbow-delimiters
   :ensure t
   :hook
   ((prog-mode-hook . rainbow-delimiters-mode)))
-
-(leaf whitespace
-  :ensure t
-  :commands whitespace-mode
-  :bind ("C-c W" . whitespace-cleanup)
-  :custom ((whitespace-style . '(face
-                                trailing
-                                tabs
-                                spaces
-                                empty
-                                space-mark
-                                tab-mark))
-           (whitespace-display-mappings . '((space-mark ?\u3000 [?\u25a1])
-                                            (tab-mark ?\t [?\u00BB ?\t] [?\\ ?\t])))
-           (whitespace-space-regexp . "\\(\u3000+\\)")
-           (whitespace-global-modes . '(emacs-lisp-mode shell-script-mode sh-mode python-mode org-mode))
-           (global-whitespace-mode . t))
-
-  :config
-  (set-face-attribute 'whitespace-trailing nil
-                      :background "#232323"
-                      :foreground "DeepPink"
-                      :underline t)
-  (set-face-attribute 'whitespace-tab nil
-                      :background "#232323"
-                      :foreground "LightSkyBlue"
-                      :underline t)
-  (set-face-attribute 'whitespace-space nil
-                      :background "#232323"
-                      :foreground "GreenYellow"
-                      :weight 'bold)
-  (set-face-attribute 'whitespace-empty nil
-                      :background "#232323"))
-
-(leaf yasnippet
-  :ensure t
-  :blackout yas-minor-mode
-  :custom ((yas-indent-line . 'fixed)
-           (yas-global-mode . t)
-           )
-  :bind ((yas-keymap
-          ("<tab>" . nil))            ; conflict with company
-         (yas-minor-mode-map
-          ("C-c y i" . yas-insert-snippet)
-          ("C-c y n" . yas-new-snippet)
-          ("C-c y v" . yas-visit-snippet-file)
-          ("C-c y l" . yas-describe-tables)
-          ("C-c y g" . yas-reload-all)))
-  :config
-  (leaf yasnippet-snippets :ensure t)
-  (leaf yatemplate
-    :ensure t
-    :config
-    (yatemplate-fill-alist))
-  (defvar company-mode/enable-yas t
-    "Enable yasnippet for all backends.")
-  (defun company-mode/backend-with-yas (backend)
-    (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-        backend
-      (append (if (consp backend) backend (list backend))
-              '(:with company-yasnippet))))
-  (defun set-yas-as-company-backend ()
-    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends)))
-  :hook
-  ((company-mode-hook . set-yas-as-company-backend)))
 
 (leaf elpy
   :ensure t
