@@ -294,7 +294,7 @@
 (leaf leaf-convert
   :config
   (add-to-list 'default-frame-alist
-               '(font . "ricty-15")))
+               '(font . "ricty-20")))
 
 ;; color-theme
 (leaf color-theme-sanityinc-tomorrow
@@ -362,15 +362,22 @@
   (c-mode-hook . ((c-set-style "google-set-c-style")
                   (setq c-basic-offset 2))))
 
+(leaf eglot
+  :ensure t)
 
 (leaf ruby-mode
   :custom (ruby-insert-encoding-magic-comment . nil)
-  :hook (ruby-mode-hook . lsp))
+  :config (add-hook 'ruby-mode-hook 'eglot-ensure))
 
 (leaf ruby-electric
   :ensure t
   :hook (ruby-mode-hook 'ruby-electric-mode))
 
+(leaf rubocop
+  :ensure t
+  :hook ((ruby-mode-hook . rubocop-mode)
+         (lambda ()
+           (setq flycheck-checker 'ruby-rubocop))))
 
 (leaf projectile
   :ensure t
@@ -383,12 +390,15 @@
   :hook ((projectile-mode-hook . projectile-rails-global-mode))
   :global-minor-mode projectile-mode)
 
-
 (leaf projectile-rails
   :ensure t
   :after projectile
   :bind ("C-c r" . projectile-rails-command-map)
   :global-minor-mode projectile-rails-global-mode)
+
+(leaf vue-mode
+  :ensure t
+  :hook (vue-mode-hook . lsp))
 
 ;;(use-package lsp-mode :commands lsp)
 (leaf lsp-mode
@@ -403,8 +413,7 @@
   :after spinner markdown-mode lv
   :hook ((rust-mode-hook . lsp)
          (c-mode-hook . lsp)
-         (c++-mode-hook . lsp)
-         (ruby-mode-hook . lsp)))
+         (c++-mode-hook . lsp)))
 
 (leaf lsp-ui
   :doc "UI modules for lsp-mode"
@@ -414,7 +423,8 @@
   :added "2021-09-12"
   :emacs>= 26.1
   :ensure t
-  :after lsp-mode markdown-mode)
+  :after lsp-mode markdown-mode
+  :custom ((lsp-ui-flycheck-enable . t)))
 
 
 (leaf ccls
