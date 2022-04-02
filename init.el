@@ -21,6 +21,8 @@
 
 ;; this enables this running method
 ;;   emacs -q -l ~/.debug.emacs.d/init.el
+(setq gc-cons-threshold (* 100 1024 1024))
+
 (eval-and-compile
   (when (or load-file-name byte-compile-current-file)
     (setq user-emacs-directory
@@ -107,10 +109,7 @@
             (show-trailing-whitespace . t)
             (indicate-empty-lines . t)
             (indicate-buffer-boundaries . 'left)
-            (sentence-end-double-space . nil)
-            (gc-cons-threshold . (* 100 1024 1024))
-
-            )
+            (sentence-end-double-space . nil))
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (keyboard-translate ?\C-h ?\C-?)
