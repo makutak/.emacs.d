@@ -107,7 +107,10 @@
             (show-trailing-whitespace . t)
             (indicate-empty-lines . t)
             (indicate-buffer-boundaries . 'left)
-            (sentence-end-double-space . nil))
+            (sentence-end-double-space . nil)
+            (gc-cons-threshold . (* 100 1024 1024))
+
+            )
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   (keyboard-translate ?\C-h ?\C-?)
@@ -169,7 +172,8 @@
     :url "https://github.com/abo-abo/swiper"
     :emacs>= 24.5
     :ensure t
-    :bind (("C-s" . swiper)))
+    :bind (("C-s" . swiper)
+           ("C-x b" . ivy-switch-buffer)))
 
   (leaf counsel
     :doc "Various completion functions using Ivy"
@@ -236,7 +240,7 @@
          (company-search-map
           ("C-n" . company-select-next)
           ("C-p" . company-select-previous)))
-  :custom ((company-idle-delay . 0)
+  :custom ((company-idle-delay . 0.0)
            (company-minimum-prefix-length . 1)
            (company-transformers . '(company-sort-by-occurrence)))
   :global-minor-mode global-company-mode)
@@ -413,7 +417,9 @@
   :after spinner markdown-mode lv
   :hook ((rust-mode-hook . lsp)
          (c-mode-hook . lsp)
-         (c++-mode-hook . lsp)))
+         (c++-mode-hook . lsp))
+  :config ((setq read-process-output-max
+                 lsp-idle-delay 0.1)))
 
 (leaf lsp-ui
   :doc "UI modules for lsp-mode"
