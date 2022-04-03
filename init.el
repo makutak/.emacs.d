@@ -491,6 +491,12 @@
                               (require 'lsp-pyright)
                               (lsp-deferred))))
 
+(leaf yaml-mode
+  :ensure t)
+
+(leaf json-mode
+  :ensure t)
+
 ;; Custom command.
 (defun show-current-time ()
   "Show current time."
