@@ -412,13 +412,15 @@
   :added "2021-09-12"
   :emacs>= 26.1
   :ensure t
-  :init (yas-global-mode)
-  :after spinner markdown-mode lv
+  :init
+  (yas-global-mode)
+  (setq read-process-output-max (* 1024 1024)
+        lsp-idle-delay 0.1)
+  ;;:after spinner markdown-mode lv
   :hook ((rust-mode-hook . lsp)
-         (c-mode-hook . lsp)
-         (c++-mode-hook . lsp))
-  :config ((setq read-process-output-max
-                 lsp-idle-delay 0.1)))
+         (c-mode-hook . lsp-deferred)
+         (c++-mode-hook . lsp-deferred))
+  :custom ((lsp-prefer-capf . t)))
 
 (leaf lsp-ui
   :doc "UI modules for lsp-mode"
