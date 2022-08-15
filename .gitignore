@@ -23,3 +23,7 @@ slack-emacs.el
 transient/
 url/
 elpy/
+
+.ccls-cache/
+history
+var/
