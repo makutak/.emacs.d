@@ -297,7 +297,7 @@
 (leaf leaf-convert
   :config
   (add-to-list 'default-frame-alist
-               '(font . "ricty-20")))
+               '(font . "ricty-15")))
 
 ;; color-theme
 (leaf color-theme-sanityinc-tomorrow
@@ -505,6 +505,9 @@
 
 (global-set-key (kbd "C-c t") 'show-current-time)
 (global-set-key (kbd "C-c d") 'delete-trailing-whitespace)
+
+(add-hook 'c-mode-hook 'google-set-c-style)
+(add-hook 'c++-mode-hook 'google-set-c-style)
 
 (provide 'init)
 
