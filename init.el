@@ -4,6 +4,17 @@
         ("melpa" . "http://melpa.org/packages/")
         ("org" . "http://orgmode.org/elpa/")))
 
+
+;; カラーテーマ
+(load-theme 'modus-vivendi)
+(setq modus-themes-italic-constructs t
+      modus-themes-syntax 'faint)
+
+(set-face-attribute 'default nil
+                    :family "DejaVu Sans Mono"
+                    :height 120)
+
+
 ;; キーバインド
 (define-key key-translation-map (kbd "C-h") (kbd "<DEL>"))
 (define-key global-map (kbd "C-m") 'newline-and-indent)
@@ -14,7 +25,7 @@
 ;; 行番号を表示
 (global-display-line-numbers-mode)
 
-;; filename
+;; ヘッダにfilename
 (setq frame-title-format "%f")
 
 ;; Tab
@@ -25,9 +36,10 @@
 (global-hl-line-mode t)
 
 ;; paren
-(setq show-paren-delay 0)
-(setq show-paren-style 'expression)
 (show-paren-mode t)
+(setq show-paren-delay 0)
+(setq show-paren-style 'parenthesis)
+(electric-pair-mode t)
 
 ;; バックアップとオートセーブを無効
 (setq make-backup-files nil)
@@ -38,6 +50,7 @@
 
 ;; 補完UI
 (savehist-mode t)
+(setq vertico-count 20)
 (fido-vertical-mode t)
 
 (require 'consult)
@@ -47,12 +60,16 @@
 (require 'marginalia)
 (marginalia-mode t)
 
+(require 'orderless)
+(setq completion-styles '(orderless basic)
+      completion-category-overrides '((file (styles basic partial-completion))))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(marginalia package-utils consult)))
+ '(package-selected-packages '(orderless marginalia package-utils consult)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
