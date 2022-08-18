@@ -5,15 +5,29 @@
         ("org" . "http://orgmode.org/elpa/")))
 (package-initialize)
 
+;; coding
+(setq set-language-environment "Japanese")
+(setq prefer-coding-system 'utf-8)
+(setq default-process-coding-system '(utf-8 . utf-8))
+(setq set-default-coding-systems 'utf-8)
+(setq set-terminal-coding-system 'utf-8)
+(setq set-keyboard-coding-system 'utf-8)
+(setq set-clipboard-coding-system 'utf-8)
+(setq set-buffer-file-coding-system 'utf-8-unix)
+(setq file-name-coding-system 'utf-8)
+(setq default-buffer-file-coding-system 'utf-8)
+
+;; yes or no -> y or n
+(fset 'yes-or-no-p 'y-or-n-p)
+
 ;; カラーテーマ
 (load-theme 'modus-vivendi)
 (setq modus-themes-italic-constructs t
       modus-themes-syntax 'faint)
 
 (set-face-attribute 'default nil
-                    :family "DejaVu Sans Mono"
-                    :height 120)
-
+                    :family "Ricty Diminished"
+                    :height 140)
 
 ;; キーバインド
 (define-key key-translation-map (kbd "C-h") (kbd "<DEL>"))
@@ -21,6 +35,23 @@
 (define-key global-map (kbd "C-c l") 'toggle-truncate-lines)
 (define-key global-map (kbd "C-t") 'other-window)
 (define-key global-map (kbd "C-x ?") 'help-command)
+
+;; ツールバーをなくす
+(tool-bar-mode -1)
+;; メニューバーをなくす
+(menu-bar-mode -1)
+;; スクロールは１行ごとに
+(setq scroll-conservatively 1)
+;; 文末の空行を削除
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;; 起動時のスプラッシュ画面を表示しない
+(setq inhibit-splash-screen t)
+;; スタートアップ画面を表示しない
+(setq inhibit-startup-message t)
+
+;; dired
+(setq dired-auto-revert-buffer t
+      dired-listing-switches "-alh")
 
 ;; 行番号を表示
 (global-display-line-numbers-mode)
