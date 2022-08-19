@@ -128,6 +128,7 @@
       lsp-ui-peek-peek-height 20
       lsp-ui-peek-list-width 50)
 
+(require 'lua-mode)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -135,7 +136,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(lsp-ui lsp-mode company orderless marginalia package-utils consult)))
+   '(lua-mode lsp-ui lsp-mode company orderless marginalia package-utils consult)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
