@@ -9,10 +9,15 @@
 ;; Add the NonGNU ELPA package archive
 (require 'package)
 (add-to-list 'package-archives  '("nongnu" . "https://elpa.nongnu.org/nongnu/"))
-(unless package-archive-contents  (package-refresh-contents))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+
+;; (unless package-archive-contents
+;;   (package-refresh-contents))
 
 ;; Load a custom theme
 (load-theme 'tsdh-dark t)
+
+(global-set-key (kbd "C-h") 'delete-backward-char)
 
 ;; Set default font face
 (set-face-attribute 'default nil :font "Ricty")
@@ -35,17 +40,29 @@
 ;; Automatically pair parentheses
 (electric-pair-mode t)
 
+;; バックアップファイルを作成しない
+(setq make-backup-files nil)
+;; オートセーブファイルを作成しない
+(setq auto-save-default nil)
+
+
 ;;; LSP Support
 (unless (package-installed-p 'eglot)
   (package-install 'eglot))
 
 ;; Enable LSP support by default in programming buffers
-(add-hook 'prog-mode-hook #'eglot-ensure)
+;; (add-hook 'prog-mode-hook #'eglot-ensure)
+(add-hook 'c-mode-hook #'eglot-ensure)
+(add-hook 'c++-mode-hook #'eglot-ensure)
+(add-hook 'python-mode-hook #'eglot-ensure)
 
 ;;; Inline static analysis
-
 ;; Enabled inline static analysis
-(add-hook 'prog-mode-hook #'flymake-mode)
+;;(add-hook 'prog-mode-hook #'flymake-mode)
+(add-hook 'c-mode-hook #'flymake-mode)
+(add-hook 'c++-mode-hook #'flymake-mode)
+(add-hook 'python-mode-hook #'flymake-mode)
+
 
 ;;; Pop-up completion
 (unless (package-installed-p 'corfu)
@@ -107,3 +124,11 @@
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (when (file-exists-p custom-file)
   (load custom-file))
+
+;; 大きなファイルの自動読み込みを防ぐ
+(setq large-file-warning-threshold 100000000)  ; 100MB以上のファイルに対する警告
+
+;; 特定のファイル拡張子を無視する
+(add-to-list 'completion-ignored-extensions ".bin")
+(add-to-list 'completion-ignored-extensions ".so")
+(add-to-list 'completion-ignored-extensions ".o")
