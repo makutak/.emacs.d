@@ -47,14 +47,27 @@
 
 
 ;;; LSP Support
-(unless (package-installed-p 'eglot)
-  (package-install 'eglot))
+(unless (package-installed-p 'lsp-mode)
+  (package-install 'lsp-mode))
 
-;; Enable LSP support by default in programming buffers
-;; (add-hook 'prog-mode-hook #'eglot-ensure)
-(add-hook 'c-mode-hook #'eglot-ensure)
-(add-hook 'c++-mode-hook #'eglot-ensure)
-(add-hook 'python-mode-hook #'eglot-ensure)
+(unless (package-installed-p 'lsp-pyright)
+  (package-install 'lsp-pyright))
+
+(setq lsp-completion-min-length 2)
+(setq lsp-completion-provider :none)
+
+(require 'lsp-mode)
+(add-hook 'c-mode-hook #'lsp-deferred)
+(add-hook 'c++-mode-hook #'lsp-deferred)
+(add-hook 'python-mode-hook #'lsp-deferred)
+
+(with-eval-after-load 'lsp-pyright
+  (setq lsp-pyright-python-executable-cmd "/home/tk/.anyenv/envs/pyenv/shims/python"))
+
+(setq lsp-enable-snippet nil)
+(setq lsp-enable-indentation t)
+(setq lsp-keep-workspace-alive nil)
+(setq lsp-signature-auto-activate nil)
 
 ;;; Inline static analysis
 ;; Enabled inline static analysis
@@ -67,9 +80,27 @@
 ;;; Pop-up completion
 (unless (package-installed-p 'corfu)
   (package-install 'corfu))
+;; Corfuの基本設定
+(require 'corfu)
+(global-corfu-mode)
 
-;; Enable autocompletion by default in programming buffers
-(add-hook 'prog-mode-hook #'corfu-mode)
+;; 補完候補を循環する
+(setq corfu-cycle t)
+
+;; 自動補完を有効にする
+(setq corfu-auto t)
+
+;; 境界で自動的に補完を閉じる
+(setq corfu-quit-at-boundary t)
+
+;; 一致しない場合に補完を閉じる
+(setq corfu-quit-no-match t)
+(setq corfu-auto-delay 0.1)  ; 単位は秒
+
+;; キーバインドの設定
+(define-key corfu-map (kbd "TAB") #'corfu-next)
+(define-key corfu-map (kbd "S-TAB") #'corfu-previous)
+
 
 ;;; Git client
 (unless (package-installed-p 'magit)
