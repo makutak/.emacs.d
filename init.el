@@ -45,6 +45,23 @@
 ;; オートセーブファイルを作成しない
 (setq auto-save-default nil)
 
+;;; Vertico configuration
+(unless (package-installed-p 'vertico)
+  (package-install 'vertico))
+
+;; Enable Vertico
+(require 'vertico)
+(vertico-mode)
+
+;; Optionally enable cycling for `vertico-next` and `vertico-previous`.
+(setq vertico-cycle t)
+
+;; If you want to save and restore the last input of minibuffer commands
+;; across Emacs sessions, uncomment the following lines:
+;; (savehist-mode 1)
+;; (add-to-list 'savehist-additional-variables 'vertico-directory-input-string)
+
+
 
 ;;; LSP Support
 (unless (package-installed-p 'lsp-mode)
@@ -151,6 +168,13 @@
 (recentf-mode t)
 (defalias 'yes-or-no #'y-or-n-p)
 
+(unless (package-installed-p 'multiple-cursors)
+  (package-install 'multiple-cursors))
+(require 'multiple-cursors)
+(global-set-key (kbd "M-D") 'mc/mark-next-like-this)
+
+
+
 ;; Store automatic customisation options elsewhere
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (when (file-exists-p custom-file)
@@ -163,3 +187,13 @@
 (add-to-list 'completion-ignored-extensions ".bin")
 (add-to-list 'completion-ignored-extensions ".so")
 (add-to-list 'completion-ignored-extensions ".o")
+
+(defun split-window-horizontally-n (num_wins)
+  (interactive "p")
+  (dotimes (i (- num_wins 1))
+    (split-window-horizontally))
+  (balance-windows))
+
+(global-set-key "\C-x@" (lambda ()
+                           (interactive)
+                           (split-window-horizontally-n 3)))
