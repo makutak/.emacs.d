@@ -45,6 +45,8 @@
 ;; オートセーブファイルを作成しない
 (setq auto-save-default nil)
 
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 ;;; Vertico configuration
 (unless (package-installed-p 'vertico)
   (package-install 'vertico))
@@ -173,7 +175,10 @@
 (require 'multiple-cursors)
 (global-set-key (kbd "M-D") 'mc/mark-next-like-this)
 
-
+(require 'whitespace)
+(setq whitespace-style '(face empty tabs lines-tail trailing))
+(global-whitespace-mode t)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; Store automatic customisation options elsewhere
 (setq custom-file (locate-user-emacs-file "custom.el"))
