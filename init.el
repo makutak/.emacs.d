@@ -175,6 +175,10 @@
 (require 'multiple-cursors)
 (global-set-key (kbd "M-D") 'mc/mark-next-like-this)
 
+(unless (package-installed-p 'iedit)
+  (package-install 'iedit))
+(require 'iedit)
+
 (require 'whitespace)
 (setq whitespace-style '(face empty tabs lines-tail trailing))
 (global-whitespace-mode t)
