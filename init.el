@@ -63,7 +63,17 @@
 ;; (savehist-mode 1)
 ;; (add-to-list 'savehist-additional-variables 'vertico-directory-input-string)
 
-
+;; golang
+(unless (package-installed-p 'go-mode)
+  (package-install 'go-mode))
+(autoload 'go-mode "go-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
+(setq gofmt-command "goimports")
+(add-hook 'go-mode-hook (lambda ()
+                          ;; タブ幅の設定
+                          (setq tab-width 4)
+                          ;; foramt
+                          (add-hook 'before-save-hook 'gofmt-before-save)))
 
 ;;; LSP Support
 (unless (package-installed-p 'lsp-mode)
@@ -79,6 +89,7 @@
 (add-hook 'c-mode-hook #'lsp-deferred)
 (add-hook 'c++-mode-hook #'lsp-deferred)
 (add-hook 'python-mode-hook #'lsp-deferred)
+(add-hook 'go-mode-hook #'lsp-deferred)
 
 (with-eval-after-load 'lsp-pyright
   (setq lsp-pyright-python-executable-cmd
@@ -95,7 +106,7 @@
 (add-hook 'c-mode-hook #'flymake-mode)
 (add-hook 'c++-mode-hook #'flymake-mode)
 (add-hook 'python-mode-hook #'flymake-mode)
-
+(add-hook 'go-mode-hook #'flymake-mode)
 
 ;;; Pop-up completion
 (unless (package-installed-p 'corfu)
