@@ -81,7 +81,8 @@
 (add-hook 'python-mode-hook #'lsp-deferred)
 
 (with-eval-after-load 'lsp-pyright
-  (setq lsp-pyright-python-executable-cmd "/home/tk/.anyenv/envs/pyenv/shims/python"))
+  (setq lsp-pyright-python-executable-cmd
+        (executable-find "python3")))
 
 (setq lsp-enable-snippet nil)
 (setq lsp-enable-indentation t)
