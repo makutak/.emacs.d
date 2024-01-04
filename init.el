@@ -18,9 +18,11 @@
 (load-theme 'tsdh-dark t)
 
 (global-set-key (kbd "C-h") 'delete-backward-char)
+(global-set-key (kbd "RET") 'newline-and-indent)
+(global-set-key (kbd "C-t") 'other-window)
 
 ;; Set default font face
-(set-face-attribute 'default nil :font "Ricty")
+(set-face-attribute 'default nil :font "Ricty-14")
 
 ;; Disable the menu bar
 (menu-bar-mode -1)
