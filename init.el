@@ -77,6 +77,17 @@
                           ;; foramt
                           (add-hook 'before-save-hook 'gofmt-before-save)))
 
+(unless (package-installed-p 'python-black)
+  (package-install 'python-black))
+(require 'python-black)
+
+;; python
+(defun my-python-mode-settings ()
+  "python mode setting"
+  (setq-local lsp-enable-formatting nil)
+  (python-black-on-save-mode))
+(add-hook 'python-mode-hook 'my-python-mode-settings)
+
 ;;; LSP Support
 (unless (package-installed-p 'lsp-mode)
   (package-install 'lsp-mode))
