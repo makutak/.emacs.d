@@ -88,6 +88,22 @@
   (python-black-on-save-mode))
 (add-hook 'python-mode-hook 'my-python-mode-settings)
 
+;; C/C++
+;;; ClangFormatの設定
+(unless (package-installed-p 'clang-format)
+  (package-install 'clang-format))
+
+(require 'clang-format)
+(setq clang-format-style "google")
+
+;;; ファイル保存時にClangFormatを実行
+(defun my-clang-format-before-save ()
+  (interactive)
+  (when (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
+    (clang-format-buffer)))
+
+(add-hook 'before-save-hook 'my-clang-format-before-save)
+
 ;;; LSP Support
 (unless (package-installed-p 'lsp-mode)
   (package-install 'lsp-mode))
