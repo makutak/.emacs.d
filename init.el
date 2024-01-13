@@ -110,6 +110,10 @@
 (unless (package-installed-p 'rust-mode)
   (package-install 'rust-mode))
 (require 'rust-mode)
+(add-hook 'rust-mode-hook
+          (lambda ()
+            (add-hook 'before-save-hook 'rust-format-buffer nil 'local)))
+
 
 ;;; LSP Support
 (unless (package-installed-p 'lsp-mode)
