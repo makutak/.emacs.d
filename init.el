@@ -77,11 +77,12 @@
                           ;; foramt
                           (add-hook 'before-save-hook 'gofmt-before-save)))
 
+
+;; python
 (unless (package-installed-p 'python-black)
   (package-install 'python-black))
 (require 'python-black)
 
-;; python
 (defun my-python-mode-settings ()
   "python mode setting"
   (setq-local lsp-enable-formatting nil)
@@ -104,6 +105,12 @@
 
 (add-hook 'before-save-hook 'my-clang-format-before-save)
 
+;; rust
+;;; Rust support
+(unless (package-installed-p 'rust-mode)
+  (package-install 'rust-mode))
+(require 'rust-mode)
+
 ;;; LSP Support
 (unless (package-installed-p 'lsp-mode)
   (package-install 'lsp-mode))
@@ -119,6 +126,7 @@
 (add-hook 'c++-mode-hook #'lsp-deferred)
 (add-hook 'python-mode-hook #'lsp-deferred)
 (add-hook 'go-mode-hook #'lsp-deferred)
+(add-hook 'rust-mode-hook #'lsp-deferred)
 
 (with-eval-after-load 'lsp-pyright
   (setq lsp-pyright-python-executable-cmd
