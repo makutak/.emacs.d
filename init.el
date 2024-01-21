@@ -173,6 +173,20 @@
 (define-key corfu-map (kbd "TAB") #'corfu-next)
 (define-key corfu-map (kbd "S-TAB") #'corfu-previous)
 
+;; Makefile-mode の設定
+(add-to-list 'auto-mode-alist '("Makefile\\'" . makefile-mode))
+(add-to-list 'auto-mode-alist '("\\.mk\\'" . makefile-mode))
+
+;; キーバインディングの例
+(defun run-make ()
+  "Run make in the current directory."
+  (interactive)
+  (compile "make"))
+
+;; Makefile モードでのみ利用可能なキーバインディングの設定
+(add-hook 'makefile-mode-hook
+          (lambda ()
+            (local-set-key (kbd "M-m") 'run-make)))
 
 ;;; Git client
 (unless (package-installed-p 'magit)
