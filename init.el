@@ -1,275 +1,192 @@
 ;;; Personal configuration -*- lexical-binding: t -*-
 
-;; Save the contents of this file under ~/.emacs.d/init.el
-;; Do not forget to use Emacs' built-in help system:
-;; Use C-h C-h to get an overview of all help commands.  All you
-;; need to know about Emacs (what commands exist, what functions do,
-;; what variables specify), the help system can provide.
+;; パッケージ管理
+(eval-and-compile
+  (require 'package)
+  (setq package-archives
+        '(("gnu"   . "https://elpa.gnu.org/packages/")
+          ("melpa" . "https://melpa.org/packages/")
+          ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (require 'use-package))
 
-;; Add the NonGNU ELPA package archive
-(require 'package)
-(add-to-list 'package-archives  '("nongnu" . "https://elpa.nongnu.org/nongnu/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; `use-package` のデフォルト設定
+(setq use-package-always-ensure t)
 
-;; (unless package-archive-contents
-;;   (package-refresh-contents))
+;; `go-mode` の設定
+(use-package go-mode
+  :mode "\\.go\\'"
+  :hook (go-mode . lsp-deferred)
+  :custom (gofmt-command "goimports")
+  :config
+  (setq tab-width 4)
+  (add-hook 'before-save-hook #'gofmt-before-save))
 
-;; Load a custom theme
-(load-theme 'tsdh-dark t)
+;; `lsp-mode` の設定
+(use-package lsp-mode
+  :commands lsp
+  :hook ((go-mode . lsp-deferred)
+         (python-mode . lsp-deferred)
+         (rust-mode . lsp-deferred))
+  :custom
+  (lsp-completion-provider :none)
+  (lsp-enable-snippet nil)
+  (lsp-go-gopls-server-args '("-remote=auto"))
+  (lsp-session-folders-remove '("/usr/local/go/src" "~/go/pkg/mod")))
 
+;; `lsp-ui` (補助UI)
+(use-package lsp-ui
+  :after lsp-mode
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-position 'bottom)
+  (lsp-ui-sideline-enable t))
+
+;; `corfu` (補完機能)
+(use-package corfu
+  :bind (:map corfu-map
+              ("TAB" . corfu-next)
+              ("S-TAB" . corfu-previous))
+  :custom
+  (corfu-cycle t)
+  (corfu-auto t)
+  (corfu-auto-delay 0.1)
+  :init
+  (global-corfu-mode))
+
+;; `magit` (Git クライアント)
+(use-package magit
+  :bind ("C-x g" . magit-status))
+
+;; `vertico` (ミニバッファ補完)
+(use-package vertico
+  :init
+  (vertico-mode))
+
+;; `flymake` (静的解析)
+(use-package flymake
+  :hook ((go-mode . flymake-mode)
+         (python-mode . flymake-mode)
+         (rust-mode . flymake-mode)))
+
+;;; UI の調整（`use-package` 不要）
+(load-theme 'tsdh-dark)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(setq inhibit-startup-screen t)
+(global-display-line-numbers-mode t)
+(electric-pair-mode t)
+(set-face-attribute 'default nil :font "Ricty-14")
+
+;;; キーバインド設定（`use-package` 不要）
 (global-set-key (kbd "C-h") 'delete-backward-char)
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "C-t") 'other-window)
 
-;; Set default font face
-(set-face-attribute 'default nil :font "Ricty-14")
+;; バックアップ・オートセーブの無効化
+(setq make-backup-files nil
+      auto-save-default nil)
 
-;; Disable the menu bar
-(menu-bar-mode -1)
+;; `clang-format` の設定 (C/C++)
+(use-package clang-format
+  :custom (clang-format-style "google")
+  :hook ((c-mode . my-clang-format-before-save)
+         (c++-mode . my-clang-format-before-save))
+  :config
+  (defun my-clang-format-before-save ()
+    (interactive)
+    (when (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
+      (clang-format-buffer))))
 
-;; Disable the tool bar
-(tool-bar-mode -1)
+;; `rust-mode`
+(use-package rust-mode
+  :hook (rust-mode . (lambda () (add-hook 'before-save-hook 'rust-format-buffer nil 'local))))
 
-;; Disable the scroll bars
-(scroll-bar-mode -1)
+;; `multiple-cursors`
+(use-package multiple-cursors
+  :bind ("M-D" . mc/mark-next-like-this))
 
-;; Disable splash screen
-(setq inhibit-startup-screen t)
+;; `iedit`
+(use-package iedit)
 
-;; Enable line numbering by default
-(global-display-line-numbers-mode t)
+;; `whitespace` 設定
+(use-package whitespace
+  :custom
+  (whitespace-style '(face empty tabs lines-tail trailing))
+  :hook (before-save . delete-trailing-whitespace)
+  :init
+  (global-whitespace-mode t))
 
-;; Automatically pair parentheses
-(electric-pair-mode t)
+;; `recentf-mode` を有効化
+(use-package recentf
+  :init
+  (recentf-mode t))
 
-;; バックアップファイルを作成しない
-(setq make-backup-files nil)
-;; オートセーブファイルを作成しない
-(setq auto-save-default nil)
+;; `yaml-mode`
+(use-package yaml-mode)
 
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; `json-mode`
+(use-package json-mode)
 
-;;; Vertico configuration
-(unless (package-installed-p 'vertico)
-  (package-install 'vertico))
+;; `typescript-mode`
+(use-package typescript-mode)
 
-;; Enable Vertico
-(require 'vertico)
-(vertico-mode)
+;; `auctex` (LaTeX)
+(use-package auctex
+  :custom
+  (TeX-auto-save t)
+  (TeX-parse-self t)
+  (TeX-master nil))
 
-;; Optionally enable cycling for `vertico-next` and `vertico-previous`.
-(setq vertico-cycle t)
+;; `markdown-mode`
+(use-package markdown-mode)
 
-;; If you want to save and restore the last input of minibuffer commands
-;; across Emacs sessions, uncomment the following lines:
-;; (savehist-mode 1)
-;; (add-to-list 'savehist-additional-variables 'vertico-directory-input-string)
+;; `brief` (アウトラインベースのノート管理)
+(use-package brief)
 
-;; golang
-(unless (package-installed-p 'go-mode)
-  (package-install 'go-mode))
-(autoload 'go-mode "go-mode" nil t)
-(add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
-(setq gofmt-command "goimports")
-(add-hook 'go-mode-hook (lambda ()
-                          ;; タブ幅の設定
-                          (setq tab-width 4)
-                          ;; foramt
-                          (add-hook 'before-save-hook 'gofmt-before-save)))
-
-
-;; python
-(unless (package-installed-p 'python-black)
-  (package-install 'python-black))
-(require 'python-black)
-
-(defun my-python-mode-settings ()
-  "python mode setting"
-  (setq-local lsp-enable-formatting nil)
-  (python-black-on-save-mode))
-(add-hook 'python-mode-hook 'my-python-mode-settings)
-
-;; C/C++
-;;; ClangFormatの設定
-(unless (package-installed-p 'clang-format)
-  (package-install 'clang-format))
-
-(require 'clang-format)
-(setq clang-format-style "google")
-
-;;; ファイル保存時にClangFormatを実行
-(defun my-clang-format-before-save ()
-  (interactive)
-  (when (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
-    (clang-format-buffer)))
-
-(add-hook 'before-save-hook 'my-clang-format-before-save)
-
-;; rust
-;;; Rust support
-(unless (package-installed-p 'rust-mode)
-  (package-install 'rust-mode))
-(require 'rust-mode)
-(add-hook 'rust-mode-hook
-          (lambda ()
-            (add-hook 'before-save-hook 'rust-format-buffer nil 'local)))
+(use-package smartparens
+  :ensure t
+  :hook ((emacs-lisp-mode . smartparens-mode)
+         (lisp-mode . smartparens-mode)
+         (lisp-interaction-mode . smartparens-mode)
+         (scheme-mode . smartparens-mode)
+         (common-lisp-mode . smartparens-mode))
+  :config
+  (require 'smartparens-config)
+  ;; `C-→` (`Control + →`) で slurp
+  (define-key smartparens-mode-map (kbd "C-<right>") 'sp-forward-slurp-sexp)
+  ;; `C-←` (`Control + ←`) で barf
+  (define-key smartparens-mode-map (kbd "C-<left>") 'sp-forward-barf-sexp))
 
 
-;;; LSP Support
-(unless (package-installed-p 'lsp-mode)
-  (package-install 'lsp-mode))
+(defun my-lisp-auto-format ()
+  "LISP 系のファイルを保存するときに自動フォーマットする。"
+  (when (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'scheme-mode 'common-lisp-mode)
+    (indent-region (point-min) (point-max))))
 
-(unless (package-installed-p 'lsp-pyright)
-  (package-install 'lsp-pyright))
+(add-hook 'before-save-hook #'my-lisp-auto-format)
 
-(setq lsp-completion-min-length 2)
-(setq lsp-completion-provider :none)
-
-(require 'lsp-mode)
-(add-hook 'c-mode-hook #'lsp-deferred)
-(add-hook 'c++-mode-hook #'lsp-deferred)
-(add-hook 'python-mode-hook #'lsp-deferred)
-(add-hook 'go-mode-hook #'lsp-deferred)
-(add-hook 'rust-mode-hook #'lsp-deferred)
-
-(with-eval-after-load 'lsp-pyright
-  (setq lsp-pyright-python-executable-cmd
-        (executable-find "python3")))
-
-(setq lsp-enable-snippet nil)
-(setq lsp-enable-indentation t)
-(setq lsp-keep-workspace-alive nil)
-(setq lsp-signature-auto-activate nil)
-
-;;; Inline static analysis
-;; Enabled inline static analysis
-;;(add-hook 'prog-mode-hook #'flymake-mode)
-(add-hook 'c-mode-hook #'flymake-mode)
-(add-hook 'c++-mode-hook #'flymake-mode)
-(add-hook 'python-mode-hook #'flymake-mode)
-(add-hook 'go-mode-hook #'flymake-mode)
-
-;;; Pop-up completion
-(unless (package-installed-p 'corfu)
-  (package-install 'corfu))
-;; Corfuの基本設定
-(require 'corfu)
-(global-corfu-mode)
-
-;; 補完候補を循環する
-(setq corfu-cycle t)
-
-;; 自動補完を有効にする
-(setq corfu-auto t)
-
-;; 境界で自動的に補完を閉じる
-(setq corfu-quit-at-boundary t)
-
-;; 一致しない場合に補完を閉じる
-(setq corfu-quit-no-match t)
-(setq corfu-auto-delay 0.1)  ; 単位は秒
-
-;; キーバインドの設定
-(define-key corfu-map (kbd "TAB") #'corfu-next)
-(define-key corfu-map (kbd "S-TAB") #'corfu-previous)
-
-;; Makefile-mode の設定
-(add-to-list 'auto-mode-alist '("Makefile\\'" . makefile-mode))
-(add-to-list 'auto-mode-alist '("\\.mk\\'" . makefile-mode))
-
-;; キーバインディングの例
-(defun run-make ()
-  "Run make in the current directory."
-  (interactive)
-  (compile "make"))
-
-;; Makefile モードでのみ利用可能なキーバインディングの設定
-(add-hook 'makefile-mode-hook
-          (lambda ()
-            (local-set-key (kbd "M-m") 'run-make)))
-
-;;; Git client
-(unless (package-installed-p 'magit)
-  (package-install 'magit))
-
-;; Bind the `magit-status' command to a convenient key.
-(global-set-key (kbd "C-c g") #'magit-status)
-
-;;; JSON Support
-(unless (package-installed-p 'json-mode)
-  (package-install 'json-mode))
-
-;;; NASM Support
-(unless (package-installed-p 'nasm-mode)
-  (package-install 'nasm-mode))
-
-;;; Typescript Support
-(unless (package-installed-p 'typescript-mode)
-  (package-install 'typescript-mode))
-
-;;; YAML Support
-(unless (package-installed-p 'yaml-mode)
-  (package-install 'yaml-mode))
-
-;;; LaTeX support
-(unless (package-installed-p 'auctex)
-  (package-install 'auctex))
-(setq TeX-auto-save t)
-(setq TeX-parse-self t)
-(setq-default TeX-master nil)
-
-;;; Markdown support
-(unless (package-installed-p 'markdown-mode)
-  (package-install 'markdown-mode))
-
-;;; Outline-based notes management and organizer
-
-;;; Brief Emulation
-(unless (package-installed-p 'brief)
-  (package-install 'brief))
-
-;; Miscellaneous options
-(setq-default major-mode
-              (lambda () ; guess major mode from file name
-                (unless buffer-file-name
-                  (let ((buffer-file-name (buffer-name)))
-                    (set-auto-mode)))))
-(recentf-mode t)
+;; Emacs のデフォルト設定改善
+(setq large-file-warning-threshold 100000000) ;; 100MB 以上のファイル警告
 (defalias 'yes-or-no #'y-or-n-p)
 
-(unless (package-installed-p 'multiple-cursors)
-  (package-install 'multiple-cursors))
-(require 'multiple-cursors)
-(global-set-key (kbd "M-D") 'mc/mark-next-like-this)
+;; Emacs 起動時にウィンドウを最大化
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-(unless (package-installed-p 'iedit)
-  (package-install 'iedit))
-(require 'iedit)
-
-(require 'whitespace)
-(setq whitespace-style '(face empty tabs lines-tail trailing))
-(global-whitespace-mode t)
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-;; Store automatic customisation options elsewhere
-(setq custom-file (locate-user-emacs-file "custom.el"))
-(when (file-exists-p custom-file)
-  (load custom-file))
-
-;; 大きなファイルの自動読み込みを防ぐ
-(setq large-file-warning-threshold 100000000)  ; 100MB以上のファイルに対する警告
-
-;; 特定のファイル拡張子を無視する
-(add-to-list 'completion-ignored-extensions ".bin")
-(add-to-list 'completion-ignored-extensions ".so")
-(add-to-list 'completion-ignored-extensions ".o")
-
-(defun split-window-horizontally-n (num_wins)
-  (interactive "p")
-  (dotimes (i (- num_wins 1))
-    (split-window-horizontally))
-  (balance-windows))
-
-(global-set-key "\C-x@" (lambda ()
-                           (interactive)
-                           (split-window-horizontally-n 3)))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(smartparens keybindings ui-settings yaml-mode vertico typescript-mode rust-mode multiple-cursors magit lsp-ui leaf-keywords json-mode iedit hydra go-mode el-get corfu clang-format brief blackout auctex)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
