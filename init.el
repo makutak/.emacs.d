@@ -66,6 +66,29 @@
   :init
   (vertico-mode))
 
+;; `marginalia`（補足情報を表示）
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode))
+
+;; `orderless`（部分一致検索）
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless))  ;; `orderless` を Emacs の補完スタイルに設定
+  (completion-category-overrides '((file (styles basic)))))  ;; `find-file` では通常の補完を使う
+
+;; `consult`（高度な検索＆ナビゲーション）
+(use-package consult
+  :ensure t
+  :bind
+  (("C-s" . consult-line)  ;; `swiper` の代替
+   ("M-y" . consult-yank-pop)  ;; `M-y`（履歴ペースト）を強化
+   ("C-x b" . consult-buffer)  ;; `C-x b`（バッファ切り替え）を強化
+   ("C-x C-r" . consult-recent-file)))  ;; `C-x C-r` で最近開いたファイル一覧
+
+
 ;; `flymake` (静的解析)
 (use-package flymake
   :hook ((go-mode . flymake-mode)
@@ -170,6 +193,33 @@
 
 (add-hook 'before-save-hook #'my-lisp-auto-format)
 
+(when (getenv "DISPLAY")  ;; GUI 環境なら
+  (use-package xclip
+    :ensure t
+    :config
+    (xclip-mode 1)))
+
+;; `company-mode` の C 言語用設定
+(use-package company
+  :ensure t
+  :hook (c-mode . company-mode)
+  :config
+  (setq company-idle-delay 0.2
+        company-minimum-prefix-length 1
+        company-selection-wrap-around t
+        company-tooltip-align-annotations t)
+  (setq company-backends
+        '((company-clang company-dabbrev-code company-keywords))))
+
+;; `company-clang` の設定
+(setq company-clang-arguments '("-std=c11" "-I/usr/include" "-I./include"))
+
+;; `company-box` で補完ウィンドウを改善
+(use-package company-box
+  :ensure t
+  :hook (company-mode . company-box-mode))
+
+
 ;; Emacs のデフォルト設定改善
 (setq large-file-warning-threshold 100000000) ;; 100MB 以上のファイル警告
 (defalias 'yes-or-no #'y-or-n-p)
@@ -183,7 +233,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(smartparens keybindings ui-settings yaml-mode vertico typescript-mode rust-mode multiple-cursors magit lsp-ui leaf-keywords json-mode iedit hydra go-mode el-get corfu clang-format brief blackout auctex)))
+   '(consult orderless marginalia smartparens keybindings ui-settings yaml-mode vertico typescript-mode rust-mode multiple-cursors magit lsp-ui leaf-keywords json-mode iedit hydra go-mode el-get corfu clang-format brief blackout auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
