@@ -219,6 +219,54 @@
   :ensure t
   :hook (company-mode . company-box-mode))
 
+(use-package org
+  :ensure t
+  :pin gnu  ;; ELPA の GNU リポジトリから取得
+  :config
+  (setq org-hide-leading-stars t)   ;; ヘッダの * を非表示
+  (setq org-startup-indented t)     ;; インデント表示を有効化
+  (setq org-pretty-entities t)      ;; 数式や記号を綺麗に表示
+  (setq org-log-done 'time)         ;; タスク完了時に時間を記録
+  (setq org-return-follows-link t)) ;; RETキーでリンクを開く
+
+(setq org-agenda-files '("~/org")) ;; `~/org/` フォルダ内のファイルを管理対象にする
+(global-set-key (kbd "C-c a") 'org-agenda)
+
+(setq org-default-notes-file "~/org/notes.org")  ;; メモの保存先
+(global-set-key (kbd "C-c c") 'org-capture)
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks")
+         "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+        ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
+         "* %?\n  %U\n  %a\n  %i" :empty-lines 1)))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(org-level-1 ((t (:inherit default :weight bold :height 1.5))))
+ '(org-level-2 ((t (:inherit default :weight bold :height 1.3))))
+ '(org-level-3 ((t (:inherit default :weight bold :height 1.2))))
+ '(org-level-4 ((t (:inherit default :weight bold :height 1.1)))))
+
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory "~/org-roam")
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph))
+  :init
+  (org-roam-db-autosync-mode))
+
+
+(cond
+ ((eq system-type 'darwin)  ;; macOS
+  (set-face-attribute 'default nil :font "Ricty-18")) ;; 18pt に拡大
+ ((eq system-type 'gnu/linux)  ;; Ubuntu
+  (set-face-attribute 'default nil :font "Ricty-14"))) ;; 14pt
+
 
 ;; Emacs のデフォルト設定改善
 (setq large-file-warning-threshold 100000000) ;; 100MB 以上のファイル警告
