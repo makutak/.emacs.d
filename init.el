@@ -114,16 +114,23 @@
 (setq make-backup-files nil
       auto-save-default nil)
 
-;; `clang-format` の設定 (C/C++)
+(defun my-clang-format-before-save ()
+  "C/C++ の保存時に clang-format を自動実行"
+  (when (or (eq major-mode 'c-mode)
+            (eq major-mode 'c++-mode))
+    (condition-case err
+        (clang-format-buffer)
+      (error (message "clang-format error: %s" err)))))
+
 (use-package clang-format
-  :custom (clang-format-style "google")
-  :hook ((c-mode . my-clang-format-before-save)
-         (c++-mode . my-clang-format-before-save))
-  :config
-  (defun my-clang-format-before-save ()
-    (interactive)
-    (when (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
-      (clang-format-buffer))))
+  :ensure t
+  :hook ((c-mode . (lambda ()
+                     (add-hook 'before-save-hook #'my-clang-format-before-save nil t)))
+         (c++-mode . (lambda ()
+                       (add-hook 'before-save-hook #'my-clang-format-before-save nil t))))
+  :custom
+  (clang-format-style "file"))  ;; .clang-format を参照
+
 
 ;; `rust-mode`
 (use-package rust-mode
@@ -219,6 +226,21 @@
   :ensure t
   :hook (company-mode . company-box-mode))
 
+;; ripgrep + deadgrep
+(use-package deadgrep
+  :ensure t
+  :bind (("C-c s" . deadgrep)))
+
+(use-package dumb-jump
+  :ensure t
+  :bind (("M-." . dumb-jump-go)
+         ("M-," . dumb-jump-back))
+  :custom
+  (dumb-jump-prefer-searcher 'rg) ;; ripgrep を使うなら
+  (dumb-jump-force-searcher 'rg)  ;; 強制的に ripgrep にする
+  (dumb-jump-aggressive nil))
+
+
 (use-package org
   :ensure t
   :pin gnu  ;; ELPA の GNU リポジトリから取得
@@ -289,7 +311,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(auctex brief clang-format company-box consult corfu go-mode iedit
-			json-mode lsp-ui magit marginalia multiple-cursors
-			orderless org org-roam rust-mode smartparens
-			typescript-mode vertico xclip yaml-mode)))
+   '(auctex brief clang-format company-box consult corfu deadgrep
+	    dumb-jump go-mode iedit json-mode lsp-ui magit marginalia
+	    multiple-cursors orderless org org-roam rust-mode
+	    smartparens typescript-mode vertico xclip yaml-mode)))
