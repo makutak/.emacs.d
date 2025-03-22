@@ -267,6 +267,14 @@
  ((eq system-type 'gnu/linux)  ;; Ubuntu
   (set-face-attribute 'default nil :font "Ricty-14"))) ;; 14pt
 
+(use-package asm-mode
+  :mode ("\\.s\\'" . asm-mode)
+  :hook (asm-mode . (lambda ()
+                      (setq tab-width 2)
+                      (setq indent-tabs-mode nil)
+                      (setq asm-indent-level 2))))
+
+
 
 ;; Emacs のデフォルト設定改善
 (setq large-file-warning-threshold 100000000) ;; 100MB 以上のファイル警告
@@ -280,4 +288,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(auctex brief clang-format company-box consult corfu go-mode iedit
+			json-mode lsp-ui magit marginalia multiple-cursors
+			orderless org org-roam rust-mode smartparens
+			typescript-mode vertico xclip yaml-mode)))
