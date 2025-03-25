@@ -1,3 +1,4 @@
+
 ;;; Personal configuration -*- lexical-binding: t -*-
 
 ;; パッケージ管理
@@ -302,6 +303,18 @@
 (setq large-file-warning-threshold 100000000) ;; 100MB 以上のファイル警告
 (defalias 'yes-or-no #'y-or-n-p)
 
+(defun my/replace-commas-with-newlines (start end)
+  "Replace all commas with newlines in the region from START to END.
+If no region is active, apply to the entire buffer."
+  (interactive "r")
+  (if (use-region-p)
+      ;; リージョンが選択されている場合はその範囲に適用
+      (perform-replace "," "\n" nil nil nil nil nil start end)
+    ;; リージョンが選択されていない場合はバッファ全体に適用
+    (perform-replace "," "\n" nil nil nil nil nil (point-min) (point-max))))
+(global-set-key (kbd "C-c ,") #'my/replace-commas-with-newlines)
+
+
 ;; Emacs 起動時にウィンドウを最大化
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -310,8 +323,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(auctex brief clang-format company-box consult corfu deadgrep
-	    dumb-jump go-mode iedit json-mode lsp-ui magit marginalia
-	    multiple-cursors orderless org org-roam rust-mode
-	    smartparens typescript-mode vertico xclip yaml-mode)))
+ '(package-selected-packages nil))
