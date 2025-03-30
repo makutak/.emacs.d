@@ -302,6 +302,8 @@
 ;; Emacs のデフォルト設定改善
 (setq large-file-warning-threshold 100000000) ;; 100MB 以上のファイル警告
 (defalias 'yes-or-no #'y-or-n-p)
+(global-set-key (kbd "C-x =") #'balance-windows)
+
 
 (defun my/replace-commas-with-newlines (start end)
   "Replace all commas with newlines in the region from START to END.
