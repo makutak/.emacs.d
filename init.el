@@ -1,4 +1,3 @@
-
 ;;; Personal configuration -*- lexical-binding: t -*-
 
 ;; パッケージ管理
@@ -297,7 +296,8 @@
                       (setq indent-tabs-mode nil)
                       (setq asm-indent-level 2))))
 
-
+(use-package vterm
+  :ensure t)
 
 ;; Emacs のデフォルト設定改善
 (setq large-file-warning-threshold 100000000) ;; 100MB 以上のファイル警告
@@ -316,6 +316,24 @@ If no region is active, apply to the entire buffer."
     (perform-replace "," "\n" nil nil nil nil nil (point-min) (point-max))))
 (global-set-key (kbd "C-c ,") #'my/replace-commas-with-newlines)
 
+(add-hook 'server-visit-hook
+          (lambda ()
+            (setq default-directory
+                  (expand-file-name (getenv "PWD")))))
+
+;; (defun my/set-font (frame)
+;;   (with-selected-frame frame
+;;     (set-frame-font "Ricty-14" t t)))
+
+;; ;; GUIフレームが作られた時だけ実行
+;; (add-hook 'after-make-frame-functions #'my/set-font)
+
+;; ;; 非daemon時（通常起動）も反映されるように、最初のフレームにも適用
+;; (when (display-graphic-p)
+;;   (set-frame-font "Ricty-14" t t))
+
+;; (setq pop-up-frames nil) ;; 既存フレームで開くようにする
+
 
 ;; Emacs 起動時にウィンドウを最大化
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -325,4 +343,8 @@ If no region is active, apply to the entire buffer."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(auctex brief clang-format company-box consult corfu ddskk deadgrep
+	    dumb-jump go-mode iedit json-mode lsp-ui magit marginalia
+	    multiple-cursors orderless org-roam rust-mode smartparens
+	    typescript-mode vertico vterm xclip yaml-mode)))
