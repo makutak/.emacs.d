@@ -321,22 +321,41 @@ If no region is active, apply to the entire buffer."
             (setq default-directory
                   (expand-file-name (getenv "PWD")))))
 
-;; (defun my/set-font (frame)
-;;   (with-selected-frame frame
-;;     (set-frame-font "Ricty-14" t t)))
+(defun my/set-font (frame)
+  (with-selected-frame frame
+    (set-frame-font "Ricty-14" t t)))
 
-;; ;; GUIフレームが作られた時だけ実行
-;; (add-hook 'after-make-frame-functions #'my/set-font)
+;; GUIフレームが作られた時だけ実行
+(add-hook 'after-make-frame-functions #'my/set-font)
 
-;; ;; 非daemon時（通常起動）も反映されるように、最初のフレームにも適用
-;; (when (display-graphic-p)
-;;   (set-frame-font "Ricty-14" t t))
+;; 非daemon時（通常起動）も反映されるように、最初のフレームにも適用
+(when (display-graphic-p)
+  (set-frame-font "Ricty-14" t t))
 
 ;; (setq pop-up-frames nil) ;; 既存フレームで開くようにする
+
+;; SKK
+(use-package ddskk
+  :ensure t
+  :init
+  (setq default-input-method "japanese-skk")
+  (setq skk-large-jisyo "~/SKK-JISYO.L")
+  (setq skk-user-jisyo "~/.emacs.d/skk-jisyo")
+  (setq skk-indicator-use-cursor-color t)
+  (setq skk-use-color-cursor t)
+  ;; インラインで変換表示
+  (setq skk-show-inline t)
+  ;; 送り仮名厳密にする
+  (setq skk-henkan-strict-okuri-precedence t)
+  ;; isearchでは英語で開始
+  (setq skk-isearch-start-mode 'latin))
+(global-set-key (kbd "C-x j") 'skk-mode)
 
 
 ;; Emacs 起動時にウィンドウを最大化
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+(server-start)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
