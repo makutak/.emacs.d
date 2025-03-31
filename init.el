@@ -338,17 +338,26 @@ If no region is active, apply to the entire buffer."
 (use-package ddskk
   :ensure t
   :init
-  (setq default-input-method "japanese-skk")
-  (setq skk-large-jisyo "~/SKK-JISYO.L")
+  ;; 辞書設定
+  (setq skk-large-jisyo (expand-file-name "~/SKK-JISYO.L"))
   (setq skk-user-jisyo "~/.emacs.d/skk-jisyo")
-  (setq skk-indicator-use-cursor-color t)
-  (setq skk-use-color-cursor t)
-  ;; インラインで変換表示
+  (setq skk-search-prog-list
+	'((skk-search-jisyo-file skk-user-jisyo 0)
+          (skk-search-jisyo-file skk-large-jisyo 0)))
+
+  (require 'skk-inline)
   (setq skk-show-inline t)
-  ;; 送り仮名厳密にする
-  (setq skk-henkan-strict-okuri-precedence t)
-  ;; isearchでは英語で開始
-  (setq skk-isearch-start-mode 'latin))
+  (setq skk-show-tooltip nil) ;; tooltip 表示は無効に
+
+  (add-hook 'skk-mode-hook
+            (lambda ()
+              (when (fboundp 'skk-inline-start)
+		(skk-inline-start))))
+
+  ;; インジケータカラー
+  (setq skk-indicator-use-cursor-color t)
+  (setq skk-use-color-cursor t))
+
 (global-set-key (kbd "C-x j") 'skk-mode)
 
 
