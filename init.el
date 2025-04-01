@@ -282,13 +282,6 @@
   :init
   (org-roam-db-autosync-mode))
 
-
-(cond
- ((eq system-type 'darwin)  ;; macOS
-  (set-face-attribute 'default nil :font "Ricty-18")) ;; 18pt に拡大
- ((eq system-type 'gnu/linux)  ;; Ubuntu
-  (set-face-attribute 'default nil :font "Ricty-14"))) ;; 14pt
-
 (use-package asm-mode
   :mode ("\\.s\\'" . asm-mode)
   :hook (asm-mode . (lambda ()
@@ -321,18 +314,26 @@ If no region is active, apply to the entire buffer."
             (setq default-directory
                   (expand-file-name (getenv "PWD")))))
 
-(defun my/set-font (frame)
+;; フォント設定関数（システムに応じてフォントサイズを変える）
+(defun my/set-default-font ()
+  (let ((font-size (cond
+                    ((eq system-type 'darwin) 18)
+                    ((eq system-type 'gnu/linux) 14)
+                    (t 14)))  ;; fallback
+        (font-name "Ricty"))
+    (set-face-attribute 'default nil :font (format "%s-%d" font-name font-size))))
+
+;; daemon時：GUIフレームが作られるたびに適用
+(defun my/set-font-for-new-frame (frame)
   (with-selected-frame frame
-    (set-frame-font "Ricty-14" t t)))
+    (when (display-graphic-p frame)
+      (my/set-default-font))))
 
-;; GUIフレームが作られた時だけ実行
-(add-hook 'after-make-frame-functions #'my/set-font)
+(add-hook 'after-make-frame-functions #'my/set-font-for-new-frame)
 
-;; 非daemon時（通常起動）も反映されるように、最初のフレームにも適用
+;; 通常起動時（非daemon）や最初のフレームでも適用
 (when (display-graphic-p)
-  (set-frame-font "Ricty-14" t t))
-
-;; (setq pop-up-frames nil) ;; 既存フレームで開くようにする
+  (my/set-default-font))
 
 ;; SKK
 (use-package ddskk
