@@ -256,6 +256,18 @@
   :init
   (cscope-setup))
 
+(defun my/update-tags-and-cscope ()
+  "保存時に make update を実行して TAGS / cscope.out を再生成する。"
+  (when (and buffer-file-name
+             (string-match "\\.c\\|\\.h$" buffer-file-name)
+             (locate-dominating-file buffer-file-name "Makefile"))
+    (let ((default-directory (locate-dominating-file buffer-file-name "Makefile")))
+      (when (and (executable-find "make")
+                 (file-exists-p "Makefile"))
+        (shell-command "make update")))))
+
+(add-hook 'after-save-hook #'my/update-tags-and-cscope)
+
 ;; man
 (global-set-key (kbd "C-c m") 'man)
 
