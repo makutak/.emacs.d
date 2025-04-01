@@ -231,15 +231,33 @@
   :ensure t
   :bind (("C-c s" . deadgrep)))
 
+;; dumb-jump を xref に統合（fallback的に）
 (use-package dumb-jump
   :ensure t
-  :bind (("M-." . dumb-jump-go)
-         ("M-," . dumb-jump-back))
   :custom
-  (dumb-jump-prefer-searcher 'rg) ;; ripgrep を使うなら
-  (dumb-jump-force-searcher 'rg)  ;; 強制的に ripgrep にする
-  (dumb-jump-aggressive nil))
+  (dumb-jump-prefer-searcher 'rg)
+  (dumb-jump-force-searcher 'rg)
+  (dumb-jump-aggressive nil)
+  :init
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
+;; xref を使った統一ジャンプキー
+(global-set-key (kbd "M-.") #'xref-find-definitions)
+(global-set-key (kbd "M-,") #'xref-pop-marker-stack)
+
+;; TAGS 読み込み（etags）
+;; TAGSファイルは .dir-locals.el 側で tags-table-list を指定する
+;; init.el 側では、TAGS 機能の自動追加を無効にするだけでOK
+(setq tags-add-table nil)
+
+;; cscope
+(use-package xcscope
+  :ensure t
+  :init
+  (cscope-setup))
+
+;; man
+(global-set-key (kbd "C-c m") 'man)
 
 (use-package org
   :ensure t
