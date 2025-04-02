@@ -370,11 +370,15 @@ If no region is active, apply to the entire buffer."
   :ensure t
   :init
   ;; 辞書設定
-  (setq skk-large-jisyo (expand-file-name "~/SKK-JISYO.L"))
+  (defconst my-skk-dict-dir (expand-file-name "skk-dictionaries" user-emacs-directory))
+
+  (setq skk-large-jisyo (expand-file-name "SKK-JISYO.L" my-skk-dict-dir))
+  (setq skk-jinmei-jisyo (expand-file-name "SKK-JISYO.jinmei" my-skk-dict-dir))
   (setq skk-user-jisyo "~/.emacs.d/skk-jisyo")
   (setq skk-search-prog-list
-	'((skk-search-jisyo-file skk-user-jisyo 0)
-          (skk-search-jisyo-file skk-large-jisyo 0)))
+		'((skk-search-jisyo-file skk-user-jisyo 0)
+		  (skk-search-jisyo-file skk-large-jisyo 0)
+		  (skk-search-jisyo-file skk-jinmei-jisyo 0)))
 
   (require 'skk-inline)
   (setq skk-show-inline t)
@@ -383,7 +387,7 @@ If no region is active, apply to the entire buffer."
   (add-hook 'skk-mode-hook
             (lambda ()
               (when (fboundp 'skk-inline-start)
-		(skk-inline-start))))
+				(skk-inline-start))))
 
   ;; インジケータカラー
   (setq skk-indicator-use-cursor-color t)
@@ -410,6 +414,7 @@ If no region is active, apply to the entire buffer."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(auctex brief clang-format company-box consult corfu ddskk deadgrep
-	    dumb-jump go-mode iedit json-mode lsp-ui magit marginalia
-	    multiple-cursors orderless org-roam rust-mode smartparens
-	    typescript-mode vertico vterm xclip yaml-mode)))
+			dumb-jump fcitx fcitx5 go-mode iedit json-mode lsp-ui
+			magit marginalia mozc mozc-popup multiple-cursors
+			orderless org-roam rust-mode smartparens typescript-mode
+			vertico xclip xcscope yaml-mode)))

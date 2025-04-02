@@ -1,0 +1,3 @@
+[submodule "skk-dictionaries"]
+	path = skk-dictionaries
+	url = https://github.com/skk-dev/dict.git
