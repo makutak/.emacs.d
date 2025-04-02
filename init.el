@@ -319,8 +319,8 @@
                       (setq indent-tabs-mode nil)
                       (setq asm-indent-level 2))))
 
-(use-package vterm
-  :ensure t)
+;; (use-package vterm
+;;   :ensure t)
 
 ;; Emacs のデフォルト設定改善
 (setq large-file-warning-threshold 100000000) ;; 100MB 以上のファイル警告
