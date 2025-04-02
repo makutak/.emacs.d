@@ -388,9 +388,15 @@ If no region is active, apply to the entire buffer."
   ;; インジケータカラー
   (setq skk-indicator-use-cursor-color t)
   (setq skk-use-color-cursor t))
-
 (global-set-key (kbd "C-x j") 'skk-mode)
 
+;; JSON Format
+(defun my/format-json-region ()
+  "Use jq to pretty-print the selected JSON region."
+  (interactive)
+  (shell-command-on-region (region-beginning) (region-end) "jq ." t t))
+;; 例えば C-c j にバインド
+(global-set-key (kbd "C-c j") #'my/format-json-region)
 
 ;; Emacs 起動時にウィンドウを最大化
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
