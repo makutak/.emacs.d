@@ -377,9 +377,9 @@ If no region is active, apply to the entire buffer."
   (setq skk-jinmei-jisyo (expand-file-name "SKK-JISYO.jinmei" my-skk-dict-dir))
   (setq skk-user-jisyo "~/.emacs.d/skk-jisyo")
   (setq skk-search-prog-list
-		'((skk-search-jisyo-file skk-user-jisyo 0)
-		  (skk-search-jisyo-file skk-large-jisyo 0)
-		  (skk-search-jisyo-file skk-jinmei-jisyo 0)))
+	'((skk-search-jisyo-file skk-user-jisyo 0)
+	  (skk-search-jisyo-file skk-large-jisyo 0)
+	  (skk-search-jisyo-file skk-jinmei-jisyo 0)))
 
   (require 'skk-inline)
   (setq skk-show-inline t)
@@ -388,7 +388,7 @@ If no region is active, apply to the entire buffer."
   (add-hook 'skk-mode-hook
             (lambda ()
               (when (fboundp 'skk-inline-start)
-				(skk-inline-start))))
+		(skk-inline-start))))
 
   ;; インジケータカラー
   (setq skk-indicator-use-cursor-color t)
