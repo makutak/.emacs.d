@@ -267,6 +267,7 @@
         (shell-command "make update")))))
 
 (add-hook 'after-save-hook #'my/update-tags-and-cscope)
+(setq tags-revert-without-query t)
 
 ;; man
 (global-set-key (kbd "C-c m") 'man)
