@@ -313,6 +313,27 @@
   :init
   (org-roam-db-autosync-mode))
 
+(defun my/save-scratch-to-inbox ()
+  "Append the contents of *scratch* to ~/org/inbox.org as a new org entry."
+  (interactive)
+  (let ((scratch-buffer (get-buffer "*scratch*"))
+        (inbox-path "~/org/inbox.org"))
+    (when scratch-buffer
+      (let ((content (with-current-buffer scratch-buffer
+                       (buffer-substring-no-properties (point-min) (point-max)))))
+        (when (not (string-blank-p content))
+          (with-current-buffer (find-file-noselect inbox-path)
+            (goto-char (point-max))
+            (insert (format "\n* Scratch Memo [%s]\n%s\n"
+                            (format-time-string "%Y-%m-%d %H:%M")
+                            content))
+            (save-buffer)))
+        (with-current-buffer scratch-buffer
+          (erase-buffer)
+          (insert ";; scratch buffer cleared\n"))))))
+(global-set-key (kbd "C-c s") 'my/save-scratch-to-inbox)
+
+
 (use-package asm-mode
   :mode ("\\.s\\'" . asm-mode)
   :hook (asm-mode . (lambda ()
