@@ -274,13 +274,15 @@
 
 (use-package org
   :ensure t
-  :pin gnu  ;; ELPA の GNU リポジトリから取得
+  :pin gnu
   :config
-  (setq org-hide-leading-stars t)   ;; ヘッダの * を非表示
-  (setq org-startup-indented t)     ;; インデント表示を有効化
-  (setq org-pretty-entities t)      ;; 数式や記号を綺麗に表示
-  (setq org-log-done 'time)         ;; タスク完了時に時間を記録
-  (setq org-return-follows-link t)) ;; RETキーでリンクを開く
+  (setq org-hide-leading-stars t)            ;; ヘッダの * を非表示
+  (setq org-startup-indented t)              ;; インデント表示を有効化
+  (setq org-pretty-entities t)               ;; 記号を綺麗に表示
+  (setq org-use-sub-superscripts '{} )       ;; ← コレが最重要：数式だけ下付きにする
+  (setq org-export-with-sub-superscripts '{} ) ;; エクスポートでも同様に
+  (setq org-log-done 'time)                  ;; タスク完了時に時間を記録
+  (setq org-return-follows-link t))          ;; RETキーでリンクを開く
 
 (setq org-agenda-files '("~/org")) ;; `~/org/` フォルダ内のファイルを管理対象にする
 (global-set-key (kbd "C-c a") 'org-agenda)
