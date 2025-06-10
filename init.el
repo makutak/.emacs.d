@@ -425,7 +425,7 @@ If no region is active, apply to the entire buffer."
   "Use jq to pretty-print the selected JSON region."
   (interactive)
   (shell-command-on-region (region-beginning) (region-end) "jq ." t t))
-;; 例えば C-c j にバインド
+;; C-c j にバインド
 (global-set-key (kbd "C-c j") #'my/format-json-region)
 
 ;; Emacs 起動時にウィンドウを最大化
