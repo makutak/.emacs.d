@@ -261,10 +261,12 @@
   (when (and buffer-file-name
              (string-match "\\.c\\|\\.h$" buffer-file-name)
              (locate-dominating-file buffer-file-name "Makefile"))
-    (let ((default-directory (locate-dominating-file buffer-file-name "Makefile")))
+    (let ((project-root (locate-dominating-file buffer-file-name "Makefile")))
       (when (and (executable-find "make")
-                 (file-exists-p "Makefile"))
-        (shell-command "make update")))))
+                 (file-exists-p (expand-file-name "Makefile" project-root)))
+        ;; 非同期実行で UI をブロックしない
+        (let ((default-directory project-root))
+          (async-shell-command "make update" "*Make Update*"))))))
 
 (add-hook 'after-save-hook #'my/update-tags-and-cscope)
 (setq tags-revert-without-query t)
