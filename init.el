@@ -264,9 +264,9 @@
     (let ((project-root (locate-dominating-file buffer-file-name "Makefile")))
       (when (and (executable-find "make")
                  (file-exists-p (expand-file-name "Makefile" project-root)))
-        ;; 非同期実行で UI をブロックしない
+        ;; バッファを表示せずに非同期実行
         (let ((default-directory project-root))
-          (async-shell-command "make update" "*Make Update*"))))))
+          (start-process "make-update" nil "make" "update"))))))
 
 (add-hook 'after-save-hook #'my/update-tags-and-cscope)
 (setq tags-revert-without-query t)
