@@ -15,6 +15,11 @@
 ;; `use-package` のデフォルト設定
 (setq use-package-always-ensure t)
 
+(use-package exec-path-from-shell
+  :ensure t
+  :init
+  (exec-path-from-shell-initialize))
+
 ;; `go-mode` の設定
 (use-package go-mode
   :mode "\\.go\\'"
