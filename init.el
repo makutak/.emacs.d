@@ -261,6 +261,7 @@
   :init
   (cscope-setup))
 
+
 (defun my/update-tags-and-cscope ()
   "保存時に make update を実行して TAGS / cscope.out を再生成する。"
   (when (and buffer-file-name
