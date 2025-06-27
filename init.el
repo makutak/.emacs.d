@@ -450,7 +450,7 @@ If no region is active, apply to the entire buffer."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(auctex brief clang-format company-box consult corfu ddskk deadgrep
-			dumb-jump fcitx fcitx5 go-mode iedit json-mode lsp-ui
-			magit marginalia mozc mozc-popup multiple-cursors
-			orderless org-roam rust-mode smartparens typescript-mode
-			vertico xclip xcscope yaml-mode)))
+	    dumb-jump fcitx fcitx5 go-mode iedit json-mode lsp-ui
+	    magit marginalia mozc mozc-popup multiple-cursors
+	    orderless org-roam rust-mode smartparens typescript-mode
+	    vertico xclip xcscope yaml-mode)))
