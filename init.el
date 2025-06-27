@@ -23,10 +23,14 @@
 ;; `go-mode` の設定
 (use-package go-mode
   :mode "\\.go\\'"
-  :hook (go-mode . lsp-deferred)
-  :custom (gofmt-command "goimports")
+  :custom
+  (gofmt-command "goimports")
+  :hook
+  ((go-mode . (lambda ()
+                (setq-local tab-width 2)
+                (setq-local indent-tabs-mode t)))
+   (go-mode . lsp-deferred))
   :config
-  (setq tab-width 4)
   (add-hook 'before-save-hook #'gofmt-before-save))
 
 ;; `lsp-mode` の設定
