@@ -17,8 +17,10 @@
 
 (use-package exec-path-from-shell
   :ensure t
+  :demand t
   :init
   (exec-path-from-shell-initialize))
+(global-set-key (kbd "C-c p") #'exec-path-from-shell-initialize)
 
 ;; `go-mode` の設定
 (use-package go-mode
@@ -57,12 +59,17 @@
 ;; `corfu` (補完機能)
 (use-package corfu
   :bind (:map corfu-map
-              ("TAB" . corfu-next)
-              ("S-TAB" . corfu-previous))
+              ("TAB" . corfu-complete)
+              ("<tab>" . corfu-complete)
+              ("C-n" . corfu-next)
+              ("C-p" . corfu-previous)
+              ("<down>" . corfu-next)
+              ("<up>" . corfu-previous))
   :custom
   (corfu-cycle t)
   (corfu-auto t)
   (corfu-auto-delay 0.1)
+  (corfu-preselect 'first)
   :init
   (global-corfu-mode))
 
