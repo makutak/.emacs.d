@@ -22,6 +22,12 @@
   (exec-path-from-shell-initialize))
 (global-set-key (kbd "C-c p") #'exec-path-from-shell-initialize)
 
+;; slime
+(use-package slime
+  :if (file-exists-p "~/.roswell/helper.el")
+  :init (load "~/.roswell/helper.el"))
+
+
 ;; `go-mode` の設定
 (use-package go-mode
   :mode "\\.go\\'"
@@ -34,6 +40,13 @@
    (go-mode . lsp-deferred))
   :config
   (add-hook 'before-save-hook #'gofmt-before-save))
+
+(use-package python-mode
+  :hook (python-mode . lsp-deferred))
+
+(use-package ruff-format
+  :ensure t
+  :hook (python-mode . ruff-format-on-save-mode))
 
 ;; `lsp-mode` の設定
 (use-package lsp-mode
@@ -457,7 +470,8 @@ If no region is active, apply to the entire buffer."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(auctex brief clang-format company-box consult corfu ddskk deadgrep
-	    dumb-jump fcitx fcitx5 go-mode iedit json-mode lsp-ui
-	    magit marginalia mozc mozc-popup multiple-cursors
-	    orderless org-roam rust-mode smartparens typescript-mode
-	    vertico xclip xcscope yaml-mode)))
+	    dumb-jump exec-path-from-shell fcitx go-mode iedit
+	    json-mode lsp-ui magit marginalia mozc-popup
+	    multiple-cursors orderless org-roam python-mode
+	    ruff-format rust-mode slime smartparens typescript-mode
+	    ubuntu-theme vertico xclip xcscope yaml-mode)))
