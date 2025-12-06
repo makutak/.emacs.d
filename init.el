@@ -161,6 +161,11 @@
   (clang-format-style "file"))  ;; .clang-format を参照
 
 
+;; Nix-mode
+(use-package nix-mode
+  :ensure t
+  :mode "\\.nix\\'")
+
 ;; `rust-mode`
 (use-package rust-mode
   :hook (rust-mode . (lambda () (add-hook 'before-save-hook 'rust-format-buffer nil 'local))))
@@ -472,6 +477,6 @@ If no region is active, apply to the entire buffer."
    '(auctex brief clang-format company-box consult corfu ddskk deadgrep
 	    dumb-jump exec-path-from-shell fcitx go-mode iedit
 	    json-mode lsp-ui magit marginalia mozc-popup
-	    multiple-cursors orderless org-roam python-mode
+	    multiple-cursors nixd orderless org-roam python-mode
 	    ruff-format rust-mode slime smartparens typescript-mode
 	    ubuntu-theme vertico xclip xcscope yaml-mode)))
