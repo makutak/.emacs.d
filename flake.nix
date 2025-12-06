@@ -1,7 +1,7 @@
 {
   description = "Emacs config";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+  inputs.nixpkgs.url = "nixpkgs";
 
   outputs = { self, nixpkgs }:
   let
@@ -50,7 +50,7 @@
         };
       });
 
-    # おまけ: `nix run .#emacs` で Emacs を起動できるようにする
+    # `nix run .#emacs` で Emacs を起動できるようにする
     apps = forAllSystems (system:
       let
         pkgs = import nixpkgs { inherit system; };

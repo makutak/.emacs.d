@@ -474,9 +474,4 @@ If no region is active, apply to the entire buffer."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(auctex brief clang-format company-box consult corfu ddskk deadgrep
-	    dumb-jump exec-path-from-shell fcitx go-mode iedit
-	    json-mode lsp-ui magit marginalia mozc-popup
-	    multiple-cursors nixd orderless org-roam python-mode
-	    ruff-format rust-mode slime smartparens typescript-mode
-	    ubuntu-theme vertico xclip xcscope yaml-mode)))
+   '(auctex brief clang-format company-box consult corfu ddskk deadgrep dumb-jump exec-path-from-shell fcitx go-mode iedit json-mode lsp-ui magit marginalia mozc-popup multiple-cursors nixd orderless org-roam python-mode ruff-format rust-mode slime smartparens typescript-mode ubuntu-theme vertico xclip xcscope yaml-mode)))
