@@ -130,6 +130,7 @@
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (setq inhibit-startup-screen t)
+(setq ring-bell-function 'ignore)
 (global-display-line-numbers-mode t)
 (electric-pair-mode t)
 (set-face-attribute 'default nil :font "Ricty-14")
@@ -466,12 +467,3 @@ If no region is active, apply to the entire buffer."
 ;; Emacs 起動時にウィンドウを最大化
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (server-start)
-
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(auctex brief clang-format company-box consult corfu ddskk deadgrep dumb-jump exec-path-from-shell fcitx go-mode iedit json-mode lsp-ui magit marginalia mozc-popup multiple-cursors nixd orderless org-roam python-mode ruff-format rust-mode slime smartparens typescript-mode ubuntu-theme vertico xclip xcscope yaml-mode)))
