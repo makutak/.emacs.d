@@ -15,6 +15,9 @@
 ;; `use-package` のデフォルト設定
 (setq use-package-always-ensure t)
 
+(setq-default indent-tabs-mode nil)
+(add-hook 'makefile-mode-hook (lambda () setq-local indent-tabs-mode t))
+
 (use-package exec-path-from-shell
   :ensure t
   :demand t
@@ -51,7 +54,9 @@
 ;; `lsp-mode` の設定
 (use-package lsp-mode
   :commands lsp
-  :hook ((go-mode . lsp-deferred)
+  :hook ((c-mode . lsp)
+         (c++-mode . lsp)
+         (go-mode . lsp-deferred)
          (python-mode . lsp-deferred)
          (rust-mode . lsp-deferred))
   :custom
@@ -122,7 +127,9 @@
 (use-package flymake
   :hook ((go-mode . flymake-mode)
          (python-mode . flymake-mode)
-         (rust-mode . flymake-mode)))
+         (rust-mode . flymake-mode)
+         (c-mode . (lambda ()
+                     (remove-hook 'flymake-diagnostic-functions #'flymake-cc t)))))
 
 ;;; UI の調整（`use-package` 不要）
 (load-theme 'tsdh-dark)
@@ -241,7 +248,7 @@
     :config
     (xclip-mode 1)))
 
-;; `company-mode` の C 言語用設定
+;; `company-mode` の 設定
 (use-package company
   :ensure t
   :hook (c-mode . company-mode)
@@ -251,10 +258,8 @@
         company-selection-wrap-around t
         company-tooltip-align-annotations t)
   (setq company-backends
-        '((company-clang company-dabbrev-code company-keywords))))
+        '((company-capf company-dabbrev-code company-keywords))))
 
-;; `company-clang` の設定
-(setq company-clang-arguments '("-std=c11" "-I/usr/include" "-I./include"))
 
 ;; `company-box` で補完ウィンドウを改善
 (use-package company-box
@@ -438,9 +443,9 @@ If no region is active, apply to the entire buffer."
   (setq skk-jinmei-jisyo (expand-file-name "SKK-JISYO.jinmei" my-skk-dict-dir))
   (setq skk-user-jisyo "~/.emacs.d/skk-jisyo")
   (setq skk-search-prog-list
-	'((skk-search-jisyo-file skk-user-jisyo 0)
-	  (skk-search-jisyo-file skk-large-jisyo 0)
-	  (skk-search-jisyo-file skk-jinmei-jisyo 0)))
+        '((skk-search-jisyo-file skk-user-jisyo 0)
+          (skk-search-jisyo-file skk-large-jisyo 0)
+          (skk-search-jisyo-file skk-jinmei-jisyo 0)))
 
   (require 'skk-inline)
   (setq skk-show-inline t)
@@ -449,7 +454,7 @@ If no region is active, apply to the entire buffer."
   (add-hook 'skk-mode-hook
             (lambda ()
               (when (fboundp 'skk-inline-start)
-		(skk-inline-start))))
+                (skk-inline-start))))
 
   ;; インジケータカラー
   (setq skk-indicator-use-cursor-color t)
