@@ -77,8 +77,8 @@
 ;; `corfu` (補完機能)
 (use-package corfu
   :bind (:map corfu-map
-              ("TAB" . corfu-complete)
-              ("<tab>" . corfu-complete)
+              ("TAB" . corfu-insert)
+              ("<tab>" . corfu-insert)
               ("C-n" . corfu-next)
               ("C-p" . corfu-previous)
               ("<down>" . corfu-next)
@@ -251,7 +251,6 @@
 ;; `company-mode` の 設定
 (use-package company
   :ensure t
-  :hook (c-mode . company-mode)
   :config
   (setq company-idle-delay 0.2
         company-minimum-prefix-length 1
