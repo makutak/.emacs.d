@@ -91,6 +91,13 @@
   :init
   (global-corfu-mode))
 
+;; ターミナル用のcorfuバックエンド
+(use-package corfu-terminal
+  :ensure t
+  :unless (display-graphic-p)
+  :config
+  (corfu-terminal-mode +1))
+
 ;; `magit` (Git クライアント)
 (use-package magit
   :bind ("C-x g" . magit-status))
@@ -471,3 +478,15 @@ If no region is active, apply to the entire buffer."
 ;; Emacs 起動時にウィンドウを最大化
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (server-start)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(auctex brief clang-format company-box consult corfu corfu-terminal
+            ddskk deadgrep dumb-jump exec-path-from-shell fcitx
+            go-mode iedit json-mode lsp-ui magit marginalia mozc-popup
+            multiple-cursors nix-mode orderless org-roam python-mode
+            ruff-format rust-mode slime smartparens typescript-mode
+            ubuntu-theme vertico xclip xcscope yaml-mode)))
