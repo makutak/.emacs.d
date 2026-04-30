@@ -129,6 +129,12 @@
    ("C-x b" . consult-buffer)  ;; `C-x b`（バッファ切り替え）を強化
    ("C-x C-r" . consult-recent-file)))  ;; `C-x C-r` で最近開いたファイル一覧
 
+(use-package ace-window
+  :ensure t
+  :bind ("M-o" . ace-window)
+  :custom
+  (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+
 
 ;; `flymake` (静的解析)
 (use-package flymake
@@ -153,6 +159,10 @@
 (global-set-key (kbd "C-h") 'delete-backward-char)
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "C-t") 'other-window)
+
+(with-eval-after-load 'dired
+  (define-key dired-mode-map (kbd "C-t") nil)  ; プレフィックスを解除
+  (define-key dired-mode-map (kbd "C-t") 'other-window))
 
 ;; バックアップ・オートセーブの無効化
 (setq make-backup-files nil
@@ -475,6 +485,21 @@ If no region is active, apply to the entire buffer."
 ;; C-c j にバインド
 (global-set-key (kbd "C-c j") #'my/format-json-region)
 
+(defun my/split-window-thirds ()
+  (interactive)
+  (let ((width (/ (frame-width) 3)))
+    (split-window-right width)
+    (other-window 1)
+    (split-window-right width)
+    (other-window -1)))
+
+(global-set-key (kbd "C-x @") 'my/split-window-thirds)
+
+;; C-c <left> / C-c <right> でウィンドウ構成の履歴を戻せる
+(winner-mode 1)
+
+
+
 ;; Emacs 起動時にウィンドウを最大化
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (server-start)
@@ -484,9 +509,10 @@ If no region is active, apply to the entire buffer."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(auctex brief clang-format company-box consult corfu corfu-terminal
-            ddskk deadgrep dumb-jump exec-path-from-shell fcitx
-            go-mode iedit json-mode lsp-ui magit marginalia mozc-popup
-            multiple-cursors nix-mode orderless org-roam python-mode
-            ruff-format rust-mode slime smartparens typescript-mode
-            ubuntu-theme vertico xclip xcscope yaml-mode)))
+   '(ace-window auctex brief clang-format company-box consult corfu
+                corfu-terminal ddskk deadgrep dumb-jump
+                exec-path-from-shell fcitx go-mode iedit json-mode
+                lsp-ui magit marginalia mozc-popup multiple-cursors
+                nix-mode orderless org-roam python-mode ruff-format
+                rust-mode slime smartparens typescript-mode
+                ubuntu-theme vertico xclip xcscope yaml-mode)))
