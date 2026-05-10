@@ -248,7 +248,8 @@
   :bind ("M-D" . mc/mark-next-like-this))
 
 ;; `iedit`
-(use-package iedit)
+(use-package iedit
+  :bind ("C-c i" . iedit-mode))
 
 ;; `whitespace` 設定
 (use-package whitespace
