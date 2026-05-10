@@ -106,6 +106,8 @@
 (use-package magit
   :bind ("C-x g" . magit-status))
 
+(global-set-key (kbd "C-x C-b") #'ibuffer)
+
 ;; `vertico` (ミニバッファ補完)
 (use-package vertico
   :init
