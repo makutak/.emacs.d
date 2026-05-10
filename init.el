@@ -63,7 +63,11 @@
   (lsp-completion-provider :none)
   (lsp-enable-snippet nil)
   (lsp-go-gopls-server-args '("-remote=auto"))
-  (lsp-session-folders-remove '("/usr/local/go/src" "~/go/pkg/mod")))
+  (lsp-session-folders-remove '("/usr/local/go/src" "~/go/pkg/mod"))
+  :custom-face
+  (lsp-face-highlight-textual ((t (:background unspecified :underline t))))
+  (lsp-face-highlight-read    ((t (:background unspecified :underline t))))
+  (lsp-face-highlight-write   ((t (:background unspecified :underline t :weight bold)))))
 
 ;; `lsp-ui` (補助UI)
 (use-package lsp-ui
@@ -120,14 +124,51 @@
   (completion-styles '(orderless))  ;; `orderless` を Emacs の補完スタイルに設定
   (completion-category-overrides '((file (styles basic)))))  ;; `find-file` では通常の補完を使う
 
+(defun my/consult-line-or-region ()
+  "リージョン選択中はその文字列を初期クエリとして `consult-line` を起動する。"
+  (interactive)
+  (if (use-region-p)
+      (let ((query (buffer-substring-no-properties (region-beginning) (region-end))))
+        (deactivate-mark)
+        (consult-line query))
+    (consult-line)))
+
+(defun my/consult-ripgrep-or-region ()
+  "リージョン選択中はその文字列を初期クエリとして `consult-ripgrep` を起動する。"
+  (interactive)
+  (if (use-region-p)
+      (let ((query (buffer-substring-no-properties (region-beginning) (region-end))))
+        (deactivate-mark)
+        (consult-ripgrep nil query))
+    (consult-ripgrep)))
+
 ;; `consult`（高度な検索＆ナビゲーション）
 (use-package consult
   :ensure t
   :bind
-  (("C-s" . consult-line)  ;; `swiper` の代替
-   ("M-y" . consult-yank-pop)  ;; `M-y`（履歴ペースト）を強化
-   ("C-x b" . consult-buffer)  ;; `C-x b`（バッファ切り替え）を強化
-   ("C-x C-r" . consult-recent-file)))  ;; `C-x C-r` で最近開いたファイル一覧
+  (("C-s" . my/consult-line-or-region)  ;; リージョン選択時はその文字列で検索
+   ("M-y" . consult-yank-pop)   ;; `M-y`（履歴ペースト）を強化
+   ("C-x b" . consult-buffer)   ;; `C-x b`（バッファ切り替え）を強化
+   ("C-x C-r" . consult-recent-file)  ;; `C-x C-r` で最近開いたファイル一覧
+   ("C-c r" . my/consult-ripgrep-or-region)  ;; プロジェクト全体を ripgrep で検索
+   ("C-c G" . consult-git-grep))) ;; git 管理ファイルを grep で検索
+
+;; `embark`（候補へのコンテキストアクション）
+(use-package embark
+  :ensure t
+  :bind (("C-." . embark-act)
+         ("C-;" . embark-dwim)))
+
+;; `embark-consult`（embark と consult の統合）
+(use-package embark-consult
+  :ensure t
+  :hook (embark-collect-mode . consult-preview-at-point-mode))
+
+;; `wgrep`（grep/ripgrep 結果バッファを直接編集）
+(use-package wgrep
+  :ensure t
+  :custom
+  (wgrep-auto-save-buffer t))
 
 (use-package ace-window
   :ensure t
@@ -194,6 +235,11 @@
 ;; `rust-mode`
 (use-package rust-mode
   :hook (rust-mode . (lambda () (add-hook 'before-save-hook 'rust-format-buffer nil 'local))))
+
+;; `expand-region`
+(use-package expand-region
+  :ensure t
+  :bind ("C-=" . er/expand-region))
 
 ;; `multiple-cursors`
 (use-package multiple-cursors
@@ -281,11 +327,6 @@
 (use-package company-box
   :ensure t
   :hook (company-mode . company-box-mode))
-
-;; ripgrep + deadgrep
-(use-package deadgrep
-  :ensure t
-  :bind (("C-c s" . deadgrep)))
 
 ;; dumb-jump を xref に統合（fallback的に）
 (use-package dumb-jump
@@ -510,9 +551,10 @@ If no region is active, apply to the entire buffer."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(ace-window auctex brief clang-format company-box consult corfu
-                corfu-terminal ddskk deadgrep dumb-jump
-                exec-path-from-shell fcitx go-mode iedit json-mode
-                lsp-ui magit marginalia mozc-popup multiple-cursors
-                nix-mode orderless org-roam python-mode ruff-format
-                rust-mode slime smartparens typescript-mode
-                ubuntu-theme vertico xclip xcscope yaml-mode)))
+                corfu-terminal ddskk deadgrep dumb-jump embark
+                embark-consult exec-path-from-shell expand-region
+                fcitx go-mode iedit json-mode lsp-ui magit marginalia
+                mozc-popup multiple-cursors nix-mode orderless
+                org-roam python-mode ruff-format rust-mode slime
+                smartparens typescript-mode ubuntu-theme vertico wgrep
+                xclip xcscope yaml-mode)))
