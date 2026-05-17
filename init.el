@@ -228,6 +228,37 @@
   :custom
   (clang-format-style "file"))  ;; .clang-format を参照
 
+;; which-key
+(use-package which-key
+  :ensure nil
+  :demand t
+  :config
+  (which-key-mode)
+  (which-key-setup-side-window-right))
+
+;; autorevert
+(use-package autorevert
+  :ensure nil
+  :demand t
+  :config
+  (global-auto-revert-mode 1)
+  (setq auto-revert-check-vc-info t
+        global-auto-revert-non-file-buffers t
+        auto-revert-interval 1
+        auto-revert-verbose nil))
+
+;; fcitx
+(use-package fcitx
+  :ensure t
+  :config
+  (setq fcitx-use-dbus t)
+  (setq fcitx-remote-command "fcitx5-remote")
+  (fcitx-aggressive-setup))
+
+;; make-mode
+(use-package make-mode
+  :ensure nil
+  :hook (makefile-mode . (lambda () (setq indent-tabs-mode t))))
 
 ;; Nix-mode
 (use-package nix-mode
