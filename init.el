@@ -247,7 +247,7 @@
         auto-revert-interval 1
         auto-revert-verbose nil))
 
-;; fcitx
+;; ;; fcitx
 (use-package fcitx
   :ensure t
   :if (eq system-type 'gnu/linux)
@@ -551,6 +551,10 @@ If no region is active, apply to the entire buffer."
 ;; Emacs 起動時にウィンドウを最大化
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (server-start)
+
+;; Ghostty (Kitty keyboard protocol) で C-@ が \e[64;5u として届くのを修正
+(define-key input-decode-map "\e[64;5u" (kbd "C-@"))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
