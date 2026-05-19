@@ -191,7 +191,7 @@
 (load-theme 'tsdh-dark)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-(scroll-bar-mode -1)
+(when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (setq inhibit-startup-screen t)
 (setq ring-bell-function 'ignore)
 (global-display-line-numbers-mode t)
@@ -250,6 +250,7 @@
 ;; fcitx
 (use-package fcitx
   :ensure t
+  :if (eq system-type 'gnu/linux)
   :config
   (setq fcitx-use-dbus t)
   (setq fcitx-remote-command "fcitx5-remote")
@@ -446,7 +447,7 @@
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n g" . org-roam-graph))
-  :init
+  :config
   (org-roam-db-autosync-mode))
 
 (defun my/save-scratch-to-inbox ()
@@ -523,34 +524,6 @@ If no region is active, apply to the entire buffer."
 (when (display-graphic-p)
   (my/set-default-font))
 
-;; SKK
-(use-package ddskk
-  :ensure t
-  :init
-  ;; 辞書設定
-  (defconst my-skk-dict-dir (expand-file-name "skk-dictionaries" user-emacs-directory))
-
-  (setq skk-large-jisyo (expand-file-name "SKK-JISYO.L" my-skk-dict-dir))
-  (setq skk-jinmei-jisyo (expand-file-name "SKK-JISYO.jinmei" my-skk-dict-dir))
-  (setq skk-user-jisyo "~/.emacs.d/skk-jisyo")
-  (setq skk-search-prog-list
-        '((skk-search-jisyo-file skk-user-jisyo 0)
-          (skk-search-jisyo-file skk-large-jisyo 0)
-          (skk-search-jisyo-file skk-jinmei-jisyo 0)))
-
-  (require 'skk-inline)
-  (setq skk-show-inline t)
-  (setq skk-show-tooltip nil) ;; tooltip 表示は無効に
-
-  (add-hook 'skk-mode-hook
-            (lambda ()
-              (when (fboundp 'skk-inline-start)
-                (skk-inline-start))))
-
-  ;; インジケータカラー
-  (setq skk-indicator-use-cursor-color t)
-  (setq skk-use-color-cursor t))
-(global-set-key (kbd "C-x j") 'skk-mode)
 
 ;; JSON Format
 (defun my/format-json-region ()
@@ -583,12 +556,4 @@ If no region is active, apply to the entire buffer."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(ace-window auctex brief clang-format company-box consult corfu
-                corfu-terminal ddskk deadgrep dumb-jump embark
-                embark-consult exec-path-from-shell expand-region
-                fcitx go-mode iedit json-mode lsp-ui magit marginalia
-                mozc-popup multiple-cursors nix-mode orderless
-                org-roam python-mode ruff-format rust-mode slime
-                smartparens typescript-mode ubuntu-theme vertico wgrep
-                xclip xcscope yaml-mode)))
+ '(package-selected-packages nil))
