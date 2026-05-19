@@ -252,7 +252,9 @@
   :ensure t
   :if (eq system-type 'gnu/linux)
   :config
-  (setq fcitx-use-dbus t)
+  (setq fcitx-use-dbus (and (boundp 'dbus-registered-buses)
+                             (executable-find "fcitx5-remote")
+                             (= 0 (call-process "fcitx5-remote" nil nil nil nil))))
   (setq fcitx-remote-command "fcitx5-remote")
   (fcitx-aggressive-setup))
 
