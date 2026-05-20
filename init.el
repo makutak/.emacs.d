@@ -427,7 +427,9 @@
 (setq org-default-notes-file "~/org/notes.org")  ;; メモの保存先
 (global-set-key (kbd "C-c c") 'org-capture)
 (setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks")
+      '(("i" "Inbox" entry (file "~/org/inbox.org")
+         "* %?\n  %U" :empty-lines 1)
+        ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks")
          "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
         ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
          "* %?\n  %U\n  %a\n  %i" :empty-lines 1)))
