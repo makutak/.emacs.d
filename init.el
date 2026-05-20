@@ -1,5 +1,10 @@
 ;;; Personal configuration -*- lexical-binding: t -*-
 
+;; macOSキー設定
+(when (eq system-type 'darwin)
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'none))
+
 ;; パッケージ管理
 (eval-and-compile
   (require 'package)
