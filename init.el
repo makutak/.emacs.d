@@ -158,7 +158,8 @@
    ("C-x b" . consult-buffer)   ;; `C-x b`（バッファ切り替え）を強化
    ("C-x C-r" . consult-recent-file)  ;; `C-x C-r` で最近開いたファイル一覧
    ("C-c r" . my/consult-ripgrep-or-region)  ;; プロジェクト全体を ripgrep で検索
-   ("C-c G" . consult-git-grep))) ;; git 管理ファイルを grep で検索
+   ("C-c G" . consult-git-grep)  ;; git 管理ファイルを grep で検索
+   ("C-c f" . consult-fd)))     ;; ファイル名ファジー検索（VSCode Cmd+P 相当）
 
 ;; `embark`（候補へのコンテキストアクション）
 (use-package embark
