@@ -26,9 +26,9 @@
 (use-package exec-path-from-shell
   :ensure t
   :demand t
-  :init
+  :config
+  (setq exec-path-from-shell-arguments nil)
   (exec-path-from-shell-initialize))
-(global-set-key (kbd "C-c p") #'exec-path-from-shell-initialize)
 
 ;; slime
 (use-package slime
@@ -38,14 +38,14 @@
 
 ;; `go-mode` の設定
 (use-package go-mode
+  :demand t
   :mode "\\.go\\'"
   :custom
   (gofmt-command "goimports")
   :hook
-  ((go-mode . (lambda ()
-                (setq-local tab-width 2)
-                (setq-local indent-tabs-mode t)))
-   (go-mode . lsp-deferred))
+  (go-mode . (lambda ()
+               (setq-local tab-width 2)
+               (setq-local indent-tabs-mode t)))
   :config
   (add-hook 'before-save-hook #'gofmt-before-save))
 
@@ -364,22 +364,6 @@
     :config
     (xclip-mode 1)))
 
-;; `company-mode` の 設定
-(use-package company
-  :ensure t
-  :config
-  (setq company-idle-delay 0.2
-        company-minimum-prefix-length 1
-        company-selection-wrap-around t
-        company-tooltip-align-annotations t)
-  (setq company-backends
-        '((company-capf company-dabbrev-code company-keywords))))
-
-
-;; `company-box` で補完ウィンドウを改善
-(use-package company-box
-  :ensure t
-  :hook (company-mode . company-box-mode))
 
 ;; dumb-jump を xref に統合（fallback的に）
 (use-package dumb-jump
@@ -460,15 +444,15 @@
  '(org-level-3 ((t (:inherit default :weight bold))))
  '(org-level-4 ((t (:inherit default :weight bold)))))
 
-(use-package org-roam
-  :ensure t
-  :custom
-  (org-roam-directory "~/org-roam")
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n g" . org-roam-graph))
-  :config
-  (org-roam-db-autosync-mode))
+;; (use-package org-roam
+;;   :ensure t
+;;   :custom
+;;   (org-roam-directory "~/org-roam")
+;;   :bind (("C-c n l" . org-roam-buffer-toggle)
+;;          ("C-c n f" . org-roam-node-find)
+;;          ("C-c n g" . org-roam-graph))
+;;   :config
+;;   (org-roam-db-autosync-mode))
 
 (defun my/save-scratch-to-inbox ()
   "Append the contents of *scratch* to ~/org/inbox.org as a new org entry."
