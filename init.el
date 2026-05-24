@@ -46,7 +46,6 @@
   :hook (makefile-mode . my/use-tabs-in-makefile))
 
 (use-package exec-path-from-shell
-  :ensure t
   :demand t
   :config
   (setq exec-path-from-shell-arguments nil)
@@ -70,7 +69,6 @@
                (add-hook 'before-save-hook #'gofmt-before-save nil t))))
 
 (use-package ruff-format
-  :ensure t
   :hook (python-mode . ruff-format-on-save-mode))
 
 ;; `lsp-mode` の設定
@@ -121,7 +119,6 @@
 
 ;; ターミナル用のcorfuバックエンド
 (use-package corfu-terminal
-  :ensure t
   :unless (display-graphic-p)
   :config
   (corfu-terminal-mode +1))
@@ -137,13 +134,11 @@
 
 ;; `marginalia`（補足情報を表示）
 (use-package marginalia
-  :ensure t
   :init
   (marginalia-mode))
 
 ;; `orderless`（部分一致検索）
 (use-package orderless
-  :ensure t
   :custom
   (completion-styles '(orderless))  ;; `orderless` を Emacs の補完スタイルに設定
   (completion-category-overrides '((file (styles basic)))))  ;; `find-file` では通常の補完を使う
@@ -168,7 +163,6 @@
 
 ;; `consult`（高度な検索＆ナビゲーション）
 (use-package consult
-  :ensure t
   :bind
   (("C-s" . my/consult-line-or-region)  ;; リージョン選択時はその文字列で検索
    ("M-y" . consult-yank-pop)   ;; `M-y`（履歴ペースト）を強化
@@ -180,23 +174,19 @@
 
 ;; `embark`（候補へのコンテキストアクション）
 (use-package embark
-  :ensure t
   :bind (("C-." . embark-act)
          ("C-;" . embark-dwim)))
 
 ;; `embark-consult`（embark と consult の統合）
 (use-package embark-consult
-  :ensure t
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 ;; `wgrep`（grep/ripgrep 結果バッファを直接編集）
 (use-package wgrep
-  :ensure t
   :custom
   (wgrep-auto-save-buffer t))
 
 (use-package ace-window
-  :ensure t
   :bind ("M-o" . ace-window)
   :custom
   (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
@@ -243,7 +233,6 @@
   (add-hook 'before-save-hook #'my-clang-format-before-save nil t))
 
 (use-package clang-format
-  :ensure t
   :hook ((c-mode c++-mode) . my/enable-clang-format-on-save)
   :custom
   (clang-format-style "file"))  ;; .clang-format を参照
@@ -274,7 +263,6 @@
 
 ;; fcitx
 (use-package fcitx
-  :ensure t
   :if (eq system-type 'gnu/linux)
   :config
   (setq fcitx-use-dbus (and (boundp 'dbus-registered-buses)
@@ -290,7 +278,6 @@
 
 ;; `expand-region`
 (use-package expand-region
-  :ensure t
   :bind ("C-=" . er/expand-region))
 
 ;; `multiple-cursors`
@@ -341,7 +328,6 @@
 (use-package brief)
 
 (use-package smartparens
-  :ensure t
   :hook ((emacs-lisp-mode . smartparens-mode)
          (lisp-mode . smartparens-mode)
          (lisp-interaction-mode . smartparens-mode)
@@ -369,7 +355,6 @@
 
 (when (getenv "WAYLAND_DISPLAY")
   (use-package xclip
-    :ensure t
     :config
     (setq xclip-method 'wl-copy)
     (xclip-mode 1)))
@@ -377,7 +362,6 @@
 
 ;; dumb-jump を xref に統合（fallback的に）
 (use-package dumb-jump
-  :ensure t
   :custom
   (dumb-jump-prefer-searcher 'rg)
   (dumb-jump-force-searcher 'rg)
@@ -402,7 +386,6 @@
 
 ;; cscope
 (use-package xcscope
-  :ensure t
   :init
   (cscope-setup))
 
@@ -446,7 +429,6 @@
   :bind ("C-c m" . man))
 
 (use-package org
-  :ensure t
   :pin gnu
   :bind (("C-c a" . org-agenda)
          ("C-c c" . org-capture))
@@ -499,7 +481,7 @@
     (when scratch-buffer
       (let ((content (with-current-buffer scratch-buffer
                        (buffer-substring-no-properties (point-min) (point-max)))))
-        (when (not (string-blank-p content))
+        (unless (string-blank-p content)
           (with-current-buffer (find-file-noselect inbox-path)
             (goto-char (point-max))
             (insert (format "\n* Scratch Memo [%s]\n%s\n"
@@ -515,9 +497,9 @@
 (use-package asm-mode
   :mode ("\\.s\\'" . asm-mode)
   :hook (asm-mode . (lambda ()
-                      (setq tab-width 2)
-                      (setq indent-tabs-mode nil)
-                      (setq asm-indent-level 2))))
+                      (setq-local tab-width 2)
+                      (setq-local indent-tabs-mode nil)
+                      (setq-local asm-indent-level 2))))
 
 ;; (use-package vterm
 ;;   :ensure t)
