@@ -389,7 +389,7 @@
 (use-package xref
   :ensure nil
   :bind (("M-." . xref-find-definitions)
-         ("M-," . xref-pop-marker-stack)))
+         ("M-," . xref-go-back)))
 
 ;; TAGS 読み込み（etags）
 ;; TAGSファイルは .dir-locals.el 側で tags-table-list を指定する
