@@ -1,10 +1,5 @@
 ;;; Personal configuration -*- lexical-binding: t -*-
 
-;; macOSキー設定
-(when (eq system-type 'darwin)
-  (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier 'none))
-
 ;; パッケージ管理
 (eval-and-compile
   (require 'package)
@@ -20,8 +15,35 @@
 ;; `use-package` のデフォルト設定
 (setq use-package-always-ensure t)
 
-(setq-default indent-tabs-mode nil)
-(add-hook 'makefile-mode-hook (lambda () setq-local indent-tabs-mode t))
+;; Emacs 本体の基本設定
+(use-package emacs
+  :ensure nil
+  :custom
+  (inhibit-startup-screen t)
+  (ring-bell-function #'ignore)
+  (make-backup-files nil)
+  (auto-save-default nil)
+  (large-file-warning-threshold 100000000)
+  (use-short-answers t)
+  :bind
+  (("C-h" . delete-backward-char)
+   ("RET" . newline-and-indent)
+   ("C-t" . other-window)
+   ("C-x C-b" . ibuffer)
+   ("C-x =" . balance-windows))
+  :init
+  (setq-default indent-tabs-mode nil)
+  (when (eq system-type 'darwin)
+    (setq mac-command-modifier 'meta
+          mac-option-modifier 'none)))
+
+(defun my/use-tabs-in-makefile ()
+  "Makefile バッファではインデントにタブを使う。"
+  (setq-local indent-tabs-mode t))
+
+(use-package make-mode
+  :ensure nil
+  :hook (makefile-mode . my/use-tabs-in-makefile))
 
 (use-package exec-path-from-shell
   :ensure t
@@ -38,19 +60,14 @@
 
 ;; `go-mode` の設定
 (use-package go-mode
-  :demand t
   :mode "\\.go\\'"
   :custom
   (gofmt-command "goimports")
   :hook
   (go-mode . (lambda ()
                (setq-local tab-width 2)
-               (setq-local indent-tabs-mode t)))
-  :config
-  (add-hook 'before-save-hook #'gofmt-before-save))
-
-(use-package python-mode
-  :hook (python-mode . lsp-deferred))
+               (setq-local indent-tabs-mode t)
+               (add-hook 'before-save-hook #'gofmt-before-save nil t))))
 
 (use-package ruff-format
   :ensure t
@@ -65,7 +82,7 @@
          (python-mode . lsp-deferred)
          (rust-mode . lsp-deferred))
   :custom
-  (lsp-completion-provider :none)
+  (lsp-completion-provider :capf)
   (lsp-enable-snippet nil)
   (lsp-go-gopls-server-args '("-remote=auto"))
   (lsp-session-folders-remove '("/usr/local/go/src" "~/go/pkg/mod"))
@@ -112,8 +129,6 @@
 ;; `magit` (Git クライアント)
 (use-package magit
   :bind ("C-x g" . magit-status))
-
-(global-set-key (kbd "C-x C-b") #'ibuffer)
 
 ;; `vertico` (ミニバッファ補完)
 (use-package vertico
@@ -195,47 +210,41 @@
          (c-mode . (lambda ()
                      (remove-hook 'flymake-diagnostic-functions #'flymake-cc t)))))
 
-;;; UI の調整（`use-package` 不要）
-(load-theme 'tsdh-dark)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-(setq inhibit-startup-screen t)
-(setq ring-bell-function 'ignore)
-(global-display-line-numbers-mode t)
-(electric-pair-mode t)
-(add-hook 'org-mode-hook (lambda ()
+;; 行番号表示
+(use-package display-line-numbers
+  :ensure nil
+  :init
+  (global-display-line-numbers-mode t))
+
+(defun my/org-disable-electric-angle-pair ()
+  "Org バッファでは `<` の自動ペア挿入を無効にする。"
   (setq-local electric-pair-inhibit-predicate
-              (lambda (c) (char-equal c ?<)))))
-(set-face-attribute 'default nil :font "Ricty-14")
+              (lambda (char) (char-equal char ?<))))
 
-;;; キーバインド設定（`use-package` 不要）
-(global-set-key (kbd "C-h") 'delete-backward-char)
-(global-set-key (kbd "RET") 'newline-and-indent)
-(global-set-key (kbd "C-t") 'other-window)
+(use-package elec-pair
+  :ensure nil
+  :hook (org-mode . my/org-disable-electric-angle-pair)
+  :init
+  (electric-pair-mode t))
 
-(with-eval-after-load 'dired
-  (define-key dired-mode-map (kbd "C-t") nil)  ; プレフィックスを解除
-  (define-key dired-mode-map (kbd "C-t") 'other-window))
-
-;; バックアップ・オートセーブの無効化
-(setq make-backup-files nil
-      auto-save-default nil)
+(use-package dired
+  :ensure nil
+  :bind (:map dired-mode-map
+              ("C-t" . other-window)))
 
 (defun my-clang-format-before-save ()
   "C/C++ の保存時に clang-format を自動実行"
-  (when (or (eq major-mode 'c-mode)
-            (eq major-mode 'c++-mode))
-    (condition-case err
-        (clang-format-buffer)
-      (error (message "clang-format error: %s" err)))))
+  (condition-case err
+      (clang-format-buffer)
+    (error (message "clang-format error: %s" err))))
+
+(defun my/enable-clang-format-on-save ()
+  "C/C++ バッファで保存時の clang-format を有効にする。"
+  (add-hook 'before-save-hook #'my-clang-format-before-save nil t))
 
 (use-package clang-format
   :ensure t
-  :hook ((c-mode . (lambda ()
-                     (add-hook 'before-save-hook #'my-clang-format-before-save nil t)))
-         (c++-mode . (lambda ()
-                       (add-hook 'before-save-hook #'my-clang-format-before-save nil t))))
+  :hook ((c-mode c++-mode) . my/enable-clang-format-on-save)
   :custom
   (clang-format-style "file"))  ;; .clang-format を参照
 
@@ -263,7 +272,7 @@
                   vc-ignore-dir-regexp
                   tramp-file-name-regexp))))
 
-;; ;; fcitx
+;; fcitx
 (use-package fcitx
   :ensure t
   :if (eq system-type 'gnu/linux)
@@ -275,11 +284,6 @@
   (fcitx-aggressive-setup))
 
 
-
-;; make-mode
-(use-package make-mode
-  :ensure nil
-  :hook (makefile-mode . (lambda () (setq indent-tabs-mode t))))
 
 ;; Nix-mode
 (use-package nix-mode
@@ -304,10 +308,14 @@
   :bind ("C-c i" . iedit-mode))
 
 ;; `whitespace` 設定
+(defun my/enable-delete-trailing-whitespace-on-save ()
+  "プログラム用バッファで末尾空白を保存時に削除する。"
+  (add-hook 'before-save-hook #'delete-trailing-whitespace nil t))
+
 (use-package whitespace
   :custom
   (whitespace-style '(face empty tabs lines-tail trailing))
-  :hook (before-save . delete-trailing-whitespace)
+  :hook (prog-mode . my/enable-delete-trailing-whitespace-on-save)
   :init
   (global-whitespace-mode t))
 
@@ -353,12 +361,17 @@
   (define-key smartparens-mode-map (kbd "C-<left>") 'sp-forward-barf-sexp))
 
 
-(defun my-lisp-auto-format ()
+(defun my/lisp-auto-format ()
   "LISP 系のファイルを保存するときに自動フォーマットする。"
-  (when (derived-mode-p 'emacs-lisp-mode 'lisp-mode 'scheme-mode 'common-lisp-mode)
-    (indent-region (point-min) (point-max))))
+  (indent-region (point-min) (point-max)))
 
-(add-hook 'before-save-hook #'my-lisp-auto-format)
+(defun my/enable-lisp-auto-format-on-save ()
+  "Lisp 系バッファで保存時の自動フォーマットを有効にする。"
+  (add-hook 'before-save-hook #'my/lisp-auto-format nil t))
+
+(dolist (hook '(emacs-lisp-mode-hook lisp-mode-hook lisp-interaction-mode-hook
+                scheme-mode-hook common-lisp-mode-hook))
+  (add-hook hook #'my/enable-lisp-auto-format-on-save))
 
 (when (getenv "WAYLAND_DISPLAY")
   (use-package xclip
@@ -379,13 +392,19 @@
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
 ;; xref を使った統一ジャンプキー
-(global-set-key (kbd "M-.") #'xref-find-definitions)
-(global-set-key (kbd "M-,") #'xref-pop-marker-stack)
+(use-package xref
+  :ensure nil
+  :bind (("M-." . xref-find-definitions)
+         ("M-," . xref-pop-marker-stack)))
 
 ;; TAGS 読み込み（etags）
 ;; TAGSファイルは .dir-locals.el 側で tags-table-list を指定する
 ;; init.el 側では、TAGS 機能の自動追加を無効にするだけでOK
-(setq tags-add-table nil)
+(use-package etags
+  :ensure nil
+  :custom
+  (tags-add-table nil)
+  (tags-revert-without-query t))
 
 ;; cscope
 (use-package xcscope
@@ -394,27 +413,59 @@
   (cscope-setup))
 
 
+(defvar my/tags-update-processes (make-hash-table :test #'equal)
+  "プロジェクトルートごとの実行中の TAGS 更新プロセス。")
+
+(defun my/start-tags-and-cscope-update (project-root)
+  "PROJECT-ROOT で TAGS / cscope.out の更新を開始する。"
+  (let ((default-directory project-root))
+    (let ((process (start-process "make-update" nil "make" "update")))
+      (process-put process 'project-root project-root)
+      (puthash project-root process my/tags-update-processes)
+      (set-process-sentinel
+       process
+       (lambda (finished-process _event)
+         (when (memq (process-status finished-process) '(exit signal))
+           (let ((root (process-get finished-process 'project-root))
+                 (rerun (process-get finished-process 'rerun)))
+             (when (eq finished-process (gethash root my/tags-update-processes))
+               (remhash root my/tags-update-processes)
+               (when rerun
+                 (my/start-tags-and-cscope-update root))))))))))
+
 (defun my/update-tags-and-cscope ()
-  "保存時に make update を実行して TAGS / cscope.out を再生成する。"
+  "C/H ファイルの保存時に TAGS / cscope.out を再生成する。"
   (when (and buffer-file-name
-             (string-match "\\.c\\|\\.h$" buffer-file-name)
-             (locate-dominating-file buffer-file-name "Makefile"))
+             (string-match-p "\\.[ch]\\'" buffer-file-name))
     (let ((project-root (locate-dominating-file buffer-file-name "Makefile")))
-      (when (and (executable-find "make")
-                 (file-exists-p (expand-file-name "Makefile" project-root)))
-        ;; バッファを表示せずに非同期実行
-        (let ((default-directory project-root))
-          (start-process "make-update" nil "make" "update"))))))
+      (when (and project-root (executable-find "make"))
+        (let ((process (gethash project-root my/tags-update-processes)))
+          (if (and process (process-live-p process))
+              (process-put process 'rerun t)
+            (my/start-tags-and-cscope-update project-root)))))))
 
 (add-hook 'after-save-hook #'my/update-tags-and-cscope)
-(setq tags-revert-without-query t)
 
 ;; man
-(global-set-key (kbd "C-c m") 'man)
+(use-package man
+  :ensure nil
+  :bind ("C-c m" . man))
 
 (use-package org
   :ensure t
   :pin gnu
+  :bind (("C-c a" . org-agenda)
+         ("C-c c" . org-capture))
+  :custom
+  (org-agenda-files '("~/org"))
+  (org-default-notes-file "~/org/notes.org")
+  (org-capture-templates
+   '(("i" "Inbox" entry (file "~/org/inbox.org")
+      "* %?\n  %U" :empty-lines 1)
+     ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks")
+      "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+     ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
+      "* %?\n  %U\n  %a\n  %i" :empty-lines 1)))
   :config
   (setq org-hide-leading-stars t)            ;; ヘッダの * を非表示
   (setq org-startup-indented t)              ;; インデント表示を有効化
@@ -425,18 +476,6 @@
   (setq org-return-follows-link t)           ;; RETキーでリンクを開く
   (require 'org-tempo))
 
-(setq org-agenda-files '("~/org")) ;; `~/org/` フォルダ内のファイルを管理対象にする
-(global-set-key (kbd "C-c a") 'org-agenda)
-
-(setq org-default-notes-file "~/org/notes.org")  ;; メモの保存先
-(global-set-key (kbd "C-c c") 'org-capture)
-(setq org-capture-templates
-      '(("i" "Inbox" entry (file "~/org/inbox.org")
-         "* %?\n  %U" :empty-lines 1)
-        ("t" "Todo" entry (file+headline "~/org/todo.org" "Tasks")
-         "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
-        ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
-         "* %?\n  %U\n  %a\n  %i" :empty-lines 1)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -489,12 +528,6 @@
 ;; (use-package vterm
 ;;   :ensure t)
 
-;; Emacs のデフォルト設定改善
-(setq large-file-warning-threshold 100000000) ;; 100MB 以上のファイル警告
-(defalias 'yes-or-no #'y-or-n-p)
-(global-set-key (kbd "C-x =") #'balance-windows)
-
-
 (defun my/replace-commas-with-newlines (start end)
   "Replace all commas with newlines in the region from START to END.
 If no region is active, apply to the entire buffer."
@@ -505,11 +538,6 @@ If no region is active, apply to the entire buffer."
     ;; リージョンが選択されていない場合はバッファ全体に適用
     (perform-replace "," "\n" nil nil nil nil nil (point-min) (point-max))))
 (global-set-key (kbd "C-c ,") #'my/replace-commas-with-newlines)
-
-(add-hook 'server-visit-hook
-          (lambda ()
-            (setq default-directory
-                  (expand-file-name (getenv "PWD")))))
 
 ;; フォント設定関数（システムに応じてフォントサイズを変える）
 (defun my/set-default-font ()
@@ -551,14 +579,16 @@ If no region is active, apply to the entire buffer."
 
 (global-set-key (kbd "C-x @") 'my/split-window-thirds)
 
-;; C-c <left> / C-c <right> でウィンドウ構成の履歴を戻せる
-(winner-mode 1)
+(use-package winner
+  :ensure nil
+  :init
+  (winner-mode 1))
 
-
-
-;; Emacs 起動時にウィンドウを最大化
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-(server-start)
+(use-package server
+  :ensure nil
+  :config
+  (unless (server-running-p)
+    (server-start)))
 
 ;; Ghostty (Kitty keyboard protocol) で C-@ が \e[64;5u として届くのを修正
 (define-key input-decode-map "\e[64;5u" (kbd "C-@"))
