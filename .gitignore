@@ -23,3 +23,10 @@ slack-emacs.el
 transient/
 url/
 elpy/
+
+# Local Emacs state and caches
+.mc-lists.el
+bookmarks
+eln-cache/
+org-roam.db
+tramp
