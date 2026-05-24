@@ -59,8 +59,8 @@
 ;; `lsp-mode` の設定
 (use-package lsp-mode
   :commands lsp
-  :hook ((c-mode . lsp)
-         (c++-mode . lsp)
+  :hook ((c-mode . lsp-deferred)
+         (c++-mode . lsp-deferred)
          (go-mode . lsp-deferred)
          (python-mode . lsp-deferred)
          (rust-mode . lsp-deferred))
@@ -69,6 +69,8 @@
   (lsp-enable-snippet nil)
   (lsp-go-gopls-server-args '("-remote=auto"))
   (lsp-session-folders-remove '("/usr/local/go/src" "~/go/pkg/mod"))
+  (lsp-enable-file-watchers nil)
+  (lsp-disabled-clients '(semgrep-ls))
   :custom-face
   (lsp-face-highlight-textual ((t (:background unspecified :underline t))))
   (lsp-face-highlight-read    ((t (:background unspecified :underline t))))
@@ -251,7 +253,12 @@
   (setq auto-revert-check-vc-info t
         global-auto-revert-non-file-buffers t
         auto-revert-interval 1
-        auto-revert-verbose nil))
+        auto-revert-verbose nil)
+  (with-eval-after-load 'tramp
+    (setq vc-ignore-dir-regexp
+          (format "\\(%s\\)\\|\\(%s\\)"
+                  vc-ignore-dir-regexp
+                  tramp-file-name-regexp))))
 
 ;; ;; fcitx
 (use-package fcitx
