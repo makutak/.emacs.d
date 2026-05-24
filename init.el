@@ -274,15 +274,7 @@
   (setq fcitx-remote-command "fcitx5-remote")
   (fcitx-aggressive-setup))
 
-;; emacs-mozc
-(use-package mozc
-  :ensure nil
-  :if (eq system-type 'gnu/linux)
-  :init
-  (add-to-list 'load-path "/usr/share/emacs/site-lisp/emacs-mozc")
-  :custom
-  (default-input-method "japanese-mozc")
-  (mozc-leim-title "あ"))
+
 
 ;; make-mode
 (use-package make-mode
