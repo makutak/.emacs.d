@@ -202,6 +202,9 @@
 (setq ring-bell-function 'ignore)
 (global-display-line-numbers-mode t)
 (electric-pair-mode t)
+(add-hook 'org-mode-hook (lambda ()
+  (setq-local electric-pair-inhibit-predicate
+              (lambda (c) (char-equal c ?<)))))
 (set-face-attribute 'default nil :font "Ricty-14")
 
 ;;; キーバインド設定（`use-package` 不要）
@@ -358,10 +361,11 @@
 
 (add-hook 'before-save-hook #'my-lisp-auto-format)
 
-(when (getenv "DISPLAY")  ;; GUI 環境なら
+(when (getenv "WAYLAND_DISPLAY")
   (use-package xclip
     :ensure t
     :config
+    (setq xclip-method 'wl-copy)
     (xclip-mode 1)))
 
 ;; `company-mode` の 設定
@@ -435,7 +439,8 @@
   (setq org-use-sub-superscripts '{} )       ;; ← コレが最重要：数式だけ下付きにする
   (setq org-export-with-sub-superscripts '{} ) ;; エクスポートでも同様に
   (setq org-log-done 'time)                  ;; タスク完了時に時間を記録
-  (setq org-return-follows-link t))          ;; RETキーでリンクを開く
+  (setq org-return-follows-link t)           ;; RETキーでリンクを開く
+  (require 'org-tempo))
 
 (setq org-agenda-files '("~/org")) ;; `~/org/` フォルダ内のファイルを管理対象にする
 (global-set-key (kbd "C-c a") 'org-agenda)
