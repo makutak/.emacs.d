@@ -284,12 +284,6 @@
   (fcitx-aggressive-setup))
 
 
-
-;; Nix-mode
-(use-package nix-mode
-  :ensure t
-  :mode "\\.nix\\'")
-
 ;; `rust-mode`
 (use-package rust-mode
   :hook (rust-mode . (lambda () (add-hook 'before-save-hook 'rust-format-buffer nil 'local))))
