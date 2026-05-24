@@ -453,6 +453,13 @@
   :custom
   (org-agenda-files '("~/org"))
   (org-default-notes-file "~/org/notes.org")
+  (org-hide-leading-stars t)
+  (org-startup-indented t)
+  (org-pretty-entities t)
+  (org-use-sub-superscripts '{})
+  (org-export-with-sub-superscripts '{})
+  (org-log-done 'time)
+  (org-return-follows-link t)
   (org-capture-templates
    '(("i" "Inbox" entry (file "~/org/inbox.org")
       "* %?\n  %U" :empty-lines 1)
@@ -461,13 +468,6 @@
      ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
       "* %?\n  %U\n  %a\n  %i" :empty-lines 1)))
   :config
-  (setq org-hide-leading-stars t)            ;; ヘッダの * を非表示
-  (setq org-startup-indented t)              ;; インデント表示を有効化
-  (setq org-pretty-entities t)               ;; 記号を綺麗に表示
-  (setq org-use-sub-superscripts '{} )       ;; ← コレが最重要：数式だけ下付きにする
-  (setq org-export-with-sub-superscripts '{} ) ;; エクスポートでも同様に
-  (setq org-log-done 'time)                  ;; タスク完了時に時間を記録
-  (setq org-return-follows-link t)           ;; RETキーでリンクを開く
   (require 'org-tempo))
 
 
@@ -525,12 +525,11 @@
 (defun my/replace-commas-with-newlines (start end)
   "Replace all commas with newlines in the region from START to END.
 If no region is active, apply to the entire buffer."
-  (interactive "r")
-  (if (use-region-p)
-      ;; リージョンが選択されている場合はその範囲に適用
-      (perform-replace "," "\n" nil nil nil nil nil start end)
-    ;; リージョンが選択されていない場合はバッファ全体に適用
-    (perform-replace "," "\n" nil nil nil nil nil (point-min) (point-max))))
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list (point-min) (point-max))))
+  (perform-replace "," "\n" nil nil nil nil nil start end))
 (global-set-key (kbd "C-c ,") #'my/replace-commas-with-newlines)
 
 ;; フォント設定関数（システムに応じてフォントサイズを変える）
