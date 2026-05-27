@@ -80,7 +80,8 @@
          (python-mode . lsp-deferred)
          (rust-mode . lsp-deferred))
   :custom
-  (lsp-completion-provider :capf)
+  ;; LSP の CAPF は有効のまま、company の自動起動を避けて Corfu に表示させる。
+  (lsp-completion-provider :none)
   (lsp-enable-snippet nil)
   (lsp-go-gopls-server-args '("-remote=auto"))
   (lsp-session-folders-remove '("/usr/local/go/src" "~/go/pkg/mod"))
