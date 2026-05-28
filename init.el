@@ -352,7 +352,7 @@
   (add-hook 'before-save-hook #'my/lisp-auto-format nil t))
 
 (dolist (hook '(emacs-lisp-mode-hook lisp-mode-hook lisp-interaction-mode-hook
-                scheme-mode-hook common-lisp-mode-hook))
+                                     scheme-mode-hook common-lisp-mode-hook))
   (add-hook hook #'my/enable-lisp-auto-format-on-save))
 
 (when (getenv "WAYLAND_DISPLAY")
@@ -503,8 +503,12 @@
                       (setq-local indent-tabs-mode nil)
                       (setq-local asm-indent-level 2))))
 
-;; (use-package vterm
-;;   :ensure t)
+(use-package vterm
+  :custom-face
+  (vterm-color-blue ((t (:foreground "#5F87AF" :background "#5F87AF"))))
+  :config
+  (define-key vterm-mode-map (kbd "C-h") #'vterm--self-insert))
+
 
 (defun my/replace-commas-with-newlines (start end)
   "Replace all commas with newlines in the region from START to END.
@@ -575,4 +579,12 @@ If no region is active, apply to the entire buffer."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(ace-window auctex brief ccc cdb clang-format company-box
+                corfu-terminal deadgrep dumb-jump embark-consult
+                exec-path-from-shell expand-region fcitx go-mode iedit
+                json-mode lsp-ui magit marginalia mozc-popup
+                multiple-cursors nix-mode orderless org-roam
+                python-mode ruff-format rust-mode slime smartparens
+                typescript-mode ubuntu-theme vertico vterm wgrep xclip
+                xcscope yaml-mode)))
