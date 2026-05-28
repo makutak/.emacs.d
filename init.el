@@ -59,6 +59,7 @@
 
 ;; `go-mode` の設定
 (use-package go-mode
+  :demand t
   :mode "\\.go\\'"
   :custom
   (gofmt-command "goimports")
