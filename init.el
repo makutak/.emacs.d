@@ -116,6 +116,7 @@
   (corfu-auto t)
   (corfu-auto-delay 0.1)
   (corfu-preselect 'first)
+  (corfu-quit-no-match t)
   :init
   (global-corfu-mode))
 
