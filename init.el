@@ -51,6 +51,16 @@
   (setq exec-path-from-shell-arguments nil)
   (exec-path-from-shell-initialize))
 
+;; mise の shims / ~/.local/bin を確実に PATH と exec-path に通す。
+;; mise activate は ~/.bashrc（インタラクティブシェル）でのみ実行されるため、
+;; exec-path-from-shell-arguments が nil（非インタラクティブ）だと rg などの
+;; mise 管理コマンドが見つからない。ここで明示的に追加する。
+(dolist (dir (list (expand-file-name "~/.local/share/mise/shims")
+                   (expand-file-name "~/.local/bin")))
+  (when (file-directory-p dir)
+    (add-to-list 'exec-path dir)
+    (setenv "PATH" (concat dir path-separator (getenv "PATH")))))
+
 ;; slime
 (use-package slime
   :if (file-exists-p "~/.roswell/helper.el")
@@ -265,7 +275,10 @@
                   tramp-file-name-regexp))))
 
 ;; fcitx
+;; emacs-pgtk + GNOME Wayland の ibus ブリッジ経路に移行したため無効化。
+;; 問題なければ後で本削除する。
 (use-package fcitx
+  :disabled t
   :if (eq system-type 'gnu/linux)
   :config
   (setq fcitx-use-dbus (and (boundp 'dbus-registered-buses)
@@ -504,6 +517,8 @@
                       (setq-local indent-tabs-mode nil)
                       (setq-local asm-indent-level 2))))
 
+(use-package lua-mode)
+
 (use-package vterm
   :custom-face
   (vterm-color-blue ((t (:foreground "#5F87AF" :background "#5F87AF"))))
@@ -527,7 +542,7 @@ If no region is active, apply to the entire buffer."
                     ((eq system-type 'darwin) 18)
                     ((eq system-type 'gnu/linux) 14)
                     (t 14)))  ;; fallback
-        (font-name "Ricty"))
+        (font-name "Ricty ShinDiminished"))
     (set-face-attribute 'default nil :font (format "%s-%d" font-name font-size))))
 
 ;; daemon時：GUIフレームが作られるたびに適用
@@ -580,12 +595,4 @@ If no region is active, apply to the entire buffer."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(ace-window auctex brief ccc cdb clang-format company-box
-                corfu-terminal deadgrep dumb-jump embark-consult
-                exec-path-from-shell expand-region fcitx go-mode iedit
-                json-mode lsp-ui magit marginalia mozc-popup
-                multiple-cursors nix-mode orderless org-roam
-                python-mode ruff-format rust-mode slime smartparens
-                typescript-mode ubuntu-theme vertico vterm wgrep xclip
-                xcscope yaml-mode)))
+ '(package-selected-packages nil))
