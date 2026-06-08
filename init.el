@@ -105,6 +105,7 @@
   (lsp-session-folders-remove '("/usr/local/go/src" "~/go/pkg/mod"))
   (lsp-enable-file-watchers nil)
   (lsp-disabled-clients '(semgrep-ls))
+  (lsp-enable-on-type-formatting nil)
   :custom-face
   (lsp-face-highlight-textual ((t (:background unspecified :underline t))))
   (lsp-face-highlight-read    ((t (:background unspecified :underline t))))
@@ -318,7 +319,7 @@
 
 (use-package whitespace
   :custom
-  (whitespace-style '(face empty tabs lines-tail trailing))
+  (whitespace-style '(face empty tabs trailing))
   :hook (prog-mode . my/enable-delete-trailing-whitespace-on-save)
   :init
   (global-whitespace-mode t))
