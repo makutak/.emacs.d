@@ -45,21 +45,28 @@
   :ensure nil
   :hook (makefile-mode . my/use-tabs-in-makefile))
 
+;; mise バイナリ自体を見つけられるよう ~/.local/bin を exec-path に通す。
+;; （global-mise-mode が `mise` コマンドを実行するための前提。GUI 起動時は
+;;  ~/.bashrc / ~/.profile が読まれず PATH に入らないため明示的に追加する。）
+(let ((local-bin (expand-file-name "~/.local/bin")))
+  (when (file-directory-p local-bin)
+    (add-to-list 'exec-path local-bin)
+    (setenv "PATH" (concat local-bin path-separator (getenv "PATH")))))
+
+;; mise.el: ディレクトリ/プロジェクトごとの mise 環境を各バッファの
+;; exec-path / PATH へ反映する。rg など mise 管理コマンドはこれで解決される。
+;; dired の M-! 等でもバージョン切替を効かせるため exec-path-from-shell より前に置く。
+(use-package mise
+  :ensure t
+  :demand t
+  :config
+  (global-mise-mode 1))
+
 (use-package exec-path-from-shell
   :demand t
   :config
   (setq exec-path-from-shell-arguments nil)
   (exec-path-from-shell-initialize))
-
-;; mise の shims / ~/.local/bin を確実に PATH と exec-path に通す。
-;; mise activate は ~/.bashrc（インタラクティブシェル）でのみ実行されるため、
-;; exec-path-from-shell-arguments が nil（非インタラクティブ）だと rg などの
-;; mise 管理コマンドが見つからない。ここで明示的に追加する。
-(dolist (dir (list (expand-file-name "~/.local/share/mise/shims")
-                   (expand-file-name "~/.local/bin")))
-  (when (file-directory-p dir)
-    (add-to-list 'exec-path dir)
-    (setenv "PATH" (concat dir path-separator (getenv "PATH")))))
 
 ;; slime
 (use-package slime
