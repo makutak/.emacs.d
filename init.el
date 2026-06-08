@@ -57,7 +57,6 @@
 ;; exec-path / PATH へ反映する。rg など mise 管理コマンドはこれで解決される。
 ;; dired の M-! 等でもバージョン切替を効かせるため exec-path-from-shell より前に置く。
 (use-package mise
-  :ensure t
   :demand t
   :config
   (global-mise-mode 1))
