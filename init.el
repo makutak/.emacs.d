@@ -563,9 +563,9 @@ If no region is active, apply to the entire buffer."
 (defun my/set-default-font ()
   (let ((font-size (cond
                     ((eq system-type 'darwin) 18)
-                    ((eq system-type 'gnu/linux) 14)
+                    ((eq system-type 'gnu/linux) 12)
                     (t 14)))  ;; fallback
-        (font-name "Ricty ShinDiminished"))
+        (font-name "UDEV Gothic 35NF"))
     (set-face-attribute 'default nil :font (format "%s-%d" font-name font-size))))
 
 ;; daemon時：GUIフレームが作られるたびに適用
