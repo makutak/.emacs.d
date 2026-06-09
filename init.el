@@ -45,17 +45,21 @@
   :ensure nil
   :hook (makefile-mode . my/use-tabs-in-makefile))
 
-;; mise バイナリ自体を見つけられるよう ~/.local/bin を exec-path に通す。
-;; （global-mise-mode が `mise` コマンドを実行するための前提。GUI 起動時は
-;;  ~/.bashrc / ~/.profile が読まれず PATH に入らないため明示的に追加する。）
-(let ((local-bin (expand-file-name "~/.local/bin")))
-  (when (file-directory-p local-bin)
-    (add-to-list 'exec-path local-bin)
-    (setenv "PATH" (concat local-bin path-separator (getenv "PATH")))))
+;; PATH（mise の shims / 本体）を Emacs のグローバル exec-path / PATH へ通す。
+;; GUI Emacs は GNOME/Wayland セッションから起動され、その PATH に mise の shims が
+;; 無い。session 層(environment.d / ~/.profile)での注入は Wayland では経路が不安定で
+;; reboot 必須のため断念し、Emacs 側で確実に通す（タイマー等の非バッファ文脈でも
+;; rg が解決できる）。
+;; - mise shims  : rg 等の mise 管理コマンド本体（呼び出し時に cwd でバージョン解決）
+;; - ~/.local/bin: mise 本体（global-mise-mode が実行する）
+(dolist (dir (list (expand-file-name "~/.local/share/mise/shims")
+                   (expand-file-name "~/.local/bin")))
+  (when (file-directory-p dir)
+    (add-to-list 'exec-path dir)
+    (setenv "PATH" (concat dir path-separator (getenv "PATH")))))
 
-;; mise.el: ディレクトリ/プロジェクトごとの mise 環境を各バッファの
-;; exec-path / PATH へ反映する。rg など mise 管理コマンドはこれで解決される。
-;; dired の M-! 等でもバージョン切替を効かせるため exec-path-from-shell より前に置く。
+;; mise.el は各バッファでプロジェクト別バージョンの「解決済み実パス」へ
+;; exec-path を上書きする（base は上記 shims 入りのグローバル default）。
 (use-package mise
   :demand t
   :config
@@ -282,10 +286,7 @@
                   tramp-file-name-regexp))))
 
 ;; fcitx
-;; emacs-pgtk + GNOME Wayland の ibus ブリッジ経路に移行したため無効化。
-;; 問題なければ後で本削除する。
 (use-package fcitx
-  :disabled t
   :if (eq system-type 'gnu/linux)
   :config
   (setq fcitx-use-dbus (and (boundp 'dbus-registered-buses)
@@ -293,6 +294,21 @@
                             (= 0 (call-process "fcitx5-remote" nil nil nil nil))))
   (setq fcitx-remote-command "fcitx5-remote")
   (fcitx-aggressive-setup))
+
+;; emacs-mozc: Emacs ネイティブのインライン日本語入力（mozc サーバと直接通信）。
+;; XIM(fcitx) は lucid だとカーソル近くポップアップが天井で、バッファ内に下線付き
+;; インラインを出せるのはこれだけ。Emacs 内では fcitx の Ctrl+Space ではなく
+;; C-\(toggle-input-method, 既定キー) で切り替える。
+;; mozc.el は Debian の emacs-mozc が site-lisp へ入れる版を使う（mozc_emacs_helper
+;; とプロトコルが一致するので :ensure nil）。helper が無い環境(未導入/Mac)では無効。
+(use-package mozc
+  :ensure nil
+  :if (and (eq system-type 'gnu/linux)
+           (executable-find "mozc_emacs_helper"))
+  :custom
+  (default-input-method "japanese-mozc")
+  ;; 変換候補をカーソル近くのオーバーレイに出す（echo-area より見やすい）
+  (mozc-candidate-style 'overlay))
 
 
 ;; `rust-mode`
