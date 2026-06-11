@@ -543,6 +543,7 @@
 (use-package lua-mode)
 
 (use-package vterm
+  :if (eq system-type 'gnu/linux)
   :custom-face
   (vterm-color-blue ((t (:foreground "#5F87AF" :background "#5F87AF"))))
   :config
