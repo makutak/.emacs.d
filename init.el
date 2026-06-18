@@ -581,7 +581,6 @@ If no region is active, apply to the entire buffer."
 (when (display-graphic-p)
   (my/set-default-font))
 
-
 ;; JSON Format
 (defun my/format-json-region ()
   "Use jq to pretty-print the selected JSON region."
