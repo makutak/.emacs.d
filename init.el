@@ -543,6 +543,7 @@
 (use-package lua-mode)
 
 (use-package vterm
+  :if (eq system-type 'gnu/linux)
   :custom-face
   (vterm-color-blue ((t (:foreground "#5F87AF" :background "#5F87AF"))))
   :config
@@ -562,7 +563,7 @@ If no region is active, apply to the entire buffer."
 ;; フォント設定関数（システムに応じてフォントサイズを変える）
 (defun my/set-default-font ()
   (let ((font-size (cond
-                    ((eq system-type 'darwin) 18)
+                    ((eq system-type 'darwin) 16)
                     ((eq system-type 'gnu/linux) 13)
                     (t 14)))  ;; fallback
         (font-name "UDEV Gothic 35NF"))
