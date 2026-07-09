@@ -89,8 +89,32 @@
                (setq-local indent-tabs-mode t)
                (add-hook 'before-save-hook #'gofmt-before-save nil t))))
 
-(use-package ruff-format
-  :hook (python-mode . ruff-format-on-save-mode))
+;; Python: LSP は Pyright、format/lint は Ruff に分離する。
+(use-package eglot
+  :ensure nil
+  :commands (eglot eglot-ensure)
+  :hook ((python-mode python-ts-mode) . eglot-ensure)
+  :config
+  ;; Eglot の自動検出候補に関係なく、Python は Pyright のみに接続する。
+  (add-to-list 'eglot-server-programs
+               '((python-mode python-ts-mode)
+                 . ("pyright-langserver" "--stdio"))))
+
+(use-package apheleia
+  :hook ((python-mode python-ts-mode) . apheleia-mode)
+  :config
+  ;; Apheleia 組み込みの `ruff' は `ruff format' を標準入力に対して実行する。
+  (setf (alist-get 'python-mode apheleia-mode-alist) 'ruff
+        (alist-get 'python-ts-mode apheleia-mode-alist) 'ruff))
+
+(defun my/python-flymake-ruff-load ()
+  "Python の Eglot 管理バッファに Ruff の Flymake backend を追加する。"
+  (when (memq major-mode '(python-mode python-ts-mode))
+    (flymake-ruff-load)))
+
+(use-package flymake-ruff
+  :commands flymake-ruff-load
+  :hook (eglot-managed-mode . my/python-flymake-ruff-load))
 
 ;; `lsp-mode` の設定
 (use-package lsp-mode
@@ -98,7 +122,6 @@
   :hook ((c-mode . lsp-deferred)
          (c++-mode . lsp-deferred)
          (go-mode . lsp-deferred)
-         (python-mode . lsp-deferred)
          (rust-mode . lsp-deferred))
   :custom
   ;; LSP の CAPF は有効のまま、company の自動起動を避けて Corfu に表示させる。
@@ -219,7 +242,6 @@
 ;; `flymake` (静的解析)
 (use-package flymake
   :hook ((go-mode . flymake-mode)
-         (python-mode . flymake-mode)
          (rust-mode . flymake-mode)
          (c-mode . (lambda ()
                      (remove-hook 'flymake-diagnostic-functions #'flymake-cc t)))))
