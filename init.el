@@ -37,13 +37,15 @@
     (setq mac-command-modifier 'meta
           mac-option-modifier 'none)))
 
-(defun my/use-tabs-in-makefile ()
-  "Makefile バッファではインデントにタブを使う。"
-  (setq-local indent-tabs-mode t))
+(defun my/setup-makefile ()
+  "Makefile では TAB が構文要素なので whitespace の TAB 強調を切る。
+インデントの TAB 自体は `makefile-mode' が `indent-tabs-mode' を t にするので
+ここで設定する必要はない。"
+  (setq-local whitespace-style (remq 'tabs whitespace-style)))
 
 (use-package make-mode
   :ensure nil
-  :hook (makefile-mode . my/use-tabs-in-makefile))
+  :hook (makefile-mode . my/setup-makefile))
 
 ;; PATH（mise の shims / 本体）を Emacs のグローバル exec-path / PATH へ通す。
 ;; GUI Emacs は GNOME/Wayland セッションから起動され、その PATH に mise の shims が
@@ -158,7 +160,7 @@
   :custom
   (corfu-cycle t)
   (corfu-auto t)
-  (corfu-auto-delay 0.1)
+  (corfu-auto-delay 0.5)
   (corfu-preselect 'first)
   (corfu-quit-no-match t)
   :init
@@ -268,6 +270,53 @@
   :bind (:map dired-mode-map
               ("C-t" . other-window)))
 
+(defun my/clang-format-config ()
+  "現在のバッファに適用される clang-format の設定を alist で返す。
+`clang-format --dump-config' が親ディレクトリを遡って .clang-format を解決するので、
+プロジェクトごとの設定も ~/.clang-format も同じ仕組みで拾える。
+clang-format が無い・失敗した場合は nil。"
+  (let* ((file (or buffer-file-name (expand-file-name "a.c")))
+         (default-directory (file-name-directory file)))
+    (when (executable-find "clang-format")
+      (with-temp-buffer
+        (when (eq 0 (call-process "clang-format" nil t nil
+                                  "--style=file" "--dump-config"
+                                  (concat "-assume-filename=" file)))
+          (goto-char (point-min))
+          (let (config)
+            ;; 行頭のキーだけ拾う (字下げされた入れ子キーは無視する)
+            (while (re-search-forward "^\\([A-Za-z]+\\):[ \t]+\\(.+?\\)[ \t]*$" nil t)
+              (push (cons (match-string 1) (match-string 2)) config))
+            config))))))
+
+(defun my/cc-style-for-braces (brace)
+  "clang-format の BreakBeforeBraces に対応する CC Mode のスタイル名を返す。
+効くのは substatement-open (独立行のブレースを字下げするか) の違い。
+GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字下げしない。"
+  (cond ((equal brace "GNU") "gnu")
+        ((equal brace "Whitesmiths") "whitesmith")
+        (t "bsd")))
+
+(defun my/setup-c-mode ()
+  "編集中のインデント (CC Mode) を、そのバッファに効く .clang-format に合わせる。
+保存時の clang-format と編集中の CC Mode は別エンジンなので、
+.clang-format を唯一の情報源として両方に同じ規則を教える。"
+  (let ((config (my/clang-format-config)))
+    (when config
+      (let ((width  (string-to-number (or (cdr (assoc "IndentWidth" config)) "0")))
+            (tabw   (string-to-number (or (cdr (assoc "TabWidth" config)) "0")))
+            (usetab (or (cdr (assoc "UseTab" config)) "Never"))
+            (brace  (or (cdr (assoc "BreakBeforeBraces" config)) "Attach")))
+        ;; c-set-style がスタイル変数を上書きするので、必ず先に呼ぶ
+        (c-set-style (my/cc-style-for-braces brace))
+        (when (> width 0) (setq-local c-basic-offset width))
+        (when (> tabw 0) (setq-local tab-width tabw))
+        (setq-local indent-tabs-mode (not (equal usetab "Never")))))))
+
+(use-package cc-mode
+  :ensure nil
+  :hook ((c-mode c++-mode) . my/setup-c-mode))
+
 (defun my-clang-format-before-save ()
   "C/C++ の保存時に clang-format を自動実行"
   (condition-case err
@@ -297,9 +346,11 @@
   :demand t
   :config
   (global-auto-revert-mode 1)
-  (setq auto-revert-check-vc-info t
+  (setq auto-revert-check-vc-info nil
         global-auto-revert-non-file-buffers t
-        auto-revert-interval 1
+        auto-revert-use-notify t
+        auto-revert-avoid-polling t
+        auto-revert-interval 5
         auto-revert-verbose nil)
   (with-eval-after-load 'tramp
     (setq vc-ignore-dir-regexp
@@ -634,6 +685,11 @@ If no region is active, apply to the entire buffer."
 
 ;; Ghostty (Kitty keyboard protocol) で C-@ が \e[64;5u として届くのを修正
 (define-key input-decode-map "\e[64;5u" (kbd "C-@"))
+
+;; Freeze investigation: remove after capturing a backtrace.
+(setq debug-on-quit t
+      debug-on-event 'sigusr2
+      garbage-collection-messages t)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
