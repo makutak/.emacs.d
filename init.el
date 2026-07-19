@@ -134,6 +134,7 @@
   (lsp-enable-file-watchers nil)
   (lsp-disabled-clients '(semgrep-ls))
   (lsp-enable-on-type-formatting nil)
+  (lsp-inlay-hint-enable t)
   :custom-face
   (lsp-face-highlight-textual ((t (:background unspecified :underline t))))
   (lsp-face-highlight-read    ((t (:background unspecified :underline t))))
