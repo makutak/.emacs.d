@@ -15,6 +15,12 @@
 ;; `use-package` のデフォルト設定
 (setq use-package-always-ensure t)
 
+;; GC を idle 時にまとめて実行し、タイピング中の STW を抑える
+(use-package gcmh
+  :demand t
+  :config
+  (gcmh-mode 1))
+
 ;; Emacs 本体の基本設定
 (use-package emacs
   :ensure nil
@@ -697,4 +703,11 @@ If no region is active, apply to the entire buffer."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(ace-window apheleia auctex brief clang-format corfu-terminal
+                dumb-jump embark-consult exec-path-from-shell
+                expand-region fcitx flymake-ruff gcmh go-mode iedit
+                json-mode lsp-ui lua-mode magit marginalia mise
+                multiple-cursors orderless ruff-format rust-mode slime
+                smartparens typescript-mode vertico vterm wgrep xclip
+                xcscope yaml-mode)))
