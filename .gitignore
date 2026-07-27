@@ -25,6 +25,8 @@ url/
 elpy/
 
 # Local Emacs state and caches
+backup/
+auto-save/
 .mc-lists.el
 bookmarks
 eln-cache/

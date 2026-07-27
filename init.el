@@ -27,10 +27,31 @@
   :custom
   (inhibit-startup-screen t)
   (ring-bell-function #'ignore)
-  (make-backup-files nil)
-  (auto-save-default nil)
+  ;; バックアップと自動保存。作業ディレクトリに `foo~' / `#foo#' を撒かないよう
+  ;; 保存先を ~/.emacs.d 配下へ隔離した上で、両方とも有効にしておく
+  ;; （強制終了時に未保存分を救えるのはこの2つだけ）。
+  (make-backup-files t)
+  (backup-directory-alist
+   `(("." . ,(expand-file-name "backup/" user-emacs-directory))))
+  (backup-by-copying t)          ; symlink / hard link を壊さない
+  (version-control t)            ; foo.~1~, foo.~2~ と世代を残す
+  (kept-new-versions 10)
+  (kept-old-versions 5)
+  (delete-old-versions t)        ; 古い世代の削除を毎回聞かない
+  (auto-save-default t)
+  (auto-save-timeout 10)         ; 10 秒アイドルで
+  (auto-save-interval 100)       ; または 100 打鍵ごとに
+  (auto-save-file-name-transforms
+   `((".*" ,(expand-file-name "auto-save/" user-emacs-directory) t)))
   (large-file-warning-threshold 100000000)
   (use-short-answers t)
+  ;; リージョンが有効な間、Emacs はコマンド 1 回ごとにリージョン全体を文字列へ
+  ;; コピーして X の PRIMARY 選択にセットする（command_loop_1）。長い範囲を
+  ;; 選ぶとこれが打鍵ごとの O(範囲長) コピーになり、大量のゴミを生んで GC を
+  ;; 誘発する（実測: 119K 文字の範囲で 1 打鍵あたり約 0.35MB）。
+  ;; 代償は「Emacs で選択 → 他アプリに中クリック貼り付け」が効かなくなること。
+  ;; 明示的なコピー (M-w) は CLIPBOARD 経由なので今まで通り動く。
+  (select-active-regions nil)
   :bind
   (("C-h" . delete-backward-char)
    ("RET" . newline-and-indent)
@@ -39,6 +60,9 @@
    ("C-x =" . balance-windows))
   :init
   (setq-default indent-tabs-mode nil)
+  ;; backup 側は Emacs が必要時に自動生成するが、auto-save の転送先は
+  ;; 作ってくれないので先に用意しておく（無いと保存のたびにエラーになる）。
+  (make-directory (expand-file-name "auto-save/" user-emacs-directory) t)
   (when (eq system-type 'darwin)
     (setq mac-command-modifier 'meta
           mac-option-modifier 'none)))
@@ -365,15 +389,13 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
                   vc-ignore-dir-regexp
                   tramp-file-name-regexp))))
 
-;; fcitx
-(use-package fcitx
-  :if (eq system-type 'gnu/linux)
-  :config
-  (setq fcitx-use-dbus (and (boundp 'dbus-registered-buses)
-                            (executable-find "fcitx5-remote")
-                            (= 0 (call-process "fcitx5-remote" nil nil nil nil))))
-  (setq fcitx-remote-command "fcitx5-remote")
-  (fcitx-aggressive-setup))
+;; fcitx.el は「Emacs 内で外部 fcitx を使う」ための補助（プレフィックスキーや
+;; ミニバッファで IM を自動 OFF にする）だった。バッファ内の日本語入力を mozc.el
+;; へ移して Emacs 内で fcitx を使わなくなったため撤去する。
+;; 副次的に、0.1 秒ごとのポーリングタイマーと、プレフィックスキーごとの
+;; fcitx5-remote の fork+exec (実測 0.88ms/回) も無くなる。
+;; なお fcitx-use-dbus の判定 (boundp 'dbus-registered-buses) は Emacs 30 では
+;; 常に nil で、D-Bus 経路は最初から一度も使われていなかった。
 
 ;; emacs-mozc: Emacs ネイティブのインライン日本語入力（mozc サーバと直接通信）。
 ;; XIM(fcitx) は lucid だとカーソル近くポップアップが天井で、バッファ内に下線付き
