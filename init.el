@@ -203,6 +203,29 @@
   :config
   (corfu-terminal-mode +1))
 
+(defun my/c-lsp-capf-setup ()
+  "C/C++ の LSP 補完に dabbrev を混ぜる。
+`struct ifreq' の `ifr_name' / `ifr_flags' のように、実体がマクロで
+構造体メンバーではないものは clangd の `.' 補完には原理的に出てこない
+\(本当のメンバーは `ifr_ifrn' と `ifr_ifru' の2つだけ)。
+そこで LSP の候補に、同じ major-mode のバッファから拾った単語を足す。
+マクロ定義のあるヘッダを開いていれば `ifr.ifr_f' → `ifr_flags' が出る。
+意味解析ではなく単なる文字列一致なので、あくまで補助。"
+  (when (memq major-mode '(c-mode c++-mode))
+    (setq-local completion-at-point-functions
+                (list (cape-capf-super #'lsp-completion-at-point
+                                       :with #'cape-dabbrev)))))
+
+(use-package cape
+  ;; `lsp-completion-mode' が completion-at-point-functions を書き換えた後に
+  ;; 差し替えたいので、c-mode-hook ではなくこのフックに乗せる。
+  :hook (lsp-completion-mode . my/c-lsp-capf-setup)
+  :custom
+  ;; 走査対象は同じ major-mode のバッファのみ (cape のデフォルト)。
+  ;; 巨大な C バッファを大量に開くと打鍵ごとの走査が重くなるので、その時は
+  ;; `current-buffer' に落とす。
+  (cape-dabbrev-buffer-function #'cape-same-mode-buffers))
+
 ;; `magit` (Git クライアント)
 (use-package magit
   :bind ("C-x g" . magit-status))
@@ -726,7 +749,7 @@ If no region is active, apply to the entire buffer."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(ace-window apheleia auctex brief clang-format corfu-terminal
+   '(ace-window apheleia auctex brief cape clang-format corfu-terminal
                 dumb-jump embark-consult exec-path-from-shell
                 expand-region fcitx flymake-ruff gcmh go-mode iedit
                 json-mode lsp-ui lua-mode magit marginalia mise
