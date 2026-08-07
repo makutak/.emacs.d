@@ -738,11 +738,6 @@ If no region is active, apply to the entire buffer."
 ;; Ghostty (Kitty keyboard protocol) で C-@ が \e[64;5u として届くのを修正
 (define-key input-decode-map "\e[64;5u" (kbd "C-@"))
 
-;; Freeze investigation: remove after capturing a backtrace.
-(setq debug-on-quit t
-      debug-on-event 'sigusr2
-      garbage-collection-messages t)
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
