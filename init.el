@@ -595,10 +595,26 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
   :ensure nil
   :bind ("C-c m" . man))
 
+(defun my/org-prose-display ()
+  "Org バッファを文章向けの見た目に整える。"
+  ;; org-indent が階層構造をインデントで見せるので、行番号は桁を食うだけで
+  ;; 情報量が薄い。プログラムのバッファでは今まで通り出る。
+  (display-line-numbers-mode -1)
+  ;; 行間を少し空ける（float は行高に対する比率）。
+  ;; 副作用: org-modern-indent がブロック左端に描く │ (org-modern-indent.el:50-52)
+  ;; は普通の文字なので、行間の分だけ縦線が破線に見える。気になるなら nil に。
+  (setq-local line-spacing 0.1)
+  ;; 長い行を折り返す。visual-line-mode が word-wrap を t にし、
+  ;; word-wrap-by-category が和文の禁則処理を有効にする（空白の無い日本語でも
+  ;; 文字カテゴリを見て折り返し位置を決める。無効だと窓幅で機械的に切れる）。
+  (setq-local word-wrap-by-category t)
+  (visual-line-mode 1))
+
 (use-package org
   :pin gnu
   :bind (("C-c a" . org-agenda)
          ("C-c c" . org-capture))
+  :hook (org-mode . my/org-prose-display)
   :custom
   (org-agenda-files '("~/org"))
   (org-default-notes-file "~/org/notes.org")
@@ -609,6 +625,18 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
   (org-export-with-sub-superscripts '{})
   (org-log-done 'time)
   (org-return-follows-link t)
+  (org-hide-emphasis-markers t)
+  ;; 見出しのタグは org-modern が pill で描くので、空白を詰めて右端に寄せる
+  ;; 必要がない。しかも右寄せ位置は string-width 基準なので、日本語の見出しでは
+  ;; テーブルと全く同じ理屈で桁がずれる（valign は見出しには効かない）。
+  ;; 0 にすると見出しの直後に置かれ、ずれようがなくなる。
+  (org-auto-align-tags nil)
+  (org-tags-column 0)
+  (org-agenda-tags-column 0)
+  ;; 折りたたみの "..." を控えめな三点リーダに
+  (org-ellipsis "…")
+  ;; インライン画像が原寸で出てバッファを埋めるのを防ぐ（#+ATTR_ORG が優先）
+  (org-image-actual-width '(600))
   (org-capture-templates
    '(("i" "Inbox" entry (file "~/org/inbox.org")
       "* %?\n  %U" :empty-lines 1)
@@ -617,18 +645,99 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
      ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
       "* %?\n  %U\n  %a\n  %i" :empty-lines 1)))
   :config
-  (require 'org-tempo))
+  (require 'org-tempo)
+  ;; Allow emphasis markers (~code~, *bold*, ...) to hug Japanese text.
+  ;; org-emphasis-regexp-components is a defvar with a setter, so setq alone
+  ;; would not recompute org-emph-re / org-verbatim-re.
+  (org-set-emph-re 'org-emphasis-regexp-components
+                   '("-[:space:]('\"{[:nonascii:]"
+                     "-[:space:].,:!?;'\")}\\[[:nonascii:]"
+                     "[:space:]" "." 1)))
 
+(use-package org-modern
+  :after org
+  :custom
+  ;;(org-modern-star 'replace)   ; 見出しの星を ◉○◈◇✳ に
+  ;; テーブルの見た目は valign に任せる。org-modern-table は罫線行
+  ;; (|---+---|) に overline と space の display property を載せるので、
+  ;; 同じ行を書き換える valign と競合する。
+  (org-modern-table nil)
+  :init
+  (global-org-modern-mode))
+
+;; org-modern の block-fringe は org-indent-mode 下では自動的に無効化される。
+;; org-startup-indented t なので、ブロック左端の縦線はこれで補う。
+;; MELPA/GNU ELPA には無いパッケージなので :vc で GitHub から取得する
+;; (:vc がある場合 use-package-always-ensure は無視される)。
+(use-package org-modern-indent
+  :vc (:url "https://github.com/jdtsmith/org-modern-indent" :rev :newest)
+  :after org-modern
+  :config
+  (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
+
+;; テーブルをピクセル単位で揃え直す。org は全角を2カラムとして桁揃えするが、
+;; 実フォントの全角幅がぴったり2倍とは限らず、また org-hide-emphasis-markers で
+;; 隠れた ~ は幅0で描画されるので、文字数ベースの桁揃えは表示上ずれる。
+;; valign は window-text-pixel-size で「実際に描画された幅」を測るため両方に効く。
+;; これも MELPA には無いので :vc で GitHub から取得する。
+;; ソース中の文字ベースの桁揃えは書き換えないので、export やファイルの中身は不変。
+(use-package valign
+  :vc (:url "https://github.com/casouri/valign" :rev :newest)
+  :after org
+  ;; valign-mode は非 GUI では何もせずメッセージを出すだけ (valign.el:1149) なので、
+  ;; 端末 Emacs で org を開くたびに鳴らないようフック側で弾く。
+  :hook (org-mode . my/valign-mode-maybe)
+  :init
+  (defun my/valign-mode-maybe ()
+    (when (display-graphic-p) (valign-mode 1))))
+
+;; org-hide-emphasis-markers t の相棒。カーソルが要素に入った時だけマーカーを
+;; 表示するので、普段は綺麗なまま `~foo~' の ~ を編集できる。
+(use-package org-appear
+  :after org
+  :hook (org-mode . org-appear-mode)
+  :config
+  ;; ただしテーブル内では抑制する。org-appear は表示する側では invisible
+  ;; プロパティを直接外すだけで font-lock を再実行しない (org-appear.el:352-388)
+  ;; ため、valign の桁詰めが古いまま残り、カーソルのある行だけ ~ の幅ぶん
+  ;; 右にずれて見える（隠す側は font-lock-flush するので戻る）。
+  ;; `org-appear--current-elem' は「対象外なら nil を返す」契約なので、
+  ;; テーブル内で nil にすれば「要素の外にいる」通常状態として扱われる。
+  (defun my/org-appear-skip-tables (elem)
+    (unless (org-at-table-p) elem))
+  (advice-add 'org-appear--current-elem :filter-return #'my/org-appear-skip-tables))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-level-1 ((t (:inherit default :weight bold))))
- '(org-level-2 ((t (:inherit default :weight bold))))
- '(org-level-3 ((t (:inherit default :weight bold))))
- '(org-level-4 ((t (:inherit default :weight bold)))))
+ ;; 見出しの階層色。素の org は org-level-N を outline-N 経由で font-lock の
+ ;; 各フェイスに継承させるだけなので (outline.el:279-308)、レベル4がコメント色に
+ ;; なるなど「階層」として読めない。ここでは色相で識別・濃さで階層を出す。
+ ;; 白背景に対するコントラスト比は L1 11.8:1 から L8 4.6:1 へ単調に下がる
+ ;; (L5/L6 だけ 5.13 と 5.21 で僅かに前後するが目視では差が無い)。深い階層ほど
+ ;; 薄くなるので、下がるはずの所で急に濃く／明るくなると目が驚く。
+ ;; 全レベル WCAG AA (4.5:1) 以上。`:inherit default' は文字サイズを本文と
+ ;; 揃えたままにするため（従来どおり）で、`:foreground' が継承色に優先する。
+ ;; (background light/dark) はフレームごとに評価されるので、後からテーマを
+ ;; 入れても暗背景側の指定に自動で切り替わる。
+ '(org-level-1 ((((background dark)) (:inherit default :weight bold :foreground "#9ec1ff"))
+                (t (:inherit default :weight bold :foreground "#12395f"))))
+ '(org-level-2 ((((background dark)) (:inherit default :weight bold :foreground "#d4a8f0"))
+                (t (:inherit default :weight bold :foreground "#5b2d78"))))
+ '(org-level-3 ((((background dark)) (:inherit default :weight bold :foreground "#68d3ab"))
+                (t (:inherit default :weight bold :foreground "#1a6b57"))))
+ '(org-level-4 ((((background dark)) (:inherit default :weight bold :foreground "#e8b465"))
+                (t (:inherit default :weight bold :foreground "#8a5a14"))))
+ '(org-level-5 ((((background dark)) (:inherit default :weight bold :foreground "#8cc6e8"))
+                (t (:inherit default :weight bold :foreground "#3d7396"))))
+ '(org-level-6 ((((background dark)) (:inherit default :weight bold :foreground "#f29bb4"))
+                (t (:inherit default :weight bold :foreground "#a3546a"))))
+ '(org-level-7 ((((background dark)) (:inherit default :weight bold :foreground "#bdd68c"))
+                (t (:inherit default :weight bold :foreground "#697a4a"))))
+ '(org-level-8 ((((background dark)) (:inherit default :weight bold :foreground "#b4b4c6"))
+                (t (:inherit default :weight bold :foreground "#75757f")))))
 
 ;; (use-package org-roam
 ;;   :ensure t
@@ -694,7 +803,10 @@ If no region is active, apply to the entire buffer."
                     ((eq system-type 'darwin) 18)
                     ((eq system-type 'gnu/linux) 13)
                     (t 14)))  ;; fallback
-        (font-name "UDEV Gothic 35NF"))
+        ;; "35" 系 (UDEV Gothic 35NF) は 半角:全角 = 3:5 = 1.667 なので、
+        ;; 全角を2カラムとして桁揃えする org のテーブルが日本語行でずれる。
+        ;; 無印の NF は 半角:全角 = 1:2 ちょうど (実測 'A'=1024 / '本'=2048)。
+        (font-name "UDEV Gothic NF"))
     (set-face-attribute 'default nil :font (format "%s-%d" font-name font-size))))
 
 ;; daemon時：GUIフレームが作られるたびに適用
@@ -751,6 +863,7 @@ If no region is active, apply to the entire buffer."
                 dumb-jump embark-consult exec-path-from-shell
                 expand-region fcitx flymake-ruff gcmh go-mode iedit
                 json-mode lsp-ui lua-mode magit marginalia mise
-                multiple-cursors orderless ruff-format rust-mode slime
-                smartparens typescript-mode vertico vterm wgrep xclip
-                xcscope yaml-mode)))
+                multiple-cursors orderless org-modern-indent
+                ruff-format rust-mode slime smartparens
+                typescript-mode vertico vterm wgrep xclip xcscope
+                yaml-mode)))
