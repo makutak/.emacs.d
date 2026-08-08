@@ -230,6 +230,9 @@
 (use-package magit
   :bind ("C-x g" . magit-status))
 
+;; ミニバッファの多重起動を禁止
+(setq enable-recursive-minibuffers nil)
+
 ;; `vertico` (ミニバッファ補完)
 (use-package vertico
   :init
