@@ -33,14 +33,14 @@
   (make-backup-files t)
   (backup-directory-alist
    `(("." . ,(expand-file-name "backup/" user-emacs-directory))))
-  (backup-by-copying t)          ; symlink / hard link を壊さない
-  (version-control t)            ; foo.~1~, foo.~2~ と世代を残す
+  (backup-by-copying t)               ; symlink / hard link を壊さない
+  (version-control t)                 ; foo.~1~, foo.~2~ と世代を残す
   (kept-new-versions 10)
   (kept-old-versions 5)
-  (delete-old-versions t)        ; 古い世代の削除を毎回聞かない
+  (delete-old-versions t)               ; 古い世代の削除を毎回聞かない
   (auto-save-default t)
-  (auto-save-timeout 10)         ; 10 秒アイドルで
-  (auto-save-interval 100)       ; または 100 打鍵ごとに
+  (auto-save-timeout 10)                ; 10 秒アイドルで
+  (auto-save-interval 100)              ; または 100 打鍵ごとに
   (auto-save-file-name-transforms
    `((".*" ,(expand-file-name "auto-save/" user-emacs-directory) t)))
   (large-file-warning-threshold 100000000)
@@ -55,7 +55,6 @@
   :bind
   (("C-h" . delete-backward-char)
    ("RET" . newline-and-indent)
-   ("C-t" . other-window)
    ("C-x C-b" . ibuffer)
    ("C-x =" . balance-windows))
   :init
@@ -66,6 +65,24 @@
   (when (eq system-type 'darwin)
     (setq mac-command-modifier 'meta
           mac-option-modifier 'none)))
+
+;; クリック、ドラッグ、ホイールを入力段階で無効化する。
+(use-package inhibit-mouse
+  :demand t
+  :custom
+  (inhibit-mouse-adjust-mouse-highlight t)
+  (inhibit-mouse-adjust-show-help-function t)
+  :config
+  (if (daemonp)
+      (add-hook 'server-after-make-frame-hook #'inhibit-mouse-mode)
+    (inhibit-mouse-mode 1)))
+
+(use-package windmove
+  :ensure nil
+  :bind (("C-c <left>"  . windmove-left)
+         ("C-c <right>" . windmove-right)
+         ("C-c <up>"    . windmove-up)
+         ("C-c <down>"  . windmove-down)))
 
 (defun my/setup-makefile ()
   "Makefile では TAB が構文要素なので whitespace の TAB 強調を切る。
@@ -297,6 +314,9 @@
   :custom
   (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
+(use-package dmacro
+  :bind ("C-t" . dmacro-exec))
+
 
 ;; `flymake` (静的解析)
 (use-package flymake
@@ -321,11 +341,6 @@
   :hook (org-mode . my/org-disable-electric-angle-pair)
   :init
   (electric-pair-mode t))
-
-(use-package dired
-  :ensure nil
-  :bind (:map dired-mode-map
-              ("C-t" . other-window)))
 
 (defun my/clang-format-config ()
   "現在のバッファに適用される clang-format の設定を alist で返す。
@@ -494,18 +509,12 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
 ;; `brief` (アウトラインベースのノート管理)
 (use-package brief)
 
-(use-package smartparens
-  :hook ((emacs-lisp-mode . smartparens-mode)
-         (lisp-mode . smartparens-mode)
-         (lisp-interaction-mode . smartparens-mode)
-         (scheme-mode . smartparens-mode)
-         (common-lisp-mode . smartparens-mode))
-  :config
-  (require 'smartparens-config)
-  ;; `C-→` (`Control + →`) で slurp
-  (define-key smartparens-mode-map (kbd "C-<right>") 'sp-forward-slurp-sexp)
-  ;; `C-←` (`Control + ←`) で barf
-  (define-key smartparens-mode-map (kbd "C-<left>") 'sp-forward-barf-sexp))
+(use-package paredit
+  :hook ((emacs-lisp-mode . paredit-mode)
+         (lisp-mode . paredit-mode)
+         (lisp-interaction-mode . paredit-mode)
+         (scheme-mode . paredit-mode)
+         (common-lisp-mode . paredit-mode)))
 
 
 (defun my/lisp-auto-format ()
@@ -541,54 +550,6 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
   :ensure nil
   :bind (("M-." . xref-find-definitions)
          ("M-," . xref-go-back)))
-
-;; TAGS 読み込み（etags）
-;; TAGSファイルは .dir-locals.el 側で tags-table-list を指定する
-;; init.el 側では、TAGS 機能の自動追加を無効にするだけでOK
-(use-package etags
-  :ensure nil
-  :custom
-  (tags-add-table nil)
-  (tags-revert-without-query t))
-
-;; cscope
-(use-package xcscope
-  :init
-  (cscope-setup))
-
-
-(defvar my/tags-update-processes (make-hash-table :test #'equal)
-  "プロジェクトルートごとの実行中の TAGS 更新プロセス。")
-
-(defun my/start-tags-and-cscope-update (project-root)
-  "PROJECT-ROOT で TAGS / cscope.out の更新を開始する。"
-  (let ((default-directory project-root))
-    (let ((process (start-process "make-update" nil "make" "update")))
-      (process-put process 'project-root project-root)
-      (puthash project-root process my/tags-update-processes)
-      (set-process-sentinel
-       process
-       (lambda (finished-process _event)
-         (when (memq (process-status finished-process) '(exit signal))
-           (let ((root (process-get finished-process 'project-root))
-                 (rerun (process-get finished-process 'rerun)))
-             (when (eq finished-process (gethash root my/tags-update-processes))
-               (remhash root my/tags-update-processes)
-               (when rerun
-                 (my/start-tags-and-cscope-update root))))))))))
-
-(defun my/update-tags-and-cscope ()
-  "C/H ファイルの保存時に TAGS / cscope.out を再生成する。"
-  (when (and buffer-file-name
-             (string-match-p "\\.[ch]\\'" buffer-file-name))
-    (let ((project-root (locate-dominating-file buffer-file-name "Makefile")))
-      (when (and project-root (executable-find "make"))
-        (let ((process (gethash project-root my/tags-update-processes)))
-          (if (and process (process-live-p process))
-              (process-put process 'rerun t)
-            (my/start-tags-and-cscope-update project-root)))))))
-
-(add-hook 'after-save-hook #'my/update-tags-and-cscope)
 
 ;; man
 (use-package man
@@ -712,32 +673,14 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- ;; 見出しの階層色。素の org は org-level-N を outline-N 経由で font-lock の
- ;; 各フェイスに継承させるだけなので (outline.el:279-308)、レベル4がコメント色に
- ;; なるなど「階層」として読めない。ここでは色相で識別・濃さで階層を出す。
- ;; 白背景に対するコントラスト比は L1 11.8:1 から L8 4.6:1 へ単調に下がる
- ;; (L5/L6 だけ 5.13 と 5.21 で僅かに前後するが目視では差が無い)。深い階層ほど
- ;; 薄くなるので、下がるはずの所で急に濃く／明るくなると目が驚く。
- ;; 全レベル WCAG AA (4.5:1) 以上。`:inherit default' は文字サイズを本文と
- ;; 揃えたままにするため（従来どおり）で、`:foreground' が継承色に優先する。
- ;; (background light/dark) はフレームごとに評価されるので、後からテーマを
- ;; 入れても暗背景側の指定に自動で切り替わる。
- '(org-level-1 ((((background dark)) (:inherit default :weight bold :foreground "#9ec1ff"))
-                (t (:inherit default :weight bold :foreground "#12395f"))))
- '(org-level-2 ((((background dark)) (:inherit default :weight bold :foreground "#d4a8f0"))
-                (t (:inherit default :weight bold :foreground "#5b2d78"))))
- '(org-level-3 ((((background dark)) (:inherit default :weight bold :foreground "#68d3ab"))
-                (t (:inherit default :weight bold :foreground "#1a6b57"))))
- '(org-level-4 ((((background dark)) (:inherit default :weight bold :foreground "#e8b465"))
-                (t (:inherit default :weight bold :foreground "#8a5a14"))))
- '(org-level-5 ((((background dark)) (:inherit default :weight bold :foreground "#8cc6e8"))
-                (t (:inherit default :weight bold :foreground "#3d7396"))))
- '(org-level-6 ((((background dark)) (:inherit default :weight bold :foreground "#f29bb4"))
-                (t (:inherit default :weight bold :foreground "#a3546a"))))
- '(org-level-7 ((((background dark)) (:inherit default :weight bold :foreground "#bdd68c"))
-                (t (:inherit default :weight bold :foreground "#697a4a"))))
- '(org-level-8 ((((background dark)) (:inherit default :weight bold :foreground "#b4b4c6"))
-                (t (:inherit default :weight bold :foreground "#75757f")))))
+ '(org-level-1 ((((background dark)) (:inherit default :weight bold :foreground "#9ec1ff")) (t (:inherit default :weight bold :foreground "#12395f"))))
+ '(org-level-2 ((((background dark)) (:inherit default :weight bold :foreground "#d4a8f0")) (t (:inherit default :weight bold :foreground "#5b2d78"))))
+ '(org-level-3 ((((background dark)) (:inherit default :weight bold :foreground "#68d3ab")) (t (:inherit default :weight bold :foreground "#1a6b57"))))
+ '(org-level-4 ((((background dark)) (:inherit default :weight bold :foreground "#e8b465")) (t (:inherit default :weight bold :foreground "#8a5a14"))))
+ '(org-level-5 ((((background dark)) (:inherit default :weight bold :foreground "#8cc6e8")) (t (:inherit default :weight bold :foreground "#3d7396"))))
+ '(org-level-6 ((((background dark)) (:inherit default :weight bold :foreground "#f29bb4")) (t (:inherit default :weight bold :foreground "#a3546a"))))
+ '(org-level-7 ((((background dark)) (:inherit default :weight bold :foreground "#bdd68c")) (t (:inherit default :weight bold :foreground "#697a4a"))))
+ '(org-level-8 ((((background dark)) (:inherit default :weight bold :foreground "#b4b4c6")) (t (:inherit default :weight bold :foreground "#75757f")))))
 
 ;; (use-package org-roam
 ;;   :ensure t
@@ -839,11 +782,6 @@ If no region is active, apply to the entire buffer."
 
 (global-set-key (kbd "C-x @") 'my/split-window-thirds)
 
-(use-package winner
-  :ensure nil
-  :init
-  (winner-mode 1))
-
 (use-package server
   :ensure nil
   :config
@@ -858,12 +796,7 @@ If no region is active, apply to the entire buffer."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(ace-window apheleia auctex brief cape clang-format corfu-terminal
-                dumb-jump embark-consult exec-path-from-shell
-                expand-region fcitx flymake-ruff gcmh go-mode iedit
-                json-mode lsp-ui lua-mode magit marginalia mise
-                multiple-cursors orderless org-modern-indent
-                ruff-format rust-mode slime smartparens
-                typescript-mode vertico vterm wgrep xclip xcscope
-                yaml-mode)))
+ '(package-selected-packages nil)
+ '(package-vc-selected-packages
+   '((org-modern-indent :url
+                        "https://github.com/jdtsmith/org-modern-indent"))))
