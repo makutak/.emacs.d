@@ -84,6 +84,11 @@
          ("C-c <up>"    . windmove-up)
          ("C-c <down>"  . windmove-down)))
 
+(use-package delsel
+  :ensure nil
+  :config
+  (delete-selection-mode t))
+
 (defun my/setup-makefile ()
   "Makefile では TAB が構文要素なので whitespace の TAB 強調を切る。
 インデントの TAB 自体は `makefile-mode' が `indent-tabs-mode' を t にするので
@@ -138,16 +143,11 @@
                (setq-local indent-tabs-mode t)
                (add-hook 'before-save-hook #'gofmt-before-save nil t))))
 
-;; Python: LSP は Pyright、format/lint は Ruff に分離する。
-(use-package eglot
-  :ensure nil
-  :commands (eglot eglot-ensure)
-  :hook ((python-mode python-ts-mode) . eglot-ensure)
-  :config
-  ;; Eglot の自動検出候補に関係なく、Python は Pyright のみに接続する。
-  (add-to-list 'eglot-server-programs
-               '((python-mode python-ts-mode)
-                 . ("pyright-langserver" "--stdio"))))
+;; Python: LSP は lsp-mode + Pyright、format/lint は Ruff に分離する。
+(use-package lsp-pyright
+  :after lsp-mode
+  :custom
+  (lsp-pyright-langserver-command "pyright"))
 
 (use-package apheleia
   :hook ((python-mode python-ts-mode) . apheleia-mode)
@@ -157,13 +157,13 @@
         (alist-get 'python-ts-mode apheleia-mode-alist) 'ruff))
 
 (defun my/python-flymake-ruff-load ()
-  "Python の Eglot 管理バッファに Ruff の Flymake backend を追加する。"
+  "Python の lsp-mode 管理バッファに Ruff の Flymake backend を追加する。"
   (when (memq major-mode '(python-mode python-ts-mode))
     (flymake-ruff-load)))
 
 (use-package flymake-ruff
   :commands flymake-ruff-load
-  :hook (eglot-managed-mode . my/python-flymake-ruff-load))
+  :hook (lsp-managed-mode . my/python-flymake-ruff-load))
 
 ;; `lsp-mode` の設定
 (use-package lsp-mode
@@ -171,8 +171,11 @@
   :hook ((c-mode . lsp-deferred)
          (c++-mode . lsp-deferred)
          (go-mode . lsp-deferred)
+         ((python-mode python-ts-mode) . lsp-deferred)
          (rust-mode . lsp-deferred))
   :custom
+  ;; Super+l は OS の画面ロックに取られるため、LSP のプレフィックスを変更する。
+  (lsp-keymap-prefix "C-c l")
   ;; LSP の CAPF は有効のまま、company の自動起動を避けて Corfu に表示させる。
   (lsp-completion-provider :none)
   (lsp-enable-snippet nil)
@@ -294,6 +297,21 @@
    ("C-c r" . my/consult-ripgrep-or-region)  ;; プロジェクト全体を ripgrep で検索
    ("C-c G" . consult-git-grep)  ;; git 管理ファイルを grep で検索
    ("C-c f" . consult-fd)))     ;; ファイル名ファジー検索（VSCode Cmd+P 相当）
+
+;; `consult-lsp`（LSP のシンボル・診断を Consult で検索）
+(use-package consult-lsp
+  :after (consult lsp-mode)
+  :config
+  ;; lsp-mode のワークスペースシンボル検索を Consult UI に置き換える。
+  (define-key lsp-mode-map [remap xref-find-apropos]
+              #'consult-lsp-symbols))
+
+(use-package consult-dir
+  :ensure t
+  :bind (("C-x C-d" . consult-dir)
+         :map minibuffer-local-completion-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file)))
 
 ;; `embark`（候補へのコンテキストアクション）
 (use-package embark
@@ -722,14 +740,6 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
 
 (use-package lua-mode)
 
-(use-package vterm
-  :if (eq system-type 'gnu/linux)
-  :custom-face
-  (vterm-color-blue ((t (:foreground "#5F87AF" :background "#5F87AF"))))
-  :config
-  (define-key vterm-mode-map (kbd "C-h") #'vterm--self-insert))
-
-
 (defun my/replace-commas-with-newlines (start end)
   "Replace all commas with newlines in the region from START to END.
 If no region is active, apply to the entire buffer."
@@ -791,12 +801,35 @@ If no region is active, apply to the entire buffer."
 ;; Ghostty (Kitty keyboard protocol) で C-@ が \e[64;5u として届くのを修正
 (define-key input-decode-map "\e[64;5u" (kbd "C-@"))
 
+(defun my/update-all ()
+  "Emacs パッケージと LSP サーバーをまとめて更新する。"
+  (interactive)
+  (when (yes-or-no-p "パッケージと LSP サーバーをすべて更新しますか？ ")
+    ;; ELPA/MELPA と package-vc を更新する。
+    (package-upgrade-all nil)
+
+    ;; lsp-mode 管理下にある全サーバーの更新を開始する。
+    (if (require 'lsp-mode nil t)
+        (progn
+          (lsp-update-servers)
+          (message "パッケージ更新完了。LSP サーバー更新を非同期で開始しました。"))
+      (message "パッケージ更新完了。lsp-mode は見つかりませんでした。"))))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil)
+ '(package-selected-packages
+   '(ace-window apheleia auctex brief cape clang-format consult-dir consult-lsp
+                corfu-terminal dmacro dumb-jump embark-consult
+                exec-path-from-shell expand-region fcitx flymake-ruff
+                gcmh go-mode iedit inhibit-mouse json-mode lsp-pyright lsp-ui
+                lua-mode magit marginalia mise multiple-cursors
+                orderless org-appear org-modern org-modern-indent
+                paredit ruff-format rust-mode slime smartparens
+                typescript-mode valign vertico wgrep xclip
+                xcscope yaml-mode))
  '(package-vc-selected-packages
    '((org-modern-indent :url
                         "https://github.com/jdtsmith/org-modern-indent"))))
