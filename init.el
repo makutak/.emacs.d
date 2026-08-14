@@ -54,6 +54,8 @@
   (select-active-regions nil)
   :bind
   (("C-h" . delete-backward-char)
+   ("C-<tab>" . other-window)
+   ("C-TAB" . other-window)
    ("RET" . newline-and-indent)
    ("C-x C-b" . ibuffer)
    ("C-x =" . balance-windows))
