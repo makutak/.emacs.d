@@ -54,8 +54,7 @@
   (select-active-regions nil)
   :bind
   (("C-h" . delete-backward-char)
-   ("C-<tab>" . other-window)
-   ("C-TAB" . other-window)
+   ("C-t" . other-window)
    ("RET" . newline-and-indent)
    ("C-x C-b" . ibuffer)
    ("C-x =" . balance-windows))
@@ -343,6 +342,11 @@
          (rust-mode . flymake-mode)
          (c-mode . (lambda ()
                      (remove-hook 'flymake-diagnostic-functions #'flymake-cc t)))))
+
+(use-package dired
+  :ensure nil
+  :bind (:map dired-mode-map
+              ("C-t" . other-window)))
 
 ;; 行番号表示
 (use-package display-line-numbers
