@@ -335,8 +335,7 @@
   (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
 (use-package dmacro
-  :bind ("C-t" . dmacro-exec))
-
+  :bind ("C-S-e" . dmacro-exec))
 
 ;; `flymake` (静的解析)
 (use-package flymake
