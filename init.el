@@ -473,9 +473,7 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
            (executable-find "mozc_emacs_helper"))
   :custom
   (default-input-method "japanese-mozc")
-  ;; 変換候補をカーソル近くのオーバーレイに出す（echo-area より見やすい）
-  (mozc-candidate-style 'overlay))
-
+  (mozc-candidate-style 'echo-area))
 
 ;; `rust-mode`
 (use-package rust-mode
