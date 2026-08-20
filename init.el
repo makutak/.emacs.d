@@ -45,13 +45,6 @@
    `((".*" ,(expand-file-name "auto-save/" user-emacs-directory) t)))
   (large-file-warning-threshold 100000000)
   (use-short-answers t)
-  ;; リージョンが有効な間、Emacs はコマンド 1 回ごとにリージョン全体を文字列へ
-  ;; コピーして X の PRIMARY 選択にセットする（command_loop_1）。長い範囲を
-  ;; 選ぶとこれが打鍵ごとの O(範囲長) コピーになり、大量のゴミを生んで GC を
-  ;; 誘発する（実測: 119K 文字の範囲で 1 打鍵あたり約 0.35MB）。
-  ;; 代償は「Emacs で選択 → 他アプリに中クリック貼り付け」が効かなくなること。
-  ;; 明示的なコピー (M-w) は CLIPBOARD 経由なので今まで通り動く。
-  (select-active-regions nil)
   :bind
   (("C-h" . delete-backward-char)
    ("C-t" . other-window)
@@ -453,14 +446,6 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
                   vc-ignore-dir-regexp
                   tramp-file-name-regexp))))
 
-;; fcitx.el は「Emacs 内で外部 fcitx を使う」ための補助（プレフィックスキーや
-;; ミニバッファで IM を自動 OFF にする）だった。バッファ内の日本語入力を mozc.el
-;; へ移して Emacs 内で fcitx を使わなくなったため撤去する。
-;; 副次的に、0.1 秒ごとのポーリングタイマーと、プレフィックスキーごとの
-;; fcitx5-remote の fork+exec (実測 0.88ms/回) も無くなる。
-;; なお fcitx-use-dbus の判定 (boundp 'dbus-registered-buses) は Emacs 30 では
-;; 常に nil で、D-Bus 経路は最初から一度も使われていなかった。
-
 ;; emacs-mozc: Emacs ネイティブのインライン日本語入力（mozc サーバと直接通信）。
 ;; XIM(fcitx) は lucid だとカーソル近くポップアップが天井で、バッファ内に下線付き
 ;; インラインを出せるのはこれだけ。Emacs 内では fcitx の Ctrl+Space ではなく
@@ -824,15 +809,15 @@ If no region is active, apply to the entire buffer."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(ace-window apheleia auctex brief cape clang-format consult-dir consult-lsp
-                corfu-terminal dmacro dumb-jump embark-consult
-                exec-path-from-shell expand-region fcitx flymake-ruff
-                gcmh go-mode iedit inhibit-mouse json-mode lsp-pyright lsp-ui
-                lua-mode magit marginalia mise multiple-cursors
-                orderless org-appear org-modern org-modern-indent
-                paredit ruff-format rust-mode slime smartparens
-                typescript-mode valign vertico wgrep xclip
-                xcscope yaml-mode))
+   '(ace-window apheleia auctex brief cape clang-format consult-dir
+                consult-lsp corfu-terminal dmacro dumb-jump
+                embark-consult exec-path-from-shell expand-region
+                flymake-ruff gcmh go-mode iedit inhibit-mouse
+                json-mode lsp-pyright lsp-ui lua-mode magit marginalia
+                mise multiple-cursors orderless org-appear org-modern
+                org-modern-indent paredit ruff-format rust-mode slime
+                smartparens typescript-mode valign vertico wgrep xclip
+                xcscope xterm-color yaml-mode))
  '(package-vc-selected-packages
    '((org-modern-indent :url
                         "https://github.com/jdtsmith/org-modern-indent"))))
