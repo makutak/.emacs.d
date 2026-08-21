@@ -25,6 +25,11 @@
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file t)
 
+
+(use-package solarized-theme
+  :config
+  (load-theme 'solarized-wombat-dark t))
+
 ;; GC を idle 時にまとめて実行し、タイピング中の STW を抑える
 (use-package gcmh
   :demand t
@@ -616,15 +621,6 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
       "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
      ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
       "* %?\n  %U\n  %a\n  %i" :empty-lines 1)))
-  :custom-face
-  (org-level-1 ((((background dark)) (:inherit default :weight bold :foreground "#9ec1ff")) (t (:inherit default :weight bold :foreground "#12395f"))))
-  (org-level-2 ((((background dark)) (:inherit default :weight bold :foreground "#d4a8f0")) (t (:inherit default :weight bold :foreground "#5b2d78"))))
-  (org-level-3 ((((background dark)) (:inherit default :weight bold :foreground "#68d3ab")) (t (:inherit default :weight bold :foreground "#1a6b57"))))
-  (org-level-4 ((((background dark)) (:inherit default :weight bold :foreground "#e8b465")) (t (:inherit default :weight bold :foreground "#8a5a14"))))
-  (org-level-5 ((((background dark)) (:inherit default :weight bold :foreground "#8cc6e8")) (t (:inherit default :weight bold :foreground "#3d7396"))))
-  (org-level-6 ((((background dark)) (:inherit default :weight bold :foreground "#f29bb4")) (t (:inherit default :weight bold :foreground "#a3546a"))))
-  (org-level-7 ((((background dark)) (:inherit default :weight bold :foreground "#bdd68c")) (t (:inherit default :weight bold :foreground "#697a4a"))))
-  (org-level-8 ((((background dark)) (:inherit default :weight bold :foreground "#b4b4c6")) (t (:inherit default :weight bold :foreground "#75757f"))))
   :config
   (require 'org-tempo)
   ;; Allow emphasis markers (~code~, *bold*, ...) to hug Japanese text.
@@ -747,8 +743,17 @@ If no region is active, apply to the entire buffer."
         ;; "35" 系 (UDEV Gothic 35NF) は 半角:全角 = 3:5 = 1.667 なので、
         ;; 全角を2カラムとして桁揃えする org のテーブルが日本語行でずれる。
         ;; 無印の NF は 半角:全角 = 1:2 ちょうど (実測 'A'=1024 / '本'=2048)。
-        (font-name "UDEV Gothic NF"))
-    (set-face-attribute 'default nil :font (format "%s-%d" font-name font-size))))
+        (font-name "UDEV Gothic NF")
+        ;; `variable-pitch' の既定 family "Sans Serif" は、英字こそ DejaVu Sans に
+        ;; 解決されるが日本語グリフを持たないため、和文だけフォントセットの
+        ;; フォールバックで jisx0208 の X11 コアビットマップ (jis fixed 16 ドット) に
+        ;; 落ちる。solarized は org の見出しを variable-pitch にする
+        ;; (solarized-use-variable-pitch, 既定 t) ので、そのままだと和文の見出しが
+        ;; ビットマップを拡大した明朝風の字形になる。和文を持つプロポーショナル
+        ;; フォントを明示して塞ぐ。
+        (variable-pitch-font "Noto Sans CJK JP"))
+    (set-face-attribute 'default nil :font (format "%s-%d" font-name font-size))
+    (set-face-attribute 'variable-pitch nil :family variable-pitch-font)))
 
 ;; daemon時：GUIフレームが作られるたびに適用
 (defun my/set-font-for-new-frame (frame)
