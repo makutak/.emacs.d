@@ -365,6 +365,33 @@
   :init
   (electric-pair-mode t))
 
+;; 対応括弧の表示。solarized は `show-paren-match' を
+;; (:foreground magenta :background unspecified :weight bold) にするだけで、
+;; 1 文字の色が変わるのみなので見落としやすい。:inverse-video で塗りつぶしにする。
+;; 色を直書きせず反転させるのは、テーマを変えてもその配色のまま追随させるため
+;; (:custom-face = face-spec-set のオーバーライド spec は、テーマの spec に
+;; 「上書き」ではなく「上乗せ」されるので、:foreground はテーマの値が残る)。
+(use-package paren
+  :ensure nil
+  :custom
+  ;; 開き括弧が画面外にあるとき、対応する行をオーバーレイで見せる (Emacs 29+)。
+  (show-paren-context-when-offscreen 'overlay)
+  :custom-face
+  (show-paren-match ((t (:inverse-video t :weight bold)))))
+
+;; 括弧を深さごとに色分けする。カーソル位置の対応 (show-paren) と違って
+;; 構造全体が常時見える。solarized は depth-1〜12 の face を定義済み。
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode)
+  ;; ただし solarized-wombat-dark の violet #834c98 は背景 #2a2a29 に対して
+  ;; 2.36:1 しかなく、深さ 4/8/12 の括弧がほぼ見えない (他の深さは 7.07〜8.27:1)。
+  ;; 色相 283 度と彩度はそのままに明度だけ上げて、他と同じ帯域 (7.18:1) へ揃える。
+  ;; テーマを変えたらこの 3 行は見直すこと。
+  :custom-face
+  (rainbow-delimiters-depth-4-face  ((t (:foreground "#cbadd6"))))
+  (rainbow-delimiters-depth-8-face  ((t (:foreground "#cbadd6"))))
+  (rainbow-delimiters-depth-12-face ((t (:foreground "#cbadd6")))))
+
 (defun my/clang-format-config ()
   "現在のバッファに適用される clang-format の設定を alist で返す。
 `clang-format --dump-config' が親ディレクトリを遡って .clang-format を解決するので、
