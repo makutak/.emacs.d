@@ -14,6 +14,16 @@
 
 ;; `use-package` のデフォルト設定
 (setq use-package-always-ensure t)
+;; Custom の保存先を init.el から分離する。custom-file が nil だと Custom は
+;; user-init-file、つまりこの init.el 自身に書き戻す。`my/update-all' →
+;; `package-upgrade-all' は :vc パッケージで package-vc--unpack-1 →
+;; package--save-selected-packages → customize-save-variable を通るため、
+;; 更新のたびに手書きの init.el がソート・再整形されていた。
+;; 先に load するのは、use-package の :ensure が package-install を呼んだとき
+;; package--user-selected-p が空の package-selected-packages を見て
+;; custom-file を書きに行く経路も塞ぐため。
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file t)
 
 ;; GC を idle 時にまとめて実行し、タイピング中の STW を抑える
 (use-package gcmh
@@ -113,21 +123,8 @@
   :config
   (global-mise-mode 1))
 
-(use-package exec-path-from-shell
-  :demand t
-  :config
-  (setq exec-path-from-shell-arguments nil)
-  (exec-path-from-shell-initialize))
-
-;; slime
-(use-package slime
-  :if (file-exists-p "~/.roswell/helper.el")
-  :init (load "~/.roswell/helper.el"))
-
-
 ;; `go-mode` の設定
 (use-package go-mode
-  :demand t
   :mode "\\.go\\'"
   :custom
   (gofmt-command "goimports")
@@ -244,8 +241,11 @@
 (use-package magit
   :bind ("C-x g" . magit-status))
 
-;; ミニバッファの多重起動を禁止
-(setq enable-recursive-minibuffers nil)
+;; ミニバッファの再帰起動を許す。embark-act の最中や consult のプレビュー中に
+;; さらに補完を呼べる（vertico / embark / consult はこれを前提にしている）。
+;; 深さが分からなくなると迷子になるので、モードラインに [n] を出す。
+(setq enable-recursive-minibuffers t)
+(minibuffer-depth-indicate-mode 1)
 
 ;; `vertico` (ミニバッファ補完)
 (use-package vertico
@@ -260,7 +260,9 @@
 ;; `orderless`（部分一致検索）
 (use-package orderless
   :custom
-  (completion-styles '(orderless))  ;; `orderless` を Emacs の補完スタイルに設定
+  ;; orderless 単独だと、完全一致や TRAMP のように補完表を素直に引きたい場面で
+  ;; 候補が出ないことがある。basic を後ろに置いて保険にする。
+  (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic)))))  ;; `find-file` では通常の補完を使う
 
 (defun my/consult-line-or-region ()
@@ -535,12 +537,15 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
                                      scheme-mode-hook common-lisp-mode-hook))
   (add-hook hook #'my/enable-lisp-auto-format-on-save))
 
-(when (getenv "WAYLAND_DISPLAY")
-  (use-package xclip
-    :config
-    (setq xclip-method 'wl-copy)
+;; 端末フレーム（emacsclient -nw）のコピー&ペーストを OS のクリップボードへ繋ぐ。
+;; xclip-mode が触るのは terminal-init-xterm-hook 経由の TTY だけなので、
+;; GUI フレームのネイティブなセレクション処理には影響しない。
+;; xclip-method は load 時に xclip → xsel → wl-copy の順で自動判別するため
+;; 明示しない（X11 なら xclip、Wayland へ戻せば wl-copy が選ばれる）。
+(use-package xclip
+  :config
+  (when (executable-find xclip-program)
     (xclip-mode 1)))
-
 
 ;; dumb-jump を xref に統合（fallback的に）
 (use-package dumb-jump
@@ -611,6 +616,15 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
       "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
      ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
       "* %?\n  %U\n  %a\n  %i" :empty-lines 1)))
+  :custom-face
+  (org-level-1 ((((background dark)) (:inherit default :weight bold :foreground "#9ec1ff")) (t (:inherit default :weight bold :foreground "#12395f"))))
+  (org-level-2 ((((background dark)) (:inherit default :weight bold :foreground "#d4a8f0")) (t (:inherit default :weight bold :foreground "#5b2d78"))))
+  (org-level-3 ((((background dark)) (:inherit default :weight bold :foreground "#68d3ab")) (t (:inherit default :weight bold :foreground "#1a6b57"))))
+  (org-level-4 ((((background dark)) (:inherit default :weight bold :foreground "#e8b465")) (t (:inherit default :weight bold :foreground "#8a5a14"))))
+  (org-level-5 ((((background dark)) (:inherit default :weight bold :foreground "#8cc6e8")) (t (:inherit default :weight bold :foreground "#3d7396"))))
+  (org-level-6 ((((background dark)) (:inherit default :weight bold :foreground "#f29bb4")) (t (:inherit default :weight bold :foreground "#a3546a"))))
+  (org-level-7 ((((background dark)) (:inherit default :weight bold :foreground "#bdd68c")) (t (:inherit default :weight bold :foreground "#697a4a"))))
+  (org-level-8 ((((background dark)) (:inherit default :weight bold :foreground "#b4b4c6")) (t (:inherit default :weight bold :foreground "#75757f"))))
   :config
   (require 'org-tempo)
   ;; Allow emphasis markers (~code~, *bold*, ...) to hug Japanese text.
@@ -673,20 +687,6 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
   (defun my/org-appear-skip-tables (elem)
     (unless (org-at-table-p) elem))
   (advice-add 'org-appear--current-elem :filter-return #'my/org-appear-skip-tables))
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-level-1 ((((background dark)) (:inherit default :weight bold :foreground "#9ec1ff")) (t (:inherit default :weight bold :foreground "#12395f"))))
- '(org-level-2 ((((background dark)) (:inherit default :weight bold :foreground "#d4a8f0")) (t (:inherit default :weight bold :foreground "#5b2d78"))))
- '(org-level-3 ((((background dark)) (:inherit default :weight bold :foreground "#68d3ab")) (t (:inherit default :weight bold :foreground "#1a6b57"))))
- '(org-level-4 ((((background dark)) (:inherit default :weight bold :foreground "#e8b465")) (t (:inherit default :weight bold :foreground "#8a5a14"))))
- '(org-level-5 ((((background dark)) (:inherit default :weight bold :foreground "#8cc6e8")) (t (:inherit default :weight bold :foreground "#3d7396"))))
- '(org-level-6 ((((background dark)) (:inherit default :weight bold :foreground "#f29bb4")) (t (:inherit default :weight bold :foreground "#a3546a"))))
- '(org-level-7 ((((background dark)) (:inherit default :weight bold :foreground "#bdd68c")) (t (:inherit default :weight bold :foreground "#697a4a"))))
- '(org-level-8 ((((background dark)) (:inherit default :weight bold :foreground "#b4b4c6")) (t (:inherit default :weight bold :foreground "#75757f")))))
 
 ;; (use-package org-roam
 ;;   :ensure t
@@ -802,22 +802,3 @@ If no region is active, apply to the entire buffer."
           (lsp-update-servers)
           (message "パッケージ更新完了。LSP サーバー更新を非同期で開始しました。"))
       (message "パッケージ更新完了。lsp-mode は見つかりませんでした。"))))
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(ace-window apheleia auctex brief cape clang-format consult-dir
-                consult-lsp corfu-terminal dmacro dumb-jump
-                embark-consult exec-path-from-shell expand-region
-                flymake-ruff gcmh go-mode iedit inhibit-mouse
-                json-mode lsp-pyright lsp-ui lua-mode magit marginalia
-                mise multiple-cursors orderless org-appear org-modern
-                org-modern-indent paredit ruff-format rust-mode slime
-                smartparens typescript-mode valign vertico wgrep xclip
-                xcscope xterm-color yaml-mode))
- '(package-vc-selected-packages
-   '((org-modern-indent :url
-                        "https://github.com/jdtsmith/org-modern-indent"))))

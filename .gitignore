@@ -32,3 +32,6 @@ bookmarks
 eln-cache/
 org-roam.db
 tramp
+
+# Customize が自動生成する。手で決めた設定は init.el 側に置く
+custom.el
