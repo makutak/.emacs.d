@@ -30,6 +30,7 @@ auto-save/
 .mc-lists.el
 bookmarks
 eln-cache/
+tree-sitter/
 org-roam.db
 tramp
 

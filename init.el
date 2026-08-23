@@ -128,6 +128,97 @@
   :config
   (global-mise-mode 1))
 
+;; Node/Bun の workspace では、実行ファイルが workspace 側と monorepo root 側の
+;; node_modules/.bin に分かれていることがある。対象バッファだけ両方を PATH に加え、
+;; Emacs 全体や別プロジェクトの Node バージョンには影響させない。
+(defun my/project-root (&optional directory)
+  "DIRECTORY が属する project.el プロジェクトの root を返す。"
+  (when-let ((project (project-current nil (or directory default-directory))))
+    (project-root project)))
+
+(defun my/node-module-bin-directories ()
+  "現在のプロジェクト内にある node_modules/.bin を内側から順に返す。"
+  (unless (file-remote-p default-directory)
+    (let* ((root (file-name-as-directory
+                  (or (my/project-root) default-directory)))
+           (directory (file-name-as-directory
+                       (expand-file-name default-directory)))
+           bins)
+      (while (and directory
+                  (or (equal directory root)
+                      (file-in-directory-p directory root)))
+        (let ((bin (expand-file-name "node_modules/.bin" directory)))
+          (when (file-directory-p bin)
+            (push bin bins)))
+        (if (equal directory root)
+            (setq directory nil)
+          (let ((parent (file-name-directory
+                         (directory-file-name directory))))
+            (setq directory (unless (equal parent directory) parent)))))
+      (nreverse bins))))
+
+(defvar-local my/project-node-modules-path-enabled nil
+  "このバッファで project-local node_modules/.bin を使うなら non-nil。")
+
+(defun my/use-project-node-modules-path ()
+  "現在の Node プロジェクトのコマンドをこのバッファで優先する。"
+  (when-let ((bins (my/node-module-bin-directories)))
+    (setq-local my/project-node-modules-path-enabled t)
+    (setq-local exec-path
+                (append bins
+                        (seq-remove (lambda (path) (member path bins))
+                                    exec-path)))
+    (setq-local process-environment (copy-sequence process-environment))
+    (let* ((paths (split-string (or (getenv "PATH") "")
+                                path-separator t))
+           (paths (append bins
+                          (seq-remove (lambda (path) (member path bins))
+                                      paths))))
+      (setenv "PATH" (mapconcat #'identity paths path-separator)))))
+
+(defun my/restore-project-node-modules-path-after-mise (&optional buffer)
+  "Mise が PATH を更新した後、BUFFER の node_modules/.bin を戻す。"
+  (with-current-buffer (or buffer (current-buffer))
+    (when my/project-node-modules-path-enabled
+      (my/use-project-node-modules-path))))
+
+;; global-mise-mode は major-mode-hook の後に PATH を作り直す。また手動の
+;; mise-update-buffer でも同じことが起きるので、どちらの経路でも最後に戻す。
+(with-eval-after-load 'mise
+  (unless (advice-member-p #'my/restore-project-node-modules-path-after-mise
+                           'mise--update)
+    (advice-add 'mise--update :after
+                #'my/restore-project-node-modules-path-after-mise)))
+
+(defun my/enable-node-project-formatting ()
+  "プロジェクトに Prettier がある場合だけ Apheleia を有効にする。"
+  (when (and (executable-find "prettier")
+             (require 'apheleia nil t))
+    (apheleia-mode 1)))
+
+(defun my/setup-typescript-buffer ()
+  "TypeScript/TSX の編集環境をプロジェクトに合わせて構成する。"
+  (my/use-project-node-modules-path)
+  (setq-local tab-width 2
+              typescript-indent-level 2
+              typescript-ts-mode-indent-offset 2
+              ;; Git root を一つの workspace とし、packages ごとに巨大な
+              ;; language server を重複起動しない。
+              lsp-auto-guess-root t
+              lsp-guess-root-without-session t)
+  (my/enable-node-project-formatting)
+  ;; TypeScript の language server は 7 の native LSP だけを使う。
+  ;; lsp-mode のクライアント名はまだ tsgo だが、7 stable では
+  ;; 実行ファイル名が tsc に統合された。
+  (setq-local lsp-clients-tsgo-path (or (executable-find "tsc") "tsc")
+              lsp-disabled-clients
+              (delete-dups
+               (append '(ts-ls jsts-ls deno-ls)
+                       (if (boundp 'lsp-disabled-clients)
+                           lsp-disabled-clients
+                         '(semgrep-ls)))))
+  (lsp-deferred))
+
 ;; `go-mode` の設定
 (use-package go-mode
   :mode "\\.go\\'"
@@ -185,6 +276,42 @@
   (lsp-face-highlight-textual ((t (:background unspecified :underline t))))
   (lsp-face-highlight-read    ((t (:background unspecified :underline t))))
   (lsp-face-highlight-write   ((t (:background unspecified :underline t :weight bold)))))
+
+;; Oxlint の LSP を型情報用サーバーの add-on として動かす。
+;; command の解決時には `my/setup-typescript-buffer' が追加した project-local PATH
+;; を使うので、グローバルに oxlint を入れる必要はない。
+(defun my/lsp-tsgo-remove-null-capability (capabilities)
+  "TSGO が拒否する null の inlineCompletion capability を取り除く。"
+  (when (and (bound-and-true-p lsp--cur-workspace)
+             (eq (lsp--client-server-id
+                  (lsp--workspace-client lsp--cur-workspace))
+                 'tsgo))
+    (when-let ((text-document (assq 'textDocument capabilities)))
+      ;; 現行 lsp-mode は空 alistを JSON null にする。これは optional field なので、
+      ;; inline completion を使わない構成では field ごと省くのが正しい。
+      (setcdr text-document
+              (assq-delete-all 'inlineCompletion (cdr text-document)))))
+  capabilities)
+
+(with-eval-after-load 'lsp-mode
+  (unless (advice-member-p #'my/lsp-tsgo-remove-null-capability
+                           'lsp--client-capabilities)
+    (advice-add 'lsp--client-capabilities :filter-return
+                #'my/lsp-tsgo-remove-null-capability))
+  ;; fallback の typescript-mode でも .tsx を正しい languageId で送る。
+  (add-to-list 'lsp-language-id-configuration
+               '("\\.tsx\\'" . "typescriptreact"))
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection
+    (lsp-stdio-connection
+     (lambda () (list (or (executable-find "oxlint") "oxlint") "--lsp")))
+    :activation-fn
+    (lambda (filename &optional _)
+      (string-match-p "\\.\\(?:[cm]?js\\|jsx\\|[cm]?ts\\|tsx\\)\\'" filename))
+    :priority -1
+    :add-on? t
+    :server-id 'oxlint-ls)))
 
 ;; `lsp-ui` (補助UI)
 (use-package lsp-ui
@@ -245,6 +372,16 @@
 ;; `magit` (Git クライアント)
 (use-package magit
   :bind ("C-x g" . magit-status))
+
+;; monorepo 内の移動は project.el に Git root を認識させる。Vertico/Orderless が
+;; この補完 UI にもそのまま効き、node_modules や .next は Git の ignore に従う。
+(use-package project
+  :ensure nil
+  :bind (("C-c p p" . project-switch-project)
+         ("C-c p f" . project-find-file)
+         ("C-c p b" . project-switch-to-buffer)
+         ("C-c p d" . project-dired)
+         ("C-c p k" . project-kill-buffers)))
 
 ;; ミニバッファの再帰起動を許す。embark-act の最中や consult のプレビュー中に
 ;; さらに補完を呼べる（vertico / embark / consult はこれを前提にしている）。
@@ -345,6 +482,10 @@
 
 (use-package dired
   :ensure nil
+  :custom
+  ;; macOS の /bin/ls (BSD版) は GNU ls 専用の --dired を持たない。
+  ;; 自動判定時の警告を避け、通常の ls 出力を Emacs 側で解析する。
+  (dired-use-ls-dired nil)
   :bind (:map dired-mode-map
               ("C-t" . other-window)))
 
@@ -480,6 +621,28 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
                   vc-ignore-dir-regexp
                   tramp-file-name-regexp))))
 
+;; macOS のシステム IME を Emacs の input-method と同期する。日本語入力中でも
+;; C-x / C-c などのプリフィックスを検知した時点で一時的に英数へ切り替えるため、
+;; 後続の `p f' などが IME にローマ字として奪われない。コマンド後は元へ戻る。
+(defun my/mac-ime-enable-in-gui-frame ()
+  "GUI フレームで一度だけ mac-ime のイベント監視を開始する。"
+  (when (and (display-graphic-p)
+             (not (bound-and-true-p mac-ime-timer)))
+    (mac-ime-enable)))
+
+(use-package mac-ime
+  :if (and (eq system-type 'darwin)
+           (fboundp 'module-load))
+  :demand t
+  :custom
+  (default-input-method "mac-ime")
+  :config
+  ;; daemon 起動時は最初の GUI フレームができるまで NSEvent を監視できない。
+  (if (daemonp)
+      (add-hook 'server-after-make-frame-hook
+                #'my/mac-ime-enable-in-gui-frame)
+    (my/mac-ime-enable-in-gui-frame)))
+
 ;; emacs-mozc: Emacs ネイティブのインライン日本語入力（mozc サーバと直接通信）。
 ;; XIM(fcitx) は lucid だとカーソル近くポップアップが天井で、バッファ内に下線付き
 ;; インラインを出せるのはこれだけ。Emacs 内では fcitx の Ctrl+Space ではなく
@@ -533,8 +696,53 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
 ;; `json-mode`
 (use-package json-mode)
 
-;; `typescript-mode`
-(use-package typescript-mode)
+;; TypeScript/TSX は Tree-sitter grammar があれば Emacs 30 組み込みの高速な
+;; major mode を使い、未導入の環境では typescript-mode へ安全に戻す。
+(use-package treesit
+  :ensure nil
+  :custom
+  (treesit-font-lock-level 4)
+  :config
+  (dolist (recipe
+           '((typescript "https://github.com/tree-sitter/tree-sitter-typescript"
+                         nil "typescript/src")
+             (tsx "https://github.com/tree-sitter/tree-sitter-typescript"
+                  nil "tsx/src")))
+    (add-to-list 'treesit-language-source-alist recipe)))
+
+(defun my/typescript-mode-maybe ()
+  "Tree-sitter が使えれば `typescript-ts-mode'、無ければ fallback を使う。"
+  (interactive)
+  (if (and (treesit-available-p) (treesit-ready-p 'typescript t))
+      (typescript-ts-mode)
+    (typescript-mode)))
+
+(defun my/tsx-mode-maybe ()
+  "Tree-sitter が使えれば `tsx-ts-mode'、無ければ fallback を使う。"
+  (interactive)
+  (if (and (treesit-available-p) (treesit-ready-p 'tsx t))
+      (tsx-ts-mode)
+    (typescript-mode)))
+
+(defun my/install-typescript-treesit-grammars ()
+  "不足している TypeScript/TSX の Tree-sitter grammar を導入する。"
+  (interactive)
+  (dolist (language '(typescript tsx))
+    (unless (treesit-language-available-p language)
+      (treesit-install-language-grammar language)))
+  (let ((missing (seq-remove #'treesit-language-available-p
+                             '(typescript tsx))))
+    (if missing
+        (user-error "Tree-sitter grammar installation failed: %S" missing)
+      (message "TypeScript/TSX Tree-sitter grammars are ready"))))
+
+(use-package typescript-mode
+  :mode (("\\.ts\\'" . my/typescript-mode-maybe)
+         ("\\.tsx\\'" . my/tsx-mode-maybe))
+  :hook ((typescript-mode typescript-ts-mode tsx-ts-mode)
+         . my/setup-typescript-buffer)
+  :custom
+  (typescript-indent-level 2))
 
 ;; `auctex` (LaTeX)
 (use-package auctex
