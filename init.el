@@ -28,7 +28,7 @@
 
 (use-package solarized-theme
   :config
-  (load-theme 'solarized-wombat-dark t))
+  (load-theme 'solarized-selenized-black t))
 
 ;; GC を idle 時にまとめて実行し、タイピング中の STW を抑える
 (use-package gcmh
@@ -60,6 +60,8 @@
    `((".*" ,(expand-file-name "auto-save/" user-emacs-directory) t)))
   (large-file-warning-threshold 100000000)
   (use-short-answers t)
+  ;; カーソルが画面端を越えたとき、表示位置を1行ずつ追従させる。
+  (scroll-conservatively 1)
   :bind
   (("C-h" . delete-backward-char)
    ("C-t" . other-window)
