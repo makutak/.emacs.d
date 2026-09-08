@@ -342,9 +342,11 @@
   :init
   (global-corfu-mode))
 
-;; ターミナル用のcorfuバックエンド
+;; Emacs 30 以前ではターミナル表示に外部バックエンドが必要。
+;; Emacs 31 以降は TTY child frame を標準サポートする。
 (use-package corfu-terminal
-  :unless (display-graphic-p)
+  :if (and (< emacs-major-version 31)
+           (not (display-graphic-p)))
   :config
   (corfu-terminal-mode +1))
 
