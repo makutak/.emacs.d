@@ -700,6 +700,12 @@ GNU は字下げする、Whitesmiths は本文と同じ桁、それ以外は字�
 ;; `json-mode`
 (use-package json-mode)
 
+;; GraphQL の query / schema (SDL)
+(use-package graphql-mode
+  :mode (("\\.graphql\\'" . graphql-mode)
+         ("\\.graphqls\\'" . graphql-mode)
+         ("\\.gql\\'" . graphql-mode)))
+
 ;; TypeScript/TSX は Tree-sitter grammar があれば Emacs 30 組み込みの高速な
 ;; major mode を使い、未導入の環境では typescript-mode へ安全に戻す。
 (use-package treesit
